@@ -20,3 +20,23 @@ function checkPaStatsVersion() {
 		}
 	});	
 }
+
+function unlockGame(finalCall) {
+	var link = sessionStorage['pa_stats_game_link'];
+	if (link !== undefined) {
+		$.ajax({
+			type: "GET",
+			url: queryUrlBase + "report/unlock?link="+decode(link),
+			complete: function(r) {
+				finalCall();
+			}
+		});
+	} else {
+		finalCall();
+	}
+}
+
+function unlockGame_() {
+	unlockGame(function(){});
+}
+

@@ -1,3 +1,4 @@
+unlockGame_(); // usually the game should be unlocked here already, this call is just here to make sure it really is unlocked
 checkPaStatsVersion();
 
 if (decode(localStorage['pa_stats_wants_to_send_'])) {
@@ -17,7 +18,7 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
             } else {
                 gameOverText = "DRAW";
             }
-
+            
 			$.ajax({
 				type : "PUT",
 				url : queryUrlBase + "report/winner",

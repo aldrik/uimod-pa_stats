@@ -1,17 +1,15 @@
 $(".div_message_display_cont")
 		.prepend(
-				'<div>Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>');
+				'<div>Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
+				'<div data-bind="visible: wantsToSend">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div>');
 
-// does not function correctly:
-// Delay display of data on the page for <input data-bind="value: delayTime"
-// type="number" min="0" max ="9999"/> minutes
-// model.delayTime = ko.observable(0).extend({local: 'pa_stats_delay_time'});
+model.delayTime = ko.observable(0).extend({local: 'pa_stats_delay_time'});
+
+var showDataLiveKey = "pa_stats_show_data_live";
+model.showDataLive = ko.observable(true).extend({local: showDataLiveKey})
 
 var wantsToSendKey = 'pa_stats_wants_to_send_'; 
-
-model.wantsToSend = ko.observable(true).extend({
-	local : wantsToSendKey
-});
+model.wantsToSend = ko.observable(true).extend({local : wantsToSendKey});
 
 if (localStorage[wantsToSendKey] === undefined) {
 	model.wantsToSend(true);
@@ -43,7 +41,7 @@ function ReportData() {
 	self.reporter_uber_name = "";
 	self.reporter_display_name = "";
 	self.observedPlayers = [];
-	self.unlockTimeDelay = 0;
+	self.showLive = true;
 	self.firstStats = new StatsReportData();
 	self.version = reportVersion;
 	self.planet = new ReportedPlanet();
@@ -188,14 +186,28 @@ var gameIsOverOrPlayerIsDead = false;
 var oldServerState = handlers.server_state;
 handlers.server_state = function(m) {
 	oldServerState(m);
+	if (m.state !== 'game_over' && m.url && m.url !== window.location.href) {
+		unlockGame_();
+	}
 	switch(m.state) {
 		case 'game_over':
 			gameIsOverOrPlayerIsDead = true;
+			unlockGame_();
 			break;
 		case 'playing':
 			maySetupReportInterval();
 			break;
 	}
+}
+
+var oldNavToMainMenupas = model.navToMainMenu;
+model.navToMainMenu = function() {
+	unlockGame(oldNavToMainMenupas);
+}
+
+var oldExitpas = model.exit;
+model.exit = function() {
+	unlockGame(oldExitpas);
 }
 
 model.hasFirstResourceUpdate.subscribe(function(v) {
@@ -274,7 +286,7 @@ model.sendStats = function() {
 		report.reporter_uber_name = uberName;
 		report.reporter_display_name = displayName;
 		report.observedPlayers = allPlayers;
-		report.unlockTimeDelay = 0; // parseInt(model.delayTime());
+		report.showLive = model.showDataLive();
 		report.firstStats = statsPacket;
 		
 		report.planet.seed = loadedPlanet.seed;
@@ -302,6 +314,7 @@ model.sendStats = function() {
 				gameLinkId = result.gameLink;
 				game = result.game;
 				sessionStorage['pa_stats_game_id'] = encode(game);
+				sessionStorage['pa_stats_game_link'] = encode(gameLinkId);
 			}
 		}
 	});

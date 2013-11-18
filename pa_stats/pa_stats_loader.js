@@ -1,5 +1,5 @@
 if (typeof checkPaStatsVersion === 'undefined') {
-	var b = 'http://nanodesu.info/stuff/pa/mods/live/pastats/';
+	var b = typeof statsDevelopment != 'undefined' ? '../../mods/pa_stats/' : 'http://nanodesu.info/stuff/pa/mods/live/pastats/';
 	loadCSS(b+'scenes/global.css');
 	loadScript(b+'scenes/global.js');
 	var c = b+'lib/captureLobbyId.js';
