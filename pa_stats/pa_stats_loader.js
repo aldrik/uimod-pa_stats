@@ -2,6 +2,7 @@ if (typeof checkPaStatsVersion === 'undefined') {
 	var b = typeof statsDevelopment != 'undefined' ? '../../mods/pa_stats/' : 'http://nanodesu.info/stuff/pa/mods/live/pastats/';
 	loadCSS(b+'scenes/global.css');
 	loadScript(b+'scenes/global.js');
+	loadScript(b+'lib/report_data.js')
 	var c = b+'lib/captureLobbyId.js';
 	scene_mod_list['connect_to_game'].push(c);
 	scene_mod_list['server_browser'].push(c);

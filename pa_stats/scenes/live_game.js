@@ -17,54 +17,7 @@ if (localStorage[wantsToSendKey] === undefined) {
 	model.wantsToSend(true);
 }
 
-function StatsReportData() {
-	var self = this;
-	self.armyCount = 0;
-	self.metalIncome = 0;
-	self.energyIncome = 0;
-	self.metalStored = 0;
-	self.energyStored = 0;
-	self.metalProducedSinceLastTick = 0;
-	self.energyProducedSinceLastTick = 0;
-	self.metalWastedSinceLastTick = 0;
-	self.energyWastedSinceLastTick = 0;
-	self.metalIncomeNet = 0;
-	self.energyIncomeNet = 0;
-	self.metalSpending = 0;
-	self.energySpending = 0;
-	self.apm = 0;
-}
 
-function ReportData() {
-	var self = this;
-	self.ident = "";
-	self.reporter_uber_name = "";
-	self.reporter_display_name = "";
-	self.observedPlayers = [];
-	self.showLive = true;
-	self.firstStats = new StatsReportData();
-	self.version = reportVersion;
-	self.planet = new ReportedPlanet();
-	self.pa_version = model.buildVersion();
-}
-
-function ReportedPlanet() {
-	var self = this;
-	self.seed = 0;
-	self.temperature = 0;
-	self.water_height = 0;
-	self.radius = 0;
-	self.biome = "metal";
-	self.planet_name = "unknown planet";
-	self.height_range = 0;
-}
-
-function RunningGameData() {
-	var self = this;
-	self.gameLink = 0;
-	self.game = 0;
-	self.stats = new StatsReportData();
-}
 
 function ValueChangeAccumulator(observable) {
 	var self = this;
@@ -170,7 +123,6 @@ function getApm() {
 
 var startedSendingStats = false;
 var gameLinkId = undefined;
-var game = undefined;
 
 function maySetupReportInterval() {
 	if (!startedSendingStats && !gameIsOverOrPlayerIsDead
@@ -235,16 +187,6 @@ function addDeathListener() {
 	});
 }
 
-var allPlayers = [];
-var oldArmiesState = handlers.army_state;
-handlers.army_state = function(armyLst) {
-	allPlayers = [];
-	for ( var i = 0; i < armyLst.length; i++) {
-		allPlayers.push(armyLst[i].name);
-	}
-	oldArmiesState(armyLst);
-}
-
 model.sendStats = function() {
 	
 	if (!model.hasFirstResourceUpdate() // game has not yet started
@@ -283,11 +225,13 @@ model.sendStats = function() {
 		var report = new ReportData();
 
 		report.ident = gameIdent;
-		report.reporter_uber_name = uberName;
-		report.reporter_display_name = displayName;
-		report.observedPlayers = allPlayers;
+		report.reporterUberName = uberName;
+		report.reporterDisplayName = displayName;
+		report.reporterTeam = decode(sessionStorage[pa_stats_session_team_index]);
+		report.observedTeams = decode(sessionStorage[pa_stats_session_teams]);
 		report.showLive = model.showDataLive();
 		report.firstStats = statsPacket;
+		report.paVersion = model.buildVersion();
 		
 		report.planet.seed = loadedPlanet.seed;
 		report.planet.temperature = loadedPlanet.temperature + "";
@@ -299,7 +243,6 @@ model.sendStats = function() {
 	} else {
 		report = new RunningGameData();
 		report.gameLink = gameLinkId;
-		report.game = game;
 		report.stats = statsPacket;
 	}
 	
@@ -312,8 +255,6 @@ model.sendStats = function() {
 		success : function(result) {
 			if (gameLinkId === undefined) {
 				gameLinkId = result.gameLink;
-				game = result.game;
-				sessionStorage['pa_stats_game_id'] = encode(game);
 				sessionStorage['pa_stats_game_link'] = encode(gameLinkId);
 			}
 		}

@@ -24,7 +24,7 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
 				url : queryUrlBase + "report/winner",
 				contentType : "application/json",
 				data : JSON.stringify({
-					gameId : decode(sessionStorage['pa_stats_game_id']),
+					gameLink : decode(sessionStorage['pa_stats_game_link']),
 					victor : gameOverText
 				}),
 				complete : function(r) {
