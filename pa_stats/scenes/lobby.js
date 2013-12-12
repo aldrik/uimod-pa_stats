@@ -65,9 +65,11 @@ function getJoinedTeamIndex() {
 	}
 }
 
-var paStatsOldToggleReady = model.toggle_ready;
-model.toggle_ready = function() {
-	sessionStorage[pa_stats_session_teams] = encode(getTeams());
-	sessionStorage[pa_stats_session_team_index] = encode(getJoinedTeamIndex());
-	paStatsOldToggleReady();
+var paStatsOldServerState = handlers.server_state;
+handlers.server_state = function(msg) {
+	if (msg.url && msg.url !== window.location.href && msg.state == 'landing') {
+		sessionStorage[pa_stats_session_teams] = encode(getTeams());
+		sessionStorage[pa_stats_session_team_index] = encode(getJoinedTeamIndex());
+	}
+	paStatsOldServerState(msg);
 }

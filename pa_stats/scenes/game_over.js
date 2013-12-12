@@ -115,7 +115,7 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
 	   {
 	      var index = 0;
 	      $.each(data.playerTimeData, function(key, val) {
-	         playersName.push(key);
+	         playersName.push(data.playerInfo[key].name);
 	         playersData.push(val);
 	      });
 	      
