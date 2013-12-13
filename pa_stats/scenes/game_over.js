@@ -3,6 +3,37 @@ checkPaStatsVersion();
 
 if (decode(localStorage['pa_stats_wants_to_send_'])) {
 	
+	function wasVsAiGame(msg) {
+		var armies = msg.data.armies;
+		var humanArmyCnt = 0;
+		for (var i = 0; i < armies.length; i++) {
+			if (!armies[i].ai) {
+				humanArmyCnt++;
+			}
+		}
+		return humanArmyCnt <= 1;
+	}
+	
+	function getWinnerTeamIndex(msg) {
+		var armies = msg.data.armies;
+		var armiesAlive = 0;
+		for (var i = 0; i < armies.length; i++) {
+			if (!armies[i].defeated) {
+				armiesAlive++;
+			}
+		}
+		if (armiesAlive > 1 || wasVsAiGame(msg)) {
+			return -1;
+		} else {
+			for (var i = 0; i < armies.length; i++) {
+				if (!armies[i].defeated) {
+					return i;
+				}
+			}
+			return -1;
+		}
+	}
+	
 	var oldGameOverHandler = handlers.server_state;
 	handlers.server_state = function(payload) {
 		if (payload && payload.data) {
@@ -25,7 +56,8 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
 				contentType : "application/json",
 				data : JSON.stringify({
 					gameLink : decode(sessionStorage['pa_stats_game_link']),
-					victor : gameOverText
+					victor : gameOverText,
+					teamIndex: getWinnerTeamIndex(payload)
 				}),
 				complete : function(r) {
 					oldGameOverHandler(payload);

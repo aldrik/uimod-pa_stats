@@ -40,6 +40,6 @@ function unlockGame_() {
 	unlockGame(function(){});
 }
 
-var bxx = "info.nanodesu.pastats";
-var pa_stats_session_teams = bxx+"teams";
-var pa_stats_session_team_index = bxx+"team_index";
+var nanodesu = "info.nanodesu.pastats.";
+var pa_stats_session_teams = nanodesu+"teams";
+var pa_stats_session_team_index = nanodesu+"team_index";
