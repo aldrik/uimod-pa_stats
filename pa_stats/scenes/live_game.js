@@ -1,7 +1,7 @@
 $(".div_message_display_cont")
 		.prepend(
-				'<div>Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
-				'<div data-bind="visible: wantsToSend">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div>');
+				'<div id="pastatsadds"><div>Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
+				'<div data-bind="visible: wantsToSend">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div></div>');
 
 model.delayTime = ko.observable(0).extend({local: 'pa_stats_delay_time'});
 
@@ -16,8 +16,6 @@ if (localStorage[wantsToSendKey] === undefined) {
 	model.wantsToSend(false);
 	model.wantsToSend(true);
 }
-
-
 
 function ValueChangeAccumulator(observable) {
 	var self = this;
@@ -165,6 +163,7 @@ model.exit = function() {
 model.hasFirstResourceUpdate.subscribe(function(v) {
 	if (v) {
 		maySetupReportInterval();
+		
 	}
 });
 
@@ -256,6 +255,7 @@ model.sendStats = function() {
 			if (gameLinkId === undefined) {
 				gameLinkId = result.gameLink;
 				sessionStorage['pa_stats_game_link'] = encode(gameLinkId);
+				$("#pastatsadds").remove();
 			}
 		}
 	});
