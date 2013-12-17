@@ -55,7 +55,7 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
 				url : queryUrlBase + "report/winner",
 				contentType : "application/json",
 				data : JSON.stringify({
-					gameLink : decode(sessionStorage['pa_stats_game_link']),
+					gameLink : decode(localStorage['pa_stats_game_link']),
 					victor : gameOverText,
 					teamIndex: getWinnerTeamIndex(payload)
 				}),

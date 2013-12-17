@@ -226,8 +226,8 @@ model.sendStats = function() {
 		report.ident = gameIdent;
 		report.reporterUberName = uberName;
 		report.reporterDisplayName = displayName;
-		report.reporterTeam = decode(sessionStorage[pa_stats_session_team_index]);
-		report.observedTeams = decode(sessionStorage[pa_stats_session_teams]);
+		report.reporterTeam = decode(localStorage[pa_stats_session_team_index]);
+		report.observedTeams = decode(localStorage[pa_stats_session_teams]);
 		report.showLive = model.showDataLive();
 		report.firstStats = statsPacket;
 		report.paVersion = model.buildVersion();
@@ -254,7 +254,7 @@ model.sendStats = function() {
 		success : function(result) {
 			if (gameLinkId === undefined) {
 				gameLinkId = result.gameLink;
-				sessionStorage['pa_stats_game_link'] = encode(gameLinkId);
+				localStorage['pa_stats_game_link'] = encode(gameLinkId);
 				$("#pastatsadds").remove();
 			}
 		}
