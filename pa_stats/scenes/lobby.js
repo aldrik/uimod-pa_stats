@@ -68,8 +68,8 @@ function getJoinedTeamIndex() {
 var paStatsOldServerState = handlers.server_state;
 handlers.server_state = function(msg) {
 	if (msg.url && msg.url !== window.location.href && msg.state == 'landing') {
-		sessionStorage[pa_stats_session_teams] = encode(getTeams());
-		sessionStorage[pa_stats_session_team_index] = encode(getJoinedTeamIndex());
+		localStorage[pa_stats_session_teams] = encode(getTeams());
+		localStorage[pa_stats_session_team_index] = encode(getJoinedTeamIndex());
 	}
 	paStatsOldServerState(msg);
 }
