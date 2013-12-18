@@ -1,3 +1,15 @@
+function makeArmyEvent(spec, x, y, z, planetId, watchType, time) {
+	return {
+		spec: spec,
+		x: x,
+		y: y,
+		z: z,
+		planetId: planetId,
+		watchType: watchType,
+		time: time
+	};
+}
+
 function StatsReportData() {
 	var self = this;
 	self.armyCount = 0;
@@ -28,6 +40,7 @@ function ReportData() {
 	self.version = reportVersion;
 	self.planet = new ReportedPlanet();
 	self.paVersion = "unknown";
+	self.armyEvents = [];
 }
 
 function ReportTeam() {
@@ -58,4 +71,5 @@ function RunningGameData() {
 	var self = this;
 	self.gameLink = 0;
 	self.stats = new StatsReportData();
+	self.armyEvents = [];
 }

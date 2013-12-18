@@ -163,7 +163,6 @@ model.exit = function() {
 model.hasFirstResourceUpdate.subscribe(function(v) {
 	if (v) {
 		maySetupReportInterval();
-		
 	}
 });
 
@@ -186,7 +185,80 @@ function addDeathListener() {
 	});
 }
 
+var updateTimeCnt = 0;
+var mostRecentServerTime = undefined;
+var mostRecentServerTimeInLocalTime = undefined;
+
+function getServerTimeForNow() {
+	var now = new Date().getTime();
+	var diff = now - mostRecentServerTimeInLocalTime;
+	return mostRecentServerTime + diff;
+}
+
+model.updateServerAndLocalTime = function () {
+	$.get(queryUrlBase + "report/get/time", function(timeMs) {
+		mostRecentServerTime = timeMs.ms;
+		mostRecentServerTimeInLocalTime = new Date().getTime();
+	});
+}
+
+model.updateServerAndLocalTime();
+
+// hijack some method that is in the right place to execute our engine calls
+var paStatsOldApplyUiStuff = model.applyUIDisplaySettings;
+model.applyUIDisplaySettings = function() {
+	engine.call('watchlist.setCreationAlertTypes', JSON.stringify(['Mobile', 'Structure']));
+	engine.call('watchlist.setDeathAlertTypes', JSON.stringify(['Mobile', 'Structure']));
+	paStatsOldApplyUiStuff();
+};
+
+var pasCapturedEvents = [];
+
+var paStatsOldWatchListHandler = handlers.watch_list;
+handlers.watch_list = function(payload) {
+	function shouldBeVisibleAsAlert(notice) {
+		var creationAlertsFor = "Factory";
+	    var destructAlertsFor = "Structure";
+	    
+	    var checkFor = undefined;
+	    if (notice.watch_type == 0) { // created
+	    	checkFor = creationAlertsFor;
+	    } else if (notice.watch_type == 2) { //  destroyed
+	    	checkFor = destructAlertsFor;
+	    } else {
+	    	return true; // damaged or something else we don't care for currently, so the alerts are unmodified anyway
+	    }
+	    return $.inArray(checkFor, pasUnitTypeMapping[notice.spec_id]) != -1;
+	}
+	
+	if (mostRecentServerTime !== undefined) {
+		for (var i = 0; i < payload.list.length; i++) {
+			var notice = payload.list[i];
+			pasCapturedEvents.push(makeArmyEvent(
+					notice.spec_id,
+					notice.location.x,
+					notice.location.y,
+					notice.location.z,
+					notice.planet_id,
+					notice.watch_type,
+					getServerTimeForNow())
+			);
+		}
+	}
+	
+	payload.list = payload.list.filter(shouldBeVisibleAsAlert);
+	if (payload.list.length > 0) {
+		paStatsOldWatchListHandler(payload);
+	}
+}
+
+
 model.sendStats = function() {
+	
+	updateTimeCnt++;
+	if (updateTimeCnt % 12 == 0) {
+		model.updateServerAndLocalTime();
+	}
 	
 	if (!model.hasFirstResourceUpdate() // game has not yet started
 			|| gameIsOverOrPlayerIsDead // review
@@ -239,11 +311,16 @@ model.sendStats = function() {
 		report.planet.radius = loadedPlanet.radius + "";
 		report.planet.biome = loadedPlanet.biome;
 		report.planet.planet_name = loadedPlanet.name;
+		
+		report.armyEvents = pasCapturedEvents;
 	} else {
 		report = new RunningGameData();
 		report.gameLink = gameLinkId;
 		report.stats = statsPacket;
+		
+		report.armyEvents = pasCapturedEvents;
 	}
+	pasCapturedEvents = [];
 	
 	// queryUrlBase is determined in global.js
 	$.ajax({

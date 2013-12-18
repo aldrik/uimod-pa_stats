@@ -7,7 +7,7 @@ if (typeof statsDevelopment != 'undefined') {
 	queryUrlBase = "http://www.nanodesu.info/pastats/";
 }
 
-var reportVersion = 13;
+var reportVersion = 14;
 
 function checkPaStatsVersion() {
 	$.get(queryUrlBase + "report/version", function(v) {
