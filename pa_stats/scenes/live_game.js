@@ -133,6 +133,22 @@ function maySetupReportInterval() {
 
 var gameIsOverOrPlayerIsDead = false;
 
+var playStartTime = undefined;
+
+function updatePlayStartTime() {
+	var serverNow = getServerTimeForNow();
+	if (serverNow != undefined) {
+		playStartTime = serverNow;
+	} else {
+		var now = new Date().getTime();
+		callServerTime(function(t) {
+			var nowAfterCall = new Date().getTime();
+			var diff = nowAfterCall - now;
+			playStartTime = t-diff;
+		});
+	}
+}
+
 var oldServerState = handlers.server_state;
 handlers.server_state = function(m) {
 	oldServerState(m);
@@ -145,6 +161,7 @@ handlers.server_state = function(m) {
 			unlockGame_();
 			break;
 		case 'playing':
+			updatePlayStartTime();
 			maySetupReportInterval();
 			break;
 	}
@@ -195,8 +212,14 @@ function getServerTimeForNow() {
 	return mostRecentServerTime + diff;
 }
 
-model.updateServerAndLocalTime = function () {
+function callServerTime(handler) {
 	$.get(queryUrlBase + "report/get/time", function(timeMs) {
+		handler(timeMs);
+	});
+}
+
+model.updateServerAndLocalTime = function () {
+	callServerTime(function(timeMs) {
 		mostRecentServerTime = timeMs.ms;
 		mostRecentServerTimeInLocalTime = new Date().getTime();
 	});
@@ -276,6 +299,11 @@ handlers.watch_list = function(payload) {
 
 model.sendStats = function() {
 	
+	if (playStartTime === undefined) {
+		window.setTimeout(model.sendStats, 500);
+		return;
+	}
+	
 	updateTimeCnt++;
 	if (updateTimeCnt % 12 == 0) {
 		model.updateServerAndLocalTime();
@@ -334,6 +362,8 @@ model.sendStats = function() {
 		report.planet.planet_name = loadedPlanet.name;
 		
 		report.armyEvents = pasCapturedEvents;
+		
+		report.gameStartTime = playStartTime;
 	} else {
 		report = new RunningGameData();
 		report.gameLink = gameLinkId;

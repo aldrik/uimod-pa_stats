@@ -41,6 +41,7 @@ function ReportData() {
 	self.planet = new ReportedPlanet();
 	self.paVersion = "unknown";
 	self.armyEvents = [];
+	self.gameStartTime = 0;
 }
 
 function ReportTeam() {
