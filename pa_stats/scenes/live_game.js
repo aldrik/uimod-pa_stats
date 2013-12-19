@@ -214,6 +214,9 @@ model.applyUIDisplaySettings = function() {
 
 var pasCapturedEvents = [];
 
+var pasKnownIdLimit = undefined;
+var pasSeenConstructionEvents = {};
+
 var paStatsOldWatchListHandler = handlers.watch_list;
 handlers.watch_list = function(payload) {
 	function shouldBeVisibleAsAlert(notice) {
@@ -228,21 +231,39 @@ handlers.watch_list = function(payload) {
 	    } else {
 	    	return true; // damaged or something else we don't care for currently, so the alerts are unmodified anyway
 	    }
+	    // use the unit spec to type map to check if we are interested in that specific unit
 	    return $.inArray(checkFor, pasUnitTypeMapping[notice.spec_id]) != -1;
 	}
 	
-	if (mostRecentServerTime !== undefined) {
+	if (mostRecentServerTime !== undefined) { // in this case we just can wait until we have the first time. Should only matter for reconnects
 		for (var i = 0; i < payload.list.length; i++) {
 			var notice = payload.list[i];
-			pasCapturedEvents.push(makeArmyEvent(
-					notice.spec_id,
-					notice.location.x,
-					notice.location.y,
-					notice.location.z,
-					notice.planet_id,
-					notice.watch_type,
-					getServerTimeForNow())
-			);
+			
+			if (pasKnownIdLimit === undefined) {
+				// this check is based on the assumption that the unit ID will always go up. I wonder if that is correct
+				pasKnownIdLimit = notice.id; // below this id no checks for false "destroyed" events will be done to prevent huge problems in case of reconnects at the price of not perfect data (possibility for false destroy-events in case of destroyed half finished buildings from before the reconnect) in those case.
+			}
+			
+			if (notice.watch_type == 0 || notice.watch_type == 2) {
+				if (notice.watch_type == 0) {
+					pasSeenConstructionEvents[notice.id] = true;
+				}
+				
+				if (notice.watch_type != 2 || pasKnownIdLimit >= notice.id || pasSeenConstructionEvents[notice.id]) {
+					if (notice.watch_type == 2) {
+						delete pasSeenConstructionEvents[notice.id]; // prevent the set from growing forever
+					}
+					pasCapturedEvents.push(makeArmyEvent(
+							notice.spec_id,
+							notice.location.x,
+							notice.location.y,
+							notice.location.z,
+							notice.planet_id,
+							notice.watch_type,
+							getServerTimeForNow())
+					);
+				} // else we got an "destroyed" event for a building that wasn't finished in the first place.
+			}
 		}
 	}
 	
