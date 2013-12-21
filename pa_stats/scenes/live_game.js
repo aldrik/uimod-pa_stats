@@ -207,9 +207,13 @@ var mostRecentServerTime = undefined;
 var mostRecentServerTimeInLocalTime = undefined;
 
 function getServerTimeForNow() {
-	var now = new Date().getTime();
-	var diff = now - mostRecentServerTimeInLocalTime;
-	return mostRecentServerTime + diff;
+	if (mostRecentServerTimeInLocalTime == undefined) {
+		return undefined;
+	} else {
+		var now = new Date().getTime();
+		var diff = now - mostRecentServerTimeInLocalTime;
+		return mostRecentServerTime + diff;
+	}
 }
 
 function callServerTime(handler) {
@@ -298,25 +302,20 @@ handlers.watch_list = function(payload) {
 
 
 model.sendStats = function() {
-	
-	if (playStartTime === undefined) {
-		window.setTimeout(model.sendStats, 500);
+	if (!model.hasFirstResourceUpdate() // game has not yet started
+			|| gameIsOverOrPlayerIsDead // review
+			|| (model.armySize() == 0) // observer
+			|| reportVersion < localStorage['pa_stats_req_version'] // bad version
+			|| model.showTimeControls() // chonocam
+			|| !model.wantsToSend()// user refused
+			|| playStartTime === undefined) { // quering the starttime from the server has not yet been successful
+		actionsSinceLastTick = 0;
 		return;
 	}
-	
+
 	updateTimeCnt++;
 	if (updateTimeCnt % 12 == 0) {
 		model.updateServerAndLocalTime();
-	}
-	
-	if (!model.hasFirstResourceUpdate() // game has not yet started
-			|| gameIsOverOrPlayerIsDead // review
-			|| model.armySize() == 0 // observer
-			|| reportVersion < localStorage['pa_stats_req_version'] // bad version
-			|| model.showTimeControls() // chonocam
-			|| !model.wantsToSend()) { // user refused
-		actionsSinceLastTick = 0;
-		return;
 	}
 	
 	if (!addedDeathListener) {
