@@ -1,5 +1,6 @@
+var paStatsBaseDir = typeof statsDevelopment != 'undefined' ? '../../mods/pa_stats/' : 'http://nanodesu.info/stuff/pa/mods/live/pastats/'; 
 if (typeof checkPaStatsVersion === 'undefined') {
-	var b = typeof statsDevelopment != 'undefined' ? '../../mods/pa_stats/' : 'http://nanodesu.info/stuff/pa/mods/live/pastats/';
+	var b = paStatsBaseDir;
 	loadScript(b+'scenes/global.js');
 	loadScript(b+'lib/report_data.js')
 	var c = b+'lib/captureLobbyId.js';
@@ -11,4 +12,5 @@ if (typeof checkPaStatsVersion === 'undefined') {
 	scene_mod_list['live_game'].push(b+'scenes/live_game.js');
 	scene_mod_list['lobby'].push(b+'scenes/lobby.js');
 	scene_mod_list['start'].push(b+'scenes/start.js');
+	scene_mod_list['settings'].push(b+'scenes/settings.js');
 }

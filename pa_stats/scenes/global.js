@@ -39,3 +39,11 @@ var nanodesu = "info.nanodesu.pastats.";
 var pa_stats_session_teams = nanodesu + "teams";
 var pa_stats_session_team_index = nanodesu + "team_index";
 var pa_stats_stored_version = nanodesu + "version";
+var wantsToSendKey = 'pa_stats_wants_to_send_';
+var showDataLiveKey = "pa_stats_show_data_live";
+
+// make sure the defaults are set
+if (localStorage[wantsToSendKey] === undefined) {
+	localStorage[wantsToSendKey] = encode(true);
+	localStorage[showDataLiveKey] = encode(true);	
+}

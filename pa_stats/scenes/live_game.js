@@ -5,17 +5,9 @@ $(".div_message_display_cont")
 
 model.delayTime = ko.observable(0).extend({local: 'pa_stats_delay_time'});
 
-var showDataLiveKey = "pa_stats_show_data_live";
+
 model.showDataLive = ko.observable(true).extend({local: showDataLiveKey})
-
-var wantsToSendKey = 'pa_stats_wants_to_send_'; 
 model.wantsToSend = ko.observable(true).extend({local : wantsToSendKey});
-
-if (localStorage[wantsToSendKey] === undefined) {
-	model.wantsToSend(true);
-	model.wantsToSend(false);
-	model.wantsToSend(true);
-}
 
 function ValueChangeAccumulator(observable) {
 	var self = this;
@@ -300,14 +292,13 @@ handlers.watch_list = function(payload) {
 	}
 }
 
-
 model.sendStats = function() {
 	if (!model.hasFirstResourceUpdate() // game has not yet started
 			|| gameIsOverOrPlayerIsDead // review
 			|| (model.armySize() == 0) // observer
 			|| reportVersion < localStorage['pa_stats_req_version'] // bad version
 			|| model.showTimeControls() // chonocam
-			|| !model.wantsToSend()// user refused
+			|| !model.wantsToSend()// user refused at the start of the game
 			|| playStartTime === undefined) { // quering the starttime from the server has not yet been successful
 		actionsSinceLastTick = 0;
 		return;
