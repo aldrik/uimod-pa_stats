@@ -17,29 +17,36 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
 	function getWinnerTeamIndex(msg) {
 		var armies = msg.data.armies;
 		var armiesAlive = 0;
+		console.log(armies);
 		for (var i = 0; i < armies.length; i++) {
 			if (!armies[i].defeated) {
 				armiesAlive++;
 			}
 		}
+		var winnerIndex = -2;
 		if (armiesAlive > 1 || wasVsAiGame(msg)) {
-			return -1;
+			winnerIndex = -2;
+		} else if (armiesAlive == 0) {
+			winnerIndex = -1; // all dead => draw
 		} else {
 			for (var i = 0; i < armies.length; i++) {
 				if (!armies[i].defeated) {
 					return i;
 				}
 			}
-			return -1;
+			winnerIndex = -2; // this should never really happen...
 		}
+		return winnerIndex;
 	}
 	
 	var oldGameOverHandler = handlers.server_state;
 	handlers.server_state = function(payload) {
 		if (payload && payload.data) {
+			var winnerTeam = getWinnerTeamIndex(payload)
+			
 			var gameOverMsg = payload.data.game_over;
             var gameOverText = "";
-            if (gameOverMsg && gameOverMsg.victor_name) {
+            if (winnerTeam != -1 && gameOverMsg && gameOverMsg.victor_name) {
                 var numWinners = gameOverMsg.victor_players.length;
                 if (numWinners) {
                     gameOverText += gameOverMsg.victor_players.join(", ");
@@ -47,6 +54,8 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
                     gameOverText += gameOverMsg.victor_name;
                 }
             } else {
+            	// causes the original handler to show "DRAW"
+            	delete payload.data.game_over.victor_name
                 gameOverText = "DRAW";
             }
             
@@ -57,7 +66,7 @@ if (decode(localStorage['pa_stats_wants_to_send_'])) {
 				data : JSON.stringify({
 					gameLink : decode(localStorage['pa_stats_game_link']),
 					victor : gameOverText,
-					teamIndex: getWinnerTeamIndex(payload)
+					teamIndex: winnerTeam 
 				}),
 				complete : function(r) {
 					oldGameOverHandler(payload);
