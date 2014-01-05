@@ -42,6 +42,41 @@ function ReportData() {
 	self.paVersion = "unknown";
 	self.armyEvents = [];
 	self.gameStartTime = 0;
+	
+	// this is an ugly try to fix a wrong teamindex
+	// this will fix it in most cases, but I still have no idea why it happens in the first place ~.~
+	self.fixUpBrokenTeamIndex = function() {
+		function indexMayBeCorrect() {
+			var team = self.observedTeams[self.reporterTeam];
+			if (team) {
+				for (var i = 0; i < team.players.length; i++) {
+					if (team.players[i].displayName == self.reporterDisplayName) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		if (!indexMayBeCorrect()) { // if the bug happened and the teamindex was not correctly detected in the lobby
+			// fix it by looking up a possible team index by the displaynames
+			var fixed = false;
+			for (var i = 0; i < self.observedTeams.length; i++) {
+				var team = self.observedTeams[i];
+				for (var p = 0; p < team.players.length; p++) {
+					var player = team.players[p];
+					if (player.displayName == self.reporterDisplayName) {
+						self.reporterTeam = i;
+						fixed = true;
+						break;
+					}
+				}
+				if (fixed) {
+					break;
+				}
+			}
+		}
+	}
 }
 
 function ReportTeam() {

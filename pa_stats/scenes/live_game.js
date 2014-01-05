@@ -333,7 +333,7 @@ model.sendStats = function() {
 
 	if (gameLinkId === undefined) {
 		var report = new ReportData();
-
+		
 		report.ident = gameIdent;
 		report.reporterUberName = uberName;
 		report.reporterDisplayName = displayName;
@@ -354,6 +354,8 @@ model.sendStats = function() {
 		report.armyEvents = pasCapturedEvents;
 		
 		report.gameStartTime = playStartTime;
+		
+		report.fixUpBrokenTeamIndex();
 	} else {
 		report = new RunningGameData();
 		report.gameLink = gameLinkId;
