@@ -148,6 +148,9 @@ handlers.server_state = function(m) {
 		unlockGame_();
 	}
 	switch(m.state) {
+		case 'landing':
+			pasHadReconnect = false;
+			break;
 		case 'game_over':
 			gameIsOverOrPlayerIsDead = true;
 			unlockGame_();
@@ -226,32 +229,81 @@ model.updateServerAndLocalTime();
 // hijack some method that is in the right place to execute our engine calls
 var paStatsOldApplyUiStuff = model.applyUIDisplaySettings;
 model.applyUIDisplaySettings = function() {
-	engine.call('watchlist.setCreationAlertTypes', JSON.stringify(['Mobile', 'Structure']));
-	engine.call('watchlist.setDeathAlertTypes', JSON.stringify(['Mobile', 'Structure']));
+	function listenToAllAlerts() {
+		engine.call('watchlist.setCreationAlertTypes', JSON.stringify(['Mobile', 'Structure']));
+		engine.call('watchlist.setDeathAlertTypes', JSON.stringify(['Mobile', 'Structure']));
+		// damage alerts trigger whenever health changes, even when it goes up.
+		// so this is kind of useless, thus no support for them is implemented
+//		engine.call('watchlist.setDamageAlertTypes', JSON.stringify(['Mobile', 'Structure']));
+	}
+	
+	listenToAllAlerts();
+	
+	// to get rid of wrong settings by rAlertsFilter
+	window.setTimeout(listenToAllAlerts, 3000);
+	// this basically is a race condition vs rAlertsFilter, so better save than sorry
+	window.setTimeout(listenToAllAlerts, 5000); 
+	
 	paStatsOldApplyUiStuff();
 };
 
 var pasCapturedEvents = [];
 
+var pasHadReconnect = true;
 var pasKnownIdLimit = undefined;
 var pasSeenConstructionEvents = {};
+
+var pasUnitTypeMapping = {};
+loadUnitTypeMapping(function(mapping) {
+	pasUnitTypeMapping = mapping;
+});
+
+var includeForCreationAlerts = decode(localStorage[includedUnitSpecAlertsCreated]);
+var excludeForCreationAlerts = decode(localStorage[excludedUnitSpecAlertsCreated]);
+var includeForDestroyAlerts = decode(localStorage[includedUnitSpecAlertsDestroyed]);
+var excludeForDestroyAlerts = decode(localStorage[excludedUnitSpecAlertsDestroyed]);
+var creationAlertForTypes = decode(localStorage[showCreatedAlerts]);
+var destroyAlertForTypes = decode(localStorage[showDestroyedAlerts]);
 
 var paStatsOldWatchListHandler = handlers.watch_list;
 handlers.watch_list = function(payload) {
 	function shouldBeVisibleAsAlert(notice) {
-		var creationAlertsFor = "Factory";
-	    var destructAlertsFor = "Structure";
-	    
-	    var checkFor = undefined;
+		var checkTypes = undefined;
+		var includeSpecs = undefined;
+		var exlcludeSpecs = undefined;
+		
 	    if (notice.watch_type == 0) { // created
-	    	checkFor = creationAlertsFor;
+	    	checkTypes = creationAlertForTypes;
+	    	includeSpecs = includeForCreationAlerts;
+	    	excludeSpecs = excludeForCreationAlerts;
 	    } else if (notice.watch_type == 2) { //  destroyed
-	    	checkFor = destructAlertsFor;
+	    	checkTypes = destroyAlertForTypes;
+	    	includeSpecs = includeForDestroyAlerts;
+	    	excludeSpecs = excludeForDestroyAlerts;
 	    } else {
 	    	return true; // damaged or something else we don't care for currently, so the alerts are unmodified anyway
 	    }
-	    // use the unit spec to type map to check if we are interested in that specific unit
-	    return $.inArray(checkFor, pasUnitTypeMapping[notice.spec_id]) != -1;
+	    
+	    function contains(ar, val) {
+	    	return $.inArray(val, ar) != -1;
+	    }
+	    
+	    if (contains(includeSpecs, notice.spec_id)) {
+	    	console.log("alert for inclusion "+notice.spec_id);
+	    	return true;
+	    } else if (contains(excludeSpecs, notice.spec_id)) {
+	    	console.log("no alert for exclusion "+notice.spec_id);
+	    	return false;
+	    } else {
+	    	for (var i = 0; i < checkTypes.length; i++) {
+	    		if (contains(pasUnitTypeMapping[notice.spec_id], checkTypes[i])) {
+	    			console.log("alert for type "+notice.spec_id);
+	    			return true;
+	    		}
+	    	}
+	    	console.log("no rule found for "+notice.spec_id);
+	    	return false; // nothing matched
+	    }
 	}
 	
 	if (mostRecentServerTime !== undefined) { // in this case we just can wait until we have the first time. Should only matter for reconnects
@@ -268,7 +320,7 @@ handlers.watch_list = function(payload) {
 					pasSeenConstructionEvents[notice.id] = true;
 				}
 				
-				if (notice.watch_type != 2 || pasKnownIdLimit >= notice.id || pasSeenConstructionEvents[notice.id]) {
+				if (notice.watch_type != 2 || (pasHadReconnect && pasKnownIdLimit >= notice.id) || pasSeenConstructionEvents[notice.id]) {
 					if (notice.watch_type == 2) {
 						delete pasSeenConstructionEvents[notice.id]; // prevent the set from growing forever
 					}
@@ -332,7 +384,7 @@ model.sendStats = function() {
 	var report = undefined;
 
 	if (gameLinkId === undefined) {
-		var report = new ReportData();
+		report = new ReportData();
 		
 		report.ident = gameIdent;
 		report.reporterUberName = uberName;
