@@ -226,29 +226,6 @@ model.updateServerAndLocalTime = function () {
 
 model.updateServerAndLocalTime();
 
-
-
-//// hijack some method that is in the right place to execute our engine calls
-//var paStatsOldApplyUiStuff = model.applyUIDisplaySettings;
-//model.applyUIDisplaySettings = function() {
-//	function listenToAllAlerts() {
-//		engine.call('watchlist.setCreationAlertTypes', JSON.stringify(['Mobile', 'Structure']));
-//		engine.call('watchlist.setDeathAlertTypes', JSON.stringify(['Mobile', 'Structure']));
-//		// damage alerts trigger whenever health changes, even when it goes up.
-//		// so this is kind of useless, thus no support for them is implemented
-////		engine.call('watchlist.setDamageAlertTypes', JSON.stringify(['Mobile', 'Structure']));
-//	}
-//	
-//	listenToAllAlerts();
-//	
-//	// to get rid of wrong settings by rAlertsFilter
-//	window.setTimeout(listenToAllAlerts, 3000);
-//	// this basically is a race condition vs rAlertsFilter, so better save than sorry
-//	window.setTimeout(listenToAllAlerts, 5000); 
-//	
-//	paStatsOldApplyUiStuff();
-//};
-
 var pasCapturedEvents = [];
 
 var pasHadReconnect = true;
