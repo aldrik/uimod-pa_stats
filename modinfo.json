@@ -1,0 +1,23 @@
+{
+    "context": "client",
+    "identifier": "info.nanodesu.pastats.dev",
+    "display_name": "PA Stats Development",
+    "description": "Track your statistics",
+    "author": "Cola_Colin, Gunshin",
+    "version": "Autouapdating",
+    "build": "will_be_akept_up_to_date",
+    "date": "2014/1/17",
+    "signature": "not yet implemented",
+    "forum": "https://forums.uberent.com/threads/rel-pa-stats-52168.50690/",
+    "category": [
+        "in-game",
+        "ui"
+    ],
+    "id": "uimod-pa_stats",
+    "priority": 100,
+    "global_mod_list": [
+        "coui://pa_stats/developmentSetter.js",
+        "coui://pa_stats/pa_stats_loader.js"
+    ],
+    "enabled": true
+}
