@@ -9,37 +9,7 @@
 			data-bind="checked: showDataLive" /> (Change does only apply after
 		you start a new game)
 	</div>
-
-	<h4>Alerts</h4>
 	<div>
-		Select which alerts you want to see ingame.<br/>
-		Note that all the following lists may contain unuseable units as they are created automatically.
-		Also note that you can hold ctrl to select multiple lines and that you may have to scroll by dragging, as the mousewheel seems to not work here :(<br/>
-		
-		<div>First select for what types you want construction completed events.<br/>
-		<select style="height: 300px" data-bind="options: knownUnitTypes, selectedOptions: showCreatedAlerts" multiple="true"> </select>
-		</div>
-		<div>Now select units that should always be included for construction events, even if their type does not match <br/>
-		<select style="height: 300px" data-bind="options: knownUnits, optionsText: renderUnit, selectedOptions: includeUnitSpecAlertsCreated" multiple="true"> </select></div>
-		
-		<div>
-		Now select units that should never show an construction completed event <br/>
-		<select style="height: 300px" data-bind="options: knownUnits, optionsText: renderUnit, selectedOptions: excludedUnitSpecAlertsCreated" multiple="true"> </select>
-		</div>
-		<div>
-		Now select for what types you want destroyed events <br/>
-		<select style="height: 300px" data-bind="options: knownUnitTypes, selectedOptions: showDestroyedAlerts" multiple="true"> </select>
-		</div>
-		<div>
-		Now select units that should always be included for destroyed events, even if their type does not match <br/>
-		<select style="height: 300px" data-bind="options: knownUnits, optionsText: renderUnit, selectedOptions: includeUnitSpecAlertsDestroyed" multiple="true"> </select>
-		</div>
-		<div>
-		Now select units that should never show an destroyed event, even if their type does not match <br/>
-		<select style="height: 300px" data-bind="options: knownUnits, optionsText: renderUnit, selectedOptions: excludedUnitSpecAlertsDestroyed" multiple="true"> </select>
-		</div>
-		<div>Sorry, this is not implemented for damaged events. They are buggy anyway. If you really want those ask in the forums</div>
-	</div>
-	<div>
+	Looking for the alerts filtering settings? Those are now part of the AlertsManager mod. You can find it in the mod manager. Sorry!
 	</div>
 </div>
