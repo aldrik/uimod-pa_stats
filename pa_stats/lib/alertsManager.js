@@ -112,7 +112,7 @@ var alertsManager =
 				model.applyUIDisplaySettings = function() {
 				  function listenToAllAlerts() {
 					 for (var i = 0; i < _hookIntoAlerts.length; i++) {
-						engine.call(_hookIntoAlerts[i], JSON.stringify(_allAlertsTypes));
+						engine.call(_hookIntoAlerts[i], JSON.stringify(_allAlertsTypes), JSON.stringify([])); // I am assuming the 2nd on is an exclusion, tests need to validate it. If yes it should be used, too
 					 }
 				   }
 				   listenToAllAlerts();
