@@ -18,7 +18,7 @@ var paStatsGlobal = (function() {
 	var _reportVersion = 14;
 
 	function _unlockGame(finalCall) {
-		var link = sessionStorage['pa_stats_game_link'];
+		var link = decode(localStorage['pa_stats_game_link']);
 		if (link !== undefined) {
 			$.ajax({
 				type : "GET",
@@ -30,7 +30,9 @@ var paStatsGlobal = (function() {
 				}
 			});
 		} else {
-			finalCall();
+			if (finalCall) {
+				finalCall();
+			}
 		}
 	}
 
