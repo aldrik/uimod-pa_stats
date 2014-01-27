@@ -15,7 +15,7 @@ var paStatsGlobal = (function() {
 		_queryUrlBase = "http://www.nanodesu.info/pastats/";
 	}
 
-	var _reportVersion = 14;
+	var _reportVersion = 15;
 
 	function _unlockGame(finalCall) {
 		var link = decode(localStorage['pa_stats_game_link']);
@@ -39,7 +39,7 @@ var paStatsGlobal = (function() {
 	var nanodesu = "info.nanodesu.pastats.";
 	var _wantsToSendKey = 'pa_stats_wants_to_send_';
 	var _showDataLiveKey = "pa_stats_show_data_live";
-
+	var _isRankedGame = nanodesu + "isRanked";
 
 	// make sure the defaults are set
 	if (localStorage[_wantsToSendKey] === undefined) {
@@ -53,6 +53,7 @@ var paStatsGlobal = (function() {
 		pa_stats_stored_version : nanodesu + "version",
 		wantsToSendKey : _wantsToSendKey,
 		showDataLiveKey : _showDataLiveKey,
+		isRankedGameKey: _isRankedGame,
 		unlockGame: _unlockGame,
 		reportVersion: _reportVersion,
 		queryUrlBase: _queryUrlBase

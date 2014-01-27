@@ -1,9 +1,9 @@
-$("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" data-bind="click: startRankedGame, visible: showingReady"><span class="link_start_menu_item"><a href="#" id="ranked_btt"><span class="start_menu_item_lbl" id ="ranked_text">PA STATS 1v1</span> </a>  </span> </td> </tr>');
+$("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" data-bind="click: startRankedGame, visible: showingReady"><div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">Somebody else<br/>is searching!</div><span class="link_start_menu_item"><a href="#" id="ranked_btt"><span class="start_menu_item_lbl" id ="ranked_text">PA STATS AUTO 1vs1</span>  </a>  </span>  </td> </tr>');
 
 (function() {
-	var ladderPassword = "pastats";
-	var pollingSpeed = 2500;
-	
+	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+	var ladderPassword = "pastatsPleaseDoNotJoinThisGame";
+	var pollingSpeed = 3000;
 	var queryUrlBase = paStatsGlobal.queryUrlBase;
 	
 	var makeDescription = function() {
@@ -92,24 +92,40 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		$("#msg_progress").text(txt);
 	}
 	
+	var showCancelBtt = function() {
+		$("#connecting").dialog("option", "buttons", {
+			"CANCEL": function() {
+            	cancel();
+            	$(this).dialog("close");
+            }
+		});		
+	}
+	
 	var showLoad = function() {
         $("#connecting").dialog({
             dialogClass: "signin_notification",
             draggable: false,
             resizable: false,
-            height: 150,
-            width: 400,
+            height: 120,
+            width: 600,
             modal: true,
-            buttons: {"CANCEL": function() {
-            	cancel();
-            	$(this).dialog("close");
-            }}
+            buttons: {}
         });
+        showCancelBtt();
 	}
 	
+	var hideCancelBtt = function() {
+		$("#connecting").dialog("option", "buttons", {	
+		});
+	}
 
 	var cancelLoops = false;
 	var searching = false;
+	
+	var cancelLoop = function() {
+		cancelLoops = false;
+		unregister();
+	};
 	
 	var lobbyIdObs = ko.observable().extend({ session: 'lobbyId' });
 	lobbyIdObs.subscribe(function(v) {
@@ -120,6 +136,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		var desc = makeDescription();
         model.send_message('game_config', desc, function(success) {
             if (!success) {
+            	setText("setting planets failed");
             	reset();
             }
         });
@@ -134,13 +151,14 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			contentType : "application/json",
 			data: JSON.stringify({uber_name: model.uberName(), game_id: gameId}),
 			error: function (data) {
-				console.log(data);
+				setText("webservice error");
 				reset();
 			}
 		});
 	}
 	
 	var connectToServer = function() {
+		setText("connecting to game...");
         engine.call('join_game',
                 String(model.gameHostname()),
                 Number(model.gamePort()),
@@ -150,13 +168,13 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var publishAGame = function() {
-		setText("creating game...");
+		setText("publish game...");
 		iAmHost = true;
 		console.log("use region: " + model.uberNetRegion());
         engine.asyncCall("ubernet.startGame", model.uberNetRegion(), 'Config').done(function (data) {
             data = JSON.parse(data);
 
-            setText("ubernet created game, gonna join now...");
+            setText("ubernet created game, gonna connect now...");
            
             model.gameTicket(data.Ticket);
             model.gameHostname(data.ServerHostname);
@@ -166,19 +184,19 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
             
             connectToServer();
         }).fail(function (data) {
-        	console.log(data);
+        	setText("failed to start ubernet game");
         	reset();
         });
 	}
 	
 	var toggleReady = function() {
 		model.send_message('toggle_ready', undefined, function(success) {
-            console.log("toggle ready result: "+success);
-            setText("ready up...");
+            setText("Ready: waiting for other players...");
         });
 	};
 	
 	var runHostWaitLoop = function() {
+		setText("waiting for other player to join...");
 		$.ajax({
 			type : "POST",
 			url : queryUrlBase + "shouldStartServer",
@@ -186,14 +204,19 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			data: JSON.stringify({uber_name: model.uberName(), game_id: lobbyIdObs()}),
 			success: function(result) {
 				if (result.shouldStart) {
-					toggleReady();
+					toggleReady(); // TODO this might be better off server side
+					window.setTimeout(window.setTimeout(function() {
+						setText("timeout");
+						reset();
+					}, 20000));
 				} else if (result.hasTimeOut) {
+					setText("got timeout");
 					reset();
 				} else {
 					if (!cancelLoops) {
 						setTimeout(runHostWaitLoop, pollingSpeed);						
 					} else {
-						cancelLoops = false;
+						cancelLoop()
 					}
 				}
 			},
@@ -204,14 +227,13 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	};
 	
 	var joinGame = function(lobbyId) {
-		setText("join game...");
+		setText("join ubernet game...");
 		
         engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
             data = JSON.parse(data);
             
             if (data.PollWaitTimeMS) {
             	window.setTimeout(function() {
-            		setText("got a mystery PollWaitTimeMS, let's wait...");
             		joinGame(lobbyId);
             	}, data.PollWaitTimeMs);
             } else {
@@ -220,12 +242,11 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
                 model.gameHostname(data.ServerHostname);
                 model.gamePort(data.ServerPort);
                 lobbyIdObs(lobbyId);
-                setText("ubernet join successful, will connect now");
+                setText("ubernet game join successful, will connect now");
                 connectToServer();
             }
         }).fail(function (data) {
-            console.log('join game:fail');
-            console.log(data);
+        	setText("failed to join ubernet game");
             reset();
         });
 	}
@@ -240,12 +261,13 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 				if (result.serverCreated) {
 					joinGame(result.lobbyId);
 				} else if (result.hasTimeOut) {
+					setText("timeout while waiting for host...");
 					reset();
 				} else {
 					if (!cancelLoops) {
 						setTimeout(waitForHost, pollingSpeed);						
 					} else {
-						cancelLoops = false;
+						cancelLoop();
 					}
 				}
 			},
@@ -261,8 +283,20 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			url : queryUrlBase + "readyToStart",
 			contentType : "application/json",
 			data: JSON.stringify({uber_name: model.uberName(), game_id: lobbyIdObs()}),
+			success: function(result) {
+				if (result.hasTimeOut) {
+					setText("timeout...");
+					reset();
+				} else {
+					if (!cancelLoops) {
+						setTimeout(reportClientIsReadyToStart, pollingSpeed);						
+					} else {
+						cancelLoop();
+					}
+				}
+			},
 			error: function(r) {
-				console.log(r);
+				setText("webservice error");
 				reset();
 			}
 		});
@@ -283,16 +317,18 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 					// keep polling the server to signal further interest
 					setTimeout(pollHasGame, pollingSpeed * 2);
 				} else {
-					cancelLoops = false;
+					cancelLoop();
 				}
 			},
 			error: function() {
+				setText("webservice error");
             	reset();
 			}
 		});
 	}
 	
 	var handleFoundGame = function(data) {
+		hideCancelBtt();
 		if (data.isHost) {
 			publishAGame();
 		} else {
@@ -318,8 +354,8 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 				}
 			},
 			error: function (data) {
-				setText("error while searching, will retry soon...");
-				window.setTimeout(pollHasGame, pollingSpeed * 3);
+				setText("webservice error");
+				reset();
 			}
 		});
 	};
@@ -337,18 +373,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		setText("starting search...");
 	};
 	
-	var reset = function() {
-		engine.call('reset_game_state');
-		window.setTimeout(function() {
-			searching = true;
-			pollHasGame();
-		}, pollingSpeed);
-	}
-	
-	var cancel = function() {
-		engine.call('reset_game_state');
-		cancelLoops = true;
-		searching = false;
+	var unregister = function() {
 		$.ajax({
 			type : "POST",
 			url : queryUrlBase + "unregister",
@@ -360,26 +385,43 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		});
 	}
 	
+	var reset = function() {
+		localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+		unregister();
+		engine.call('reset_game_state');
+		showCancelBtt();
+		window.setTimeout(function() {
+			searching = true;
+			pollHasGame();
+		}, pollingSpeed);
+	}
+	
+	var cancel = function() {
+		engine.call('reset_game_state');
+		cancelLoops = true;
+		searching = false;
+		unregister();
+	}
+	
+	
+	
 	handlers.login_accepted = function(payload) {
-		setText("connected to a server...");
+		setText("login accepted...");
 		app.hello(handlers.server_state, handlers.connection_disconnected);
 	};
 	
 	handlers.connection_failed = function(payload) {
-		console.log("con failed");
-		console.log(payload);
+		setText("connection failed");
 		reset();
 	};
 	
 	handlers.connection_disconnected = function(payload) {
-		console.log("con disconnected");
-		console.log(payload);
+		setText("connection disconnected");
 		reset();
 	};
 	
 	handlers.login_rejected = function(payload) {
-		console.log("login rejected!");
-		console.log(payload);
+		setText("login rejected");
 		reset();
 	};
 	
@@ -451,20 +493,18 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			}
 			return simpleplanet;
 		}	
-	    
-		console.log("here is something cool:");
-		console.log(msg);
+
 		if (msg.state === "landing") { // this happens when the game moves into the live_game.js
+			localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
 			setPaStatsTeams();
 			// we are done after this
 			window.location.href = msg.url;
 		} else if (msg.state === "lobby") { // happens when connect to game is complete
 			if (msg.data) {
-				console.log("will set system for pa stats now...");
 				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data.game).system));
 			}
 			
-			setText("join lobby...");
+			setText("join slot...");
 			if (!iAmHost) {
 				joinSlot(1);
 				toggleReady();
@@ -476,9 +516,27 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			}
 		} else if (msg.state === "config") { // happens when we can config the game (new_game scene)
 			if (iAmHost) {
+				setText("configure planets...");
 				writeDescription();
 			}
 		}
 	};
+	
+	var checkIfPlayersAvailable = function() {
+		$.ajax({
+			type : "GET",
+			url : queryUrlBase + "hasPlayersSearching",
+			contentType : "application/json",
+			success : function(result) {
+				if (result.hasPlayers) {
+					$("#pa_stats_players_note").show();
+				} else {
+					$("#pa_stats_players_note").hide();
+				}
+				setTimeout(checkIfPlayersAvailable, pollingSpeed)
+			}
+		});
+	};
+	checkIfPlayersAvailable();
 })();
 

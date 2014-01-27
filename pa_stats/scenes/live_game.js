@@ -52,14 +52,22 @@
 	
 	$(".div_message_display_cont")
 			.prepend(
-					'<div id="pastatsadds"><div>Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
-					'<div data-bind="visible: wantsToSend">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div></div>');
+					'<div id="pastatsadds"><div data-bind="visible: isRanked">When playing automatches PA Stats is mandatory for fairness of reporting. However you can select if you want to show live updates.</div><div data-bind="visible: isNotRanked">Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
+					'<div data-bind="visible: liveShouldBeVisible">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div></div>');
 	
 	model.delayTime = ko.observable(0).extend({local: 'pa_stats_delay_time'});
 	
 	
+	model.isRanked = ko.observable().extend({local: paStatsGlobal.isRankedGameKey})
+	model.isNotRanked = ko.computed(function() {
+		return !model.isRanked();
+	});
 	model.showDataLive = ko.observable(true).extend({local: paStatsGlobal.showDataLiveKey})
 	model.wantsToSend = ko.observable(true).extend({local : paStatsGlobal.wantsToSendKey});
+	
+	model.liveShouldBeVisible = ko.computed(function() {
+		return model.wantsToSend() || model.isRanked();
+	});
 	
 	function ValueChangeAccumulator(observable) {
 		var self = this;
@@ -337,7 +345,7 @@
 				|| (model.armySize() == 0) // observer
 				|| paStatsGlobal.reportVersion < localStorage['pa_stats_req_version'] // bad version
 				|| model.showTimeControls() // chonocam
-				|| !model.wantsToSend()// user refused at the start of the game
+				|| (!model.wantsToSend() && !decode(localStorage[paStatsGlobal.isRankedGameKey])) // user refused at the start of the game, careful of ranked, PA Stats is mandatory for them
 				|| playStartTime === undefined) { // quering the starttime from the server has not yet been successful
 			actionsSinceLastTick = 0;
 			return;
