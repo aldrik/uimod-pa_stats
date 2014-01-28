@@ -1,4 +1,6 @@
 (function() {
+	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+	
 	var oldHandleGameState = handlers.game_state;
 	var loadPlanet = ko.observable({}).extend({ local: 'pa_stats_loaded_planet' });
 	handlers.game_state = function (payload) {

@@ -41,9 +41,9 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			                "biomeScale" : 1,
 			                "heightRange" : 22,
 			                "index" : 0,
-			                "name" : "lava",
+			                "name" : "1",
 			                "radius" : 666,
-			                "seed" : 1337,
+			                "seed" : Math.ceil((Math.random() * 20000)),
 			                "temperature" : 69,
 			                "waterHeight" : 10
 			              },
@@ -57,9 +57,9 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			                "biomeScale" : 1,
 			                "heightRange" : 33,
 			                "index" : 0,
-			                "name" : "lava",
-			                "radius" : 300,
-			                "seed" : 15497,
+			                "name" : "2",
+			                "radius" : 250,
+			                "seed" : Math.ceil((Math.random() * 20000)),
 			                "temperature" : 57,
 			                "waterHeight" : 37
 			              },
@@ -121,6 +121,9 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 
 	var cancelLoops = false;
 	var searching = false;
+	
+	var loaded = false;
+	var serverLoaded = false;
 	
 	var cancelLoop = function() {
 		cancelLoops = false;
@@ -204,11 +207,14 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			data: JSON.stringify({uber_name: model.uberName(), game_id: lobbyIdObs()}),
 			success: function(result) {
 				if (result.shouldStart) {
-					toggleReady(); // TODO this might be better off server side
-					window.setTimeout(window.setTimeout(function() {
-						setText("timeout");
-						reset();
-					}, 20000));
+					waitForLoadLoop(function() {
+						toggleReady();
+						// TODO this might be better off server side
+						window.setTimeout(window.setTimeout(function() {
+							setText("timeout while loading, but all players were ready");
+							reset();
+						}, 120000));
+					});
 				} else if (result.hasTimeOut) {
 					setText("got timeout");
 					reset();
@@ -216,7 +222,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 					if (!cancelLoops) {
 						setTimeout(runHostWaitLoop, pollingSpeed);						
 					} else {
-						cancelLoop()
+						cancelLoop();
 					}
 				}
 			},
@@ -227,7 +233,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	};
 	
 	var joinGame = function(lobbyId) {
-		setText("join ubernet game...");
+		setText("join ubernet game... ");
 		
         engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
             data = JSON.parse(data);
@@ -235,7 +241,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
             if (data.PollWaitTimeMS) {
             	window.setTimeout(function() {
             		joinGame(lobbyId);
-            	}, data.PollWaitTimeMs);
+            	}, 5000);
             } else {
                 model.isLocalGame(false);
                 model.gameTicket(data.Ticket);
@@ -386,6 +392,8 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var reset = function() {
+		loaded = false;
+		serverLoaded = false;
 		localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 		unregister();
 		engine.call('reset_game_state');
@@ -397,6 +405,8 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var cancel = function() {
+		loaded = false;
+		serverLoaded = false;
 		engine.call('reset_game_state');
 		cancelLoops = true;
 		searching = false;
@@ -452,7 +462,31 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	handlers.army_state = function(army) {
 		latestArmies = army;
 	}
-
+	
+	var waitForLoadLoop = function(callback) {
+		var loadFinished = loaded /*&& serverLoaded*/;
+		if (!loadFinished) {
+			setText("waiting for the game to load");
+		}
+		$.get(queryUrlBase+"resetMyTimeout?ubername="+model.uberName(), function() {
+			if (cancelLoops) {
+				cancelLoop();
+			} else if (loadFinished) {
+				callback();
+			} else {
+				setTimeout(function() {waitForLoadLoop(callback);}, pollingSpeed);
+			}
+		}).fail(function() {
+			setText("webservice error");
+			reset();
+		});
+	}
+	
+	// this seems not to work reliably?!
+	handlers.lobby_state = function(msg) {
+		serverLoaded = msg.sim_ready;
+	}
+	
 	handlers.server_state = function(msg) {
 	    // TODO: Remove when planets are parsed using the new schema
 	    function adaptServerGameConfig(desc) {
@@ -504,11 +538,17 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data.game).system));
 			}
 			
+			api.getWorldView(0).whenPlanetsReady().done(function() {
+				loaded = true;
+			});
+			
 			setText("join slot...");
 			if (!iAmHost) {
 				joinSlot(1);
 				toggleReady();
-				reportClientIsReadyToStart();
+				waitForLoadLoop(function() {
+					reportClientIsReadyToStart();
+				});
 			} else {
 				joinSlot(0);
 				notifyHosted(lobbyIdObs());
