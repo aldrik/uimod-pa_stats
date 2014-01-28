@@ -5,6 +5,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		loadScript(b+'lib/unitInfoParser.js');
 		loadScript(b+'scenes/global.js');
 		var c = b+'lib/captureLobbyId.js';
+		scene_mod_list['server_browser'].push(b+"scenes/ranked_matcher/server_browser.js");
 		scene_mod_list['start'].push(b+"scenes/ranked_matcher/start.js");
 		scene_mod_list['connect_to_game'].push(c);
 		scene_mod_list['server_browser'].push(c);

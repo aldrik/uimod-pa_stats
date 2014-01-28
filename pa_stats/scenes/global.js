@@ -17,6 +17,8 @@ var paStatsGlobal = (function() {
 
 	var _reportVersion = 15;
 
+	var _pollingSpeed = 3000;
+	
 	function _unlockGame(finalCall) {
 		var link = decode(localStorage['pa_stats_game_link']);
 		if (link !== undefined) {
@@ -36,6 +38,22 @@ var paStatsGlobal = (function() {
 		}
 	}
 
+	var _checkIfPlayersAvailable = function(elemId) {
+		$.ajax({
+			type : "GET",
+			url : _queryUrlBase + "hasPlayersSearching",
+			contentType : "application/json",
+			success : function(result) {
+				if (result.hasPlayers) {
+					$(elemId).show();
+				} else {
+					$(elemId).hide();
+				}
+				setTimeout(function() {_checkIfPlayersAvailable(elemId);}, _pollingSpeed)
+			}
+		});
+	};
+	
 	var nanodesu = "info.nanodesu.pastats.";
 	var _wantsToSendKey = 'pa_stats_wants_to_send_';
 	var _showDataLiveKey = "pa_stats_show_data_live";
@@ -56,6 +74,8 @@ var paStatsGlobal = (function() {
 		isRankedGameKey: _isRankedGame,
 		unlockGame: _unlockGame,
 		reportVersion: _reportVersion,
-		queryUrlBase: _queryUrlBase
+		queryUrlBase: _queryUrlBase,
+		pollingSpeed: _pollingSpeed,
+		checkIfPlayersAvailable: _checkIfPlayersAvailable
 	};
 }());
