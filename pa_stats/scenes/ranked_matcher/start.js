@@ -381,8 +381,8 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
             dialogClass: "signin_notification",
             draggable: false,
             resizable: false,
-            height: 120,
-            width: 600,
+            height: 140,
+            width: 700,
             modal: true,
             buttons: {}
         });
@@ -583,7 +583,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var registerForSearch = function() {
-		setText("searching 1vs1 vs other PA Stats users...");
+		setText("searching 1vs1 vs other PA Stats users... The game will play an uber cannon sound once an opponent has been found, even when minimized.");
 		$.ajax({
 			type : "POST",
 			url : paStatsGlobal.queryUrlBase + "register",
@@ -608,6 +608,9 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var handleFoundGame = function(data) {
+		api.audio.playSound('/SE/Impacts/cannon_uber');
+		window.setTimeout(function() {api.audio.playSound('/SE/Impacts/cannon_uber');}, 5000);
+		
 		hideCancelBtt();
 		if (data.isHost) {
 			publishAGame();
