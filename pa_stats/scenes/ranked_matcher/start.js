@@ -362,6 +362,18 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		return result;
 	};
 	
+	var refreshTimeout = function(callback, failcb) {
+		$.get(queryUrlBase+"resetMyTimeout?ubername="+model.uberName(), function() {
+			if (callback) {
+				callback();
+			}
+		}).fail(function() {
+			if (failcb) {
+				failcb();
+			}
+		});
+	}
+	
 	var setText = function(txt) {
 		console.log(txt);
 		$("#msg_progress").text(txt);
@@ -508,6 +520,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	
 	var joinGame = function(lobbyId) {
 		setText("join ubernet game... ");
+		refreshTimeout();
 		
         engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
             data = JSON.parse(data);
@@ -745,7 +758,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		if (!loadFinished) {
 			setText("waiting for the game to load");
 		}
-		$.get(queryUrlBase+"resetMyTimeout?ubername="+model.uberName(), function() {
+		refreshTimeout(function() {
 			if (cancelLoops) {
 				cancelLoop();
 			} else if (loadFinished) {
@@ -753,7 +766,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			} else {
 				setTimeout(function() {waitForLoadLoop(callback);}, pollingSpeed);
 			}
-		}).fail(function() {
+		}, function() {
 			setText("webservice error");
 			reset();
 		});
