@@ -155,23 +155,6 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 					        "position_y" : -15541.1,
 					        "velocity_x" : 51.688000000000002,
 					        "velocity_y" : 89.063199999999995
-					      },
-					      { "mass" : 2000,
-					        "name" : "Maximillian 24B",
-					        "planet" : { "biome" : "earth",
-					            "biomeScale" : 50,
-					            "heightRange" : 50,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 565,
-					            "seed" : 14451,
-					            "temperature" : 0,
-					            "waterHeight" : 55
-					          },
-					        "position_x" : 49636.800000000003,
-					        "position_y" : -26157.299999999999,
-					        "velocity_x" : 44.009900000000002,
-					        "velocity_y" : 83.514300000000006
 					      }
 					    ]
 				},
@@ -193,40 +176,6 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 					        "position_y" : -16516.400000000001,
 					        "velocity_x" : 117.09,
 					        "velocity_y" : 97.661799999999999
-					      },
-					      { "mass" : 1000,
-					        "name" : "Cylia",
-					        "planet" : { "biome" : "moon",
-					            "biomeScale" : 50,
-					            "heightRange" : 75,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 400,
-					            "seed" : 78462,
-					            "temperature" : 0,
-					            "waterHeight" : 0
-					          },
-					        "position_x" : 1224.26,
-					        "position_y" : -50542.099999999999,
-					        "velocity_x" : 99.418499999999995,
-					        "velocity_y" : 2.4081700000000001
-					      },
-					      { "mass" : 1000,
-					        "name" : "Per Nielsen",
-					        "planet" : { "biome" : "moon",
-					            "biomeScale" : 50,
-					            "heightRange" : 75,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 400,
-					            "seed" : 78462,
-					            "temperature" : 0,
-					            "waterHeight" : 0
-					          },
-					        "position_x" : 64601.199999999997,
-					        "position_y" : 7060.2200000000003,
-					        "velocity_x" : -9.5296099999999999,
-					        "velocity_y" : 87.196200000000005
 					      }
 					    ]
 					},
@@ -303,40 +252,6 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 							        "position_y" : 22586,
 							        "velocity_x" : -142.94499999999999,
 							        "velocity_y" : 33.481200000000001
-							      },
-							      { "mass" : 1000,
-							        "name" : "Purgatorium",
-							        "planet" : { "biome" : "moon",
-							            "biomeScale" : 50,
-							            "heightRange" : 75,
-							            "metalClusters" : 50,
-							            "metalDensity" : 50,
-							            "radius" : 400,
-							            "seed" : 78462,
-							            "temperature" : 0,
-							            "waterHeight" : 0
-							          },
-							        "position_x" : 4802.3199999999997,
-							        "position_y" : 28452.5,
-							        "velocity_x" : -51.100700000000003,
-							        "velocity_y" : 41.119100000000003
-							      },
-							      { "mass" : 1000,
-							        "name" : "Rishad",
-							        "planet" : { "biome" : "moon",
-							            "biomeScale" : 50,
-							            "heightRange" : 75,
-							            "metalClusters" : 50,
-							            "metalDensity" : 50,
-							            "radius" : 400,
-							            "seed" : 78462,
-							            "temperature" : 0,
-							            "waterHeight" : 0
-							          },
-							        "position_x" : 9879.2999999999993,
-							        "position_y" : 26373.400000000001,
-							        "velocity_x" : -84.5959,
-							        "velocity_y" : -37.219499999999996
 							      }
 							    ]
 						}

@@ -2,7 +2,7 @@
 	paStatsGlobal.unlockGame(); // usually the game should be unlocked here already, this call is just here to make sure it really is unlocked
 	checkPaStatsVersion();
 
-	if (decode(localStorage[paStatsGlobal.wantsToSendKey])) {
+	if (decode(localStorage[paStatsGlobal.wantsToSendKey]) || decode(localStorage[paStatsGlobal.isRankedGameKey])) {
 		
 		function wasVsAiGame(msg) {
 			var armies = msg.data.armies;
