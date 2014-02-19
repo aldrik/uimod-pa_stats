@@ -511,7 +511,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var registerForSearch = function() {
-		setText("searching 1vs1 vs other PA Stats users... The game will play an uber cannon sound once an opponent has been found, even when minimized.");
+		setText("searching 1vs1 vs other PA Stats users... The game will play an annoying sound once an opponent has been found, even when minimized.");
 		$.ajax({
 			type : "POST",
 			url : paStatsGlobal.queryUrlBase + "register",
@@ -535,9 +535,22 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		});
 	}
 	
+	var sound = new Audio(paStatsBaseDir+"scenes/ranked_matcher/a.wav");
+	
 	var handleFoundGame = function(data) {
-		api.audio.playSound('/SE/Impacts/cannon_uber');
-		window.setTimeout(function() {api.audio.playSound('/SE/Impacts/cannon_uber');}, 5000);
+		
+		// lots of beeps
+		var warn = function(f) {
+			for (var s = 0; s < 25; s++) {
+				window.setTimeout(function() {
+					sound.play();
+				}, 100 * s + f);
+			}
+		}
+		
+		for (var s = 0; s < 3; s++) {
+			warn(s * 5000);
+		}
 		
 		hideCancelBtt();
 		if (data.isHost) {

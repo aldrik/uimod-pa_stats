@@ -50,6 +50,45 @@
 		}
 	}
 	
+	// these are no longer part of the default live_game scene, so create my own
+	var currentEnergy = ko.observable(0);
+	var maxEnergy = ko.observable(0);
+	var energyGain = ko.observable(0);
+	var energyLoss = ko.observable(0);
+	var currentMetal = ko.observable(0);
+	var maxMetal = ko.observable(0);
+	var metalGain = ko.observable(0);
+	var metalLoss = ko.observable(0);
+	var hasFirstResourceUpdate = ko.observable(false);
+	
+	var metalNet = ko.computed(function() {
+		return metalGain() - metalLoss();
+	});
+	
+	var energyNet = ko.computed(function() {
+		return energyGain() - energyLoss();
+	});
+	
+	var oldHandlerArmy = handlers.army;
+	handlers.army = function(payload) {
+		
+        currentEnergy(payload.energy.current);
+        maxEnergy(payload.energy.storage);
+        energyGain(payload.energy.production);
+        energyLoss(payload.energy.demand);
+
+        currentMetal(payload.metal.current);
+        maxMetal(payload.metal.storage);
+        metalGain(payload.metal.production);
+        metalLoss(payload.metal.demand);
+		
+        hasFirstResourceUpdate(true);
+        
+		if (oldHandlerArmy) {
+			oldHandlerArmy(payload);
+		}
+	};
+	
 	$(".div_message_display_cont")
 			.prepend(
 					'<div id="pastatsadds"><div data-bind="visible: isRanked">When playing automatches PA Stats is mandatory for fairness of reporting. However you can select if you want to show live updates.</div><div data-bind="visible: isNotRanked">Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
@@ -100,23 +139,23 @@
 	}
 	
 	var wastingMetalObs = ko.computed(function() {
-		if (model.currentMetal() == model.maxMetal() && model.metalNet() > 0) {
-			return model.metalNet();
+		if (currentMetal() == maxMetal() && metalNet() > 0) {
+			return metalNet();
 		} else {
 			return 0;
 		}
 	});
 	
 	var wastingEnergyObs = ko.computed(function() {
-		if (model.currentEnergy() == model.maxEnergy() && model.energyNet() > 0) {
-			return model.energyNet();
+		if (currentEnergy() == maxEnergy() && energyNet() > 0) {
+			return energyNet();
 		} else {
 			return 0;
 		}
 	});
 	
-	var metalProductionAccu = new ValueChangeAccumulator(model.metalGain);
-	var energyProductionAccu = new ValueChangeAccumulator(model.energyGain);
+	var metalProductionAccu = new ValueChangeAccumulator(metalGain);
+	var energyProductionAccu = new ValueChangeAccumulator(energyGain);
 	var metalWastingAccu = new ValueChangeAccumulator(wastingMetalObs);
 	var energyWastingAccu = new ValueChangeAccumulator(wastingEnergyObs);
 	
@@ -220,7 +259,7 @@
 				maySetupReportInterval();
 				break;
 		}
-	}
+	};
 	
 	var oldNavToMainMenupas = model.navToMainMenu;
 	model.navToMainMenu = function() {
@@ -232,7 +271,7 @@
 		paStatsGlobal.unlockGame(oldExitpas);
 	}
 	
-	model.hasFirstResourceUpdate.subscribe(function(v) {
+	hasFirstResourceUpdate.subscribe(function(v) {
 		if (v) {
 			maySetupReportInterval();
 		}
@@ -340,7 +379,7 @@
 	});
 	
 	model.sendStats = function() {
-		if (!model.hasFirstResourceUpdate() // game has not yet started
+		if (!hasFirstResourceUpdate() // game has not yet started
 				|| gameIsOverOrPlayerIsDead // review
 				|| (model.armySize() == 0) // observer
 				|| paStatsGlobal.reportVersion < localStorage['pa_stats_req_version'] // bad version
@@ -362,18 +401,18 @@
 	
 		var statsPacket = {};
 		statsPacket.armyCount = model.armySize();
-		statsPacket.metalIncomeNet = model.metalNet();
-		statsPacket.energyIncomeNet = model.energyNet();
-		statsPacket.metalStored = model.currentMetal();
-		statsPacket.energyStored = model.currentEnergy();
+		statsPacket.metalIncomeNet = metalNet();
+		statsPacket.energyIncomeNet = energyNet();
+		statsPacket.metalStored = currentMetal();
+		statsPacket.energyStored = currentEnergy();
 		statsPacket.metalProducedSinceLastTick = metalProductionAccu.get();
 		statsPacket.energyProducedSinceLastTick = energyProductionAccu.get();
 		statsPacket.metalWastedSinceLastTick = metalWastingAccu.get();
 		statsPacket.energyWastedSinceLastTick = energyWastingAccu.get();
-		statsPacket.metalSpending = model.metalLoss();
-		statsPacket.energySpending = model.energyLoss();
-		statsPacket.metalIncome = model.metalGain();
-		statsPacket.energyIncome = model.energyGain();
+		statsPacket.metalSpending = metalLoss();
+		statsPacket.energySpending = energyLoss();
+		statsPacket.metalIncome = metalGain();
+		statsPacket.energyIncome = energyGain();
 		statsPacket.apm = getApm();
 	
 		var report = undefined;
