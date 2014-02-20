@@ -35,228 +35,175 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
         }
 		
         var mappool = [
-		       {
-					"name" : "RedD",
-					"planets" : [ {
-						"name" : "R2D666",
-						"mass" : 2500,
-						"position_x" : 20135.1,
-						"position_y" : -24.0562,
-						"velocity_x" : 0.188263,
-						"velocity_y" : 157.582,
-						"planet" : {
-							"seed" : 7846,
-							"radius" : 720,
-							"heightRange" : 77,
-							"waterHeight" : 40,
-							"temperature" : 100,
-							"metalDensity" : 50,
-							"metalClusters" : 50,
-							"biomeScale" : 23,
-							"biome" : "lava"
-						}
-					} ]
-		        },
-		        
-		    	{
-					"name" : "A1600",
-					"planets" : [ {
-						"name" : "1400866",
-						"mass" : 1800,
-						"position_x" : 15012.4,
-						"position_y" : -13515.5,
-						"velocity_x" : -105.267,
-						"velocity_y" : -116.925,
-						"planet" : {
-							"seed" : 17753,
-							"radius" : 670,
-							"heightRange" : 65,
-							"waterHeight" : 30,
-							"temperature" : 65,
-							"metalDensity" : 50,
-							"metalClusters" : 50,
-							"biomeScale" : 57,
-							"biome" : "earth"
-						}
-					} ]
-				},
-				
-				{ "name" : "Winter Duel",
-					  "planets" : [ { "mass" : 2000,
-					        "name" : "Winter Duel",
-					        "planet" : { "biome" : "earth",
-					            "biomeScale" : 50,
-					            "heightRange" : 8,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 375,
-					            "seed" : 13295,
-					            "temperature" : 0,
-					            "waterHeight" : 35
-					          },
-					        "position_x" : 22564.799999999999,
-					        "position_y" : -6463.9200000000001,
-					        "velocity_x" : -40.192599999999999,
-					        "velocity_y" : -140.30799999999999
-					      } ]
-				},
-				
-				{ "name" : "Open Palms",
-					  "planets" : [ { "mass" : 1800,
-					        "name" : "Open Palms",
-					        "planet" : { "biome" : "earth",
-					            "biomeScale" : 50,
-					            "heightRange" : 50,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 900,
-					            "seed" : 3348,
-					            "temperature" : 57,
-					            "waterHeight" : 33
-					          },
-					        "position_x" : 28682.5,
-					        "position_y" : -545.39599999999996,
-					        "velocity_x" : 2.5098799999999999,
-					        "velocity_y" : 131.995
-					      } ]
-				},
-				
-				{ "name" : "Finns Revenge",
-					  "planets" : [ { "mass" : 2100,
-					        "name" : "Finns Revenge",
-					        "planet" : { "biome" : "tropical",
-					            "biomeScale" : 50,
-					            "heightRange" : 7,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 599,
-					            "seed" : 11375,
-					            "temperature" : 80,
-					            "waterHeight" : 34
-					          },
-					        "position_x" : 19610,
-					        "position_y" : -12317.200000000001,
-					        "velocity_x" : 78.155900000000003,
-					        "velocity_y" : 124.431
-					      },
-					      { "mass" : 1000,
-					        "name" : "Tiny",
-					        "planet" : { "biome" : "moon",
-					            "biomeScale" : 50,
-					            "heightRange" : 75,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 150,
-					            "seed" : 78462,
-					            "temperature" : 0,
-					            "waterHeight" : 0
-					          },
-					        "position_x" : 23917.900000000001,
-					        "position_y" : -15541.1,
-					        "velocity_x" : 51.688000000000002,
-					        "velocity_y" : 89.063199999999995
-					      }
-					    ]
-				},
-				
-				{ "name" : "Fields of Isis",
-					  "planets" : [ { "mass" : 1000,
-					        "name" : "Fields of Isis",
-					        "planet" : { "biome" : "moon",
-					            "biomeScale" : 50,
-					            "heightRange" : 75,
-					            "metalClusters" : 50,
-					            "metalDensity" : 50,
-					            "radius" : 653,
-					            "seed" : 28151,
-					            "temperature" : 0,
-					            "waterHeight" : 5
-					          },
-					        "position_x" : 13775.9,
-					        "position_y" : -16516.400000000001,
-					        "velocity_x" : 117.09,
-					        "velocity_y" : 97.661799999999999
-					      }
-					    ]
-					},
-					
-					{ "name" : "Painted Desert",
-						  "planets" : [ { "mass" : 1800,
-						        "name" : "Painted Desert",
-						        "planet" : { "biome" : "earth",
-						            "biomeScale" : 50,
-						            "heightRange" : 21,
-						            "metalClusters" : 50,
-						            "metalDensity" : 50,
-						            "radius" : 1050,
-						            "seed" : 3348,
-						            "temperature" : 100,
-						            "waterHeight" : 33
-						          },
-						        "position_x" : 29560.5,
-						        "position_y" : -20109.900000000001,
-						        "velocity_x" : 66.517799999999994,
-						        "velocity_y" : 97.777699999999996
-						      },
-						      { "mass" : 2100,
-						        "name" : "Bermeltuse",
-						        "planet" : { "biome" : "tropical",
-						            "biomeScale" : 50,
-						            "heightRange" : 65,
-						            "metalClusters" : 50,
-						            "metalDensity" : 50,
-						            "radius" : 320,
-						            "seed" : 21542,
-						            "temperature" : 80,
-						            "waterHeight" : 20
-						          },
-						        "position_x" : 4347.7200000000003,
-						        "position_y" : -41564.199999999997,
-						        "velocity_x" : 108.788,
-						        "velocity_y" : 11.3795
-						      },
-						      { "mass" : 1800,
-						          "name" : "Achterteetn",
-						          "planet" : { "biome" : "earth",
-						              "biomeScale" : 50,
-						              "heightRange" : 65,
-						              "metalClusters" : 50,
-						              "metalDensity" : 50,
-						              "radius" : 600,
-						              "seed" : 12467,
-						              "temperature" : 100,
-						              "waterHeight" : 35
-						            },
-						          "position_x" : 19751.299999999999,
-						          "position_y" : 17072.900000000001,
-						          "velocity_x" : -90.499600000000001,
-						          "velocity_y" : 104.697
-						        }
-						    ]
-						},
-						
-						{ "name" : "Blasted Rocks",
-							  "planets" : [ { "mass" : 10000,
-							        "name" : "Blasted Rocks",
-							        "planet" : { "biome" : "lava",
-							            "biomeScale" : 50,
-							            "heightRange" : 60,
-							            "metalClusters" : 50,
-							            "metalDensity" : 50,
-							            "radius" : 708,
-							            "seed" : 7846,
-							            "temperature" : 100,
-							            "waterHeight" : 33
-							          },
-							        "position_x" : 5290.1899999999996,
-							        "position_y" : 22586,
-							        "velocity_x" : -142.94499999999999,
-							        "velocity_y" : 33.481200000000001
-							      }
-							    ]
-						}
-	                   
-                       ];
+   {
+	      "name": "RedD",
+	      "planets": [
+	         {
+	            "name": "R2D666",
+	            "mass": 2500,
+	            "position_x": 20135.1,
+	            "position_y": -24.0562,
+	            "velocity_x": 0.188263,
+	            "velocity_y": 157.582,
+	            "planet": {
+	               "seed": 7846,
+	               "radius": 720,
+	               "heightRange": 77,
+	               "waterHeight": 40,
+	               "temperature": 100,
+	               "metalDensity": 50,
+	               "metalClusters": 50,
+	               "biomeScale": 23,
+	               "biome": "lava"
+	            }
+	         }
+	      ]
+	   },
+	   {
+	      "name": "A1600",
+	      "planets": [
+	         {
+	            "name": "1400866",
+	            "mass": 1800,
+	            "position_x": 15012.4,
+	            "position_y": -13515.5,
+	            "velocity_x": -105.267,
+	            "velocity_y": -116.925,
+	            "planet": {
+	               "seed": 17753,
+	               "radius": 670,
+	               "heightRange": 65,
+	               "waterHeight": 30,
+	               "temperature": 65,
+	               "metalDensity": 50,
+	               "metalClusters": 50,
+	               "biomeScale": 57,
+	               "biome": "earth"
+	            }
+	         }
+	      ]
+	   },
+	   {
+	      "name": "Winter Duel",
+	      "planets": [
+	         {
+	            "mass": 2000,
+	            "name": "Winter Duel",
+	            "planet": {
+	               "biome": "earth",
+	               "biomeScale": 50,
+	               "heightRange": 8,
+	               "metalClusters": 50,
+	               "metalDensity": 50,
+	               "radius": 375,
+	               "seed": 13295,
+	               "temperature": 0,
+	               "waterHeight": 35
+	            },
+	            "position_x": 22564.8,
+	            "position_y": -6463.92,
+	            "velocity_x": -40.1926,
+	            "velocity_y": -140.308
+	         }
+	      ]
+	   },
+	   {
+	      "name": "Open Palms",
+	      "planets": [
+	         {
+	            "mass": 1800,
+	            "name": "Open Palms",
+	            "planet": {
+	               "biome": "earth",
+	               "biomeScale": 50,
+	               "heightRange": 50,
+	               "metalClusters": 50,
+	               "metalDensity": 50,
+	               "radius": 900,
+	               "seed": 3348,
+	               "temperature": 57,
+	               "waterHeight": 33
+	            },
+	            "position_x": 28682.5,
+	            "position_y": -545.396,
+	            "velocity_x": 2.50988,
+	            "velocity_y": 131.995
+	         }
+	      ]
+	   },
+	   {
+	      "name": "Finns Revenge",
+	      "planets": [
+	         {
+	            "mass": 2100,
+	            "name": "Finns Revenge",
+	            "planet": {
+	               "biome": "tropical",
+	               "biomeScale": 50,
+	               "heightRange": 7,
+	               "metalClusters": 50,
+	               "metalDensity": 50,
+	               "radius": 599,
+	               "seed": 11375,
+	               "temperature": 80,
+	               "waterHeight": 34
+	            },
+	            "position_x": 19610,
+	            "position_y": -12317.2,
+	            "velocity_x": 78.1559,
+	            "velocity_y": 124.431
+	         }
+	      ]
+	   },
+	   {
+	      "name": "Fields of Isis",
+	      "planets": [
+	         {
+	            "mass": 1000,
+	            "name": "Fields of Isis",
+	            "planet": {
+	               "biome": "moon",
+	               "biomeScale": 50,
+	               "heightRange": 75,
+	               "metalClusters": 50,
+	               "metalDensity": 50,
+	               "radius": 653,
+	               "seed": 28151,
+	               "temperature": 0,
+	               "waterHeight": 5
+	            },
+	            "position_x": 13775.9,
+	            "position_y": -16516.4,
+	            "velocity_x": 117.09,
+	            "velocity_y": 97.6618
+	         }
+	      ]
+	   },
+	   {
+	      "name": "Painted Desert",
+	      "planets": [
+	         {
+	            "mass": 1800,
+	            "name": "Painted Desert",
+	            "planet": {
+	               "biome": "earth",
+	               "biomeScale": 50,
+	               "heightRange": 21,
+	               "metalClusters": 50,
+	               "metalDensity": 50,
+	               "radius": 1050,
+	               "seed": 3348,
+	               "temperature": 100,
+	               "waterHeight": 33
+	            },
+	            "position_x": 29560.5,
+	            "position_y": -20109.9,
+	            "velocity_x": 66.5178,
+	            "velocity_y": 97.7777
+	         }
+	      ]
+	   }
+	];
         
         var systemN = Math.floor(Math.random() * mappool.length);
 		var system = mappool[systemN]; 
@@ -541,14 +488,14 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		
 		// lots of beeps
 		var warn = function(f) {
-			for (var s = 0; s < 25; s++) {
+			for (var s = 0; s < 15; s++) {
 				window.setTimeout(function() {
 					sound.play();
 				}, 100 * s + f);
 			}
 		}
 		
-		for (var s = 0; s < 3; s++) {
+		for (var s = 0; s < 2; s++) {
 			warn(s * 5000);
 		}
 		
