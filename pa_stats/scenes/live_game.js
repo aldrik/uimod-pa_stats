@@ -199,7 +199,7 @@
 		$(document).bindFirst("mousedown", function(e) {// click onto ui elements
 			actionsSinceLastTick++;
 		});
-		$('.holodeck').bindFirst("mousedown", function(e) { // click into 3d world
+		$('holodeck').bindFirst("mousedown", function(e) { // click into 3d world
 			actionsSinceLastTick++;
 		});
 	});
