@@ -390,6 +390,11 @@
 			return;
 		}
 	
+		if (playStartTime === null) {
+			updatePlayStartTime();
+			return;
+		}
+		
 		updateTimeCnt++;
 		if (updateTimeCnt % 12 == 0) {
 			model.updateServerAndLocalTime();
