@@ -241,21 +241,41 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		$("#msg_progress").text(txt);
 	}
 	
+	var getAndStoreVideoId = function() {
+    	var customVideo = $('#gamefoundvideo').val();
+    	console.log(customVideo);
+    	if (customVideo && customVideo.length && customVideo.length > 0) {
+    		localStorage['info.nanodesu.warnVideoId'] = customVideo;
+    	} else {
+    		delete localStorage['info.nanodesu.warnVideoId'];
+    	}
+		return customVideo;
+	};
+	
 	var showCancelBtt = function() {
 		$("#connecting").dialog("option", "buttons", {
 			"CANCEL": function() {
             	cancel();
+            	getAndStoreVideoId();
+            	$('#youtubeconfig').remove();
+            	$('#youtubewarning').remove();
+        		
             	$(this).dialog("close");
             }
-		});		
+		});
 	}
 	
 	var showLoad = function() {
+		var warnId = localStorage['info.nanodesu.warnVideoId'];
+		if (warnId === undefined) {
+			warnId = "";
+		}
+		$('#connecting').append("<div id='youtubeconfig' style='display: table; margin 0 auto;'><input value='"+warnId+"' style='width: 650px;' id='gamefoundvideo' type='text' placeholder='yt video id for custom video, i.e. 9V1eOKhYDws'/></div>");
         $("#connecting").dialog({
             dialogClass: "signin_notification",
             draggable: false,
             resizable: false,
-            height: 140,
+            height: 340,
             width: 700,
             modal: true,
             buttons: {}
@@ -458,7 +478,8 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var registerForSearch = function() {
-		setText("searching 1vs1 vs other PA Stats users... The game will play an annoying sound once an opponent has been found, even when minimized.");
+		setText("searching 1vs1 vs other PA Stats users... The game will play a youtube video, even when minimized. Enter a custom video id here:");
+
 		$.ajax({
 			type : "POST",
 			url : paStatsGlobal.queryUrlBase + "register",
@@ -481,23 +502,15 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			}
 		});
 	}
-	
-	var sound = new Audio(paStatsBaseDir+"scenes/ranked_matcher/a.wav");
-	
+
 	var handleFoundGame = function(data) {
+		var defVideo = "9V1eOKhYDws";
+		var customVideo = getAndStoreVideoId();
 		
-		// lots of beeps
-		var warn = function(f) {
-			for (var s = 0; s < 15; s++) {
-				window.setTimeout(function() {
-					sound.play();
-				}, 100 * s + f);
-			}
-		}
+		var v = customVideo && customVideo.length && customVideo.length > 0 ? customVideo : defVideo;
 		
-		for (var s = 0; s < 2; s++) {
-			warn(s * 5000);
-		}
+		$('#youtubeconfig').remove();
+		$('#connecting').append('<div style="display: table; margin: 0 auto;" id="youtubewarning"><iframe width="300" height="200" src="http://www.youtube.com/embed/'+v+'?autoplay=1" frameborder="0"></iframe></div>');		
 		
 		hideCancelBtt();
 		if (data.isHost) {
