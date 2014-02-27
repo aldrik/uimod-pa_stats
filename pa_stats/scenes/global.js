@@ -15,9 +15,22 @@ var paStatsGlobal = (function() {
 		_queryUrlBase = "http://www.nanodesu.info/pastats/";
 	}
 
-	var _reportVersion = 15;
+	var _reportVersion = 16;
 
 	var _pollingSpeed = 3000;
+	
+	function _createSimplePlanet(system) {
+		var simpleplanet = {
+			seed: system.planets[0].planet.seed,
+			temperature: system.planets[0].planet.temperature,
+			waterHeight: system.planets[0].planet.waterHeight,
+			heightRange: system.planets[0].planet.heightRange,
+			radius: system.planets[0].planet.radius,
+			biome: system.planets[0].planet.biome,
+			name: system.name
+		}
+		return simpleplanet;
+	}
 	
 	function _unlockGame(finalCall) {
 		var link = decode(localStorage['pa_stats_game_link']);
@@ -66,6 +79,7 @@ var paStatsGlobal = (function() {
 	}
 	
 	return {
+		createSimplePlanet: _createSimplePlanet,
 		pa_stats_session_teams : nanodesu + "teams",
 		pa_stats_session_team_index : nanodesu + "team_index",
 		pa_stats_stored_version : nanodesu + "version",

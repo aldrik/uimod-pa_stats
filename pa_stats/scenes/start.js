@@ -39,8 +39,8 @@
 				closeOnEscape : false,
 				draggable : false,
 				resizable : false,
-				height : 600,
-				width : 600,
+				height : 800,
+				width : 800,
 				modal : true,
 				buttons : {
 					"ACCEPT" : function() {

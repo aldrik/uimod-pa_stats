@@ -1,4 +1,11 @@
-$("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" data-bind="click: startRankedGame, visible: showingReady"><div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">Somebody else<br/>is searching!</div><span class="link_start_menu_item"><a href="#" id="ranked_btt"><span class="start_menu_item_lbl" id ="ranked_text">PA STATS AUTO 1vs1</span>  </a>  </span>  </td> </tr>');
+// gamma broke it
+//$('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\', css: { nav_item_disabled: !allowNewOrJoinGame() } ">'+
+//		'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">Somebody else<br/>is searching!</div>'+
+//		'<span class="nav_item_text" data-bind="css: { nav_item_text_disabled: !allowNewOrJoinGame() }">'+
+//		'    PA STATS AUTO 1vs1'+
+//		'</span>'+
+//		'</a>');
+
 
 (function() {
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
@@ -208,18 +215,43 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
         var systemN = Math.floor(Math.random() * mappool.length);
 		var system = mappool[systemN]; 
 		
-		var result = { "armies" : [ { "slots" : [ "player" ] },
-	                    { "slots" : [ "player" ] } ],
-	                      "blocked" : [  ],
-	            		  "enable_lan" : false,
-	            		  "friends" : [  ],
-	            		  "password" : ladderPassword,
-	            		  "spectators" : 0,
-	            		  "system" : system,
-	            		  "type" : 0
-            			};
+//		var result = { "armies" : [ 
+//		                            {
+//		                            	"slots" : [ "player" ],
+//		                            	"alliance": false,
+//		                            	"ai": false,
+//		                            }, {
+//		                            	"slots" : [ "player" ],
+//		                            	"alliance": false,
+//		                            	"ai": false,
+//		                            } 
+//		                         ],
+//	                      "blocked" : [  ],
+//	            		  "enable_lan" : false,
+//	            		  "friends" : [  ],
+//	            		  "password" : ladderPassword,
+//	            		  "spectators" : 0,
+//	            		  "system" : system,
+//	            		  "type" : "0",
+//	            		  "public" : true,
+//		
+//		};
 		
-		fixupPlanetConfig(result);
+		
+		
+		var result = {"type":"0","armies":[{"slots":["player"],"alliance":false,"ai":false},{"slots":["player"],
+			"alliance":false,"ai":false}],"system":{"name":"Beta System",
+				"planets":[{"mass":10000,"position":[20000,0],"velocity":[0,158.114],
+					"generator":{"seed":28630,"radius":449,
+						"heightRange":72,"biomeScale":1,"waterHeight":21,
+						"temperature":31,"biome":"moon","name":"moon","index":0}},
+						{"mass":3000,"position":[24000,0],"velocity":[0,219.351],
+							"generator":{"seed":28073,"radius":500,"heightRange":97,
+								"biomeScale":1,"waterHeight":27,"temperature":95,
+								"biome":"metal","name":"metal","index":0}}]},
+								"enable_lan":false,"spectators":0,"friends":[],"public":true,"blocked":[]}
+		
+		//fixupPlanetConfig(result);
 		
 		return result;
 	};
@@ -238,7 +270,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	
 	var setText = function(txt) {
 		console.log(txt);
-		$("#msg_progress").text(txt);
+		$("#msg_progress_pa_stats").text(txt);
 	}
 	
 	var getAndStoreVideoId = function() {
@@ -253,7 +285,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	};
 	
 	var showCancelBtt = function() {
-		$("#connecting").dialog("option", "buttons", {
+		$("#searchingPaStatsGame").dialog("option", "buttons", {
 			"CANCEL": function() {
             	cancel();
             	getAndStoreVideoId();
@@ -265,18 +297,27 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		});
 	}
 	
+    $('body').append(
+    		'<div id="searchingPaStatsGame">'+
+    			'<div class="div_alert" >' +
+    			'<img src="../shared/img/loading.gif" class="img_progress_icon" style="margin:0px 8px 0px 0px"></img><div id="msg_progress_pa_stats" class="msg_progress_icon"></div>'+ 
+    			'</div>'+
+    		'</div>'
+    );
+	
 	var showLoad = function() {
 		var warnId = localStorage['info.nanodesu.warnVideoId'];
 		if (warnId === undefined) {
 			warnId = "";
 		}
-		$('#connecting').append("<div id='youtubeconfig' style='display: table; margin 0 auto;'><input value='"+warnId+"' style='width: 650px;' id='gamefoundvideo' type='text' placeholder='yt video id for custom video, i.e. 9V1eOKhYDws'/></div>");
-        $("#connecting").dialog({
-            dialogClass: "signin_notification",
+		$('#searchingPaStatsGame').append("<div id='youtubeconfig' style='display: table; margin 0 auto;'><input value='"+warnId+"' style='width: 650px;' id='gamefoundvideo' type='text' placeholder='yt video id for custom video, i.e. 9V1eOKhYDws'/></div>");
+		$("#searchingPaStatsGame").dialog({
+            dialogClass: "no-close",
+            closeOnEscape : false,
             draggable: false,
             resizable: false,
-            height: 340,
-            width: 700,
+            height: 540,
+            width: 900,
             modal: true,
             buttons: {}
         });
@@ -284,7 +325,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	var hideCancelBtt = function() {
-		$("#connecting").dialog("option", "buttons", {	
+		$("#searchingPaStatsGame").dialog("option", "buttons", {	
 		});
 	}
 
@@ -306,6 +347,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	
 	var writeDescription = function() {
 		var desc = makeDescription();
+		loadPlanet(createSimplePlanet(desc));
         model.send_message('game_config', desc, function(success) {
             if (!success) {
             	setText("setting planets failed");
@@ -345,7 +387,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		console.log("use region: " + model.uberNetRegion());
         engine.asyncCall("ubernet.startGame", model.uberNetRegion(), 'Config').done(function (data) {
             data = JSON.parse(data);
-
+            
             setText("ubernet created game, gonna connect now...");
            
             model.gameTicket(data.Ticket);
@@ -385,6 +427,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 					});
 				} else if (result.hasTimeOut) {
 					setText("got timeout");
+					$('#youtubeconfig').remove();
 					reset();
 				} else {
 					if (!cancelLoops) {
@@ -401,29 +444,44 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	};
 	
 	var joinGame = function(lobbyId) {
-		setText("join ubernet game... ");
+		setText("get games list");
 		refreshTimeout();
 		
-        engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
-            data = JSON.parse(data);
-            
-            if (data.PollWaitTimeMS) {
-            	window.setTimeout(function() {
-            		joinGame(lobbyId);
-            	}, 5000);
-            } else {
-                model.isLocalGame(false);
-                model.gameTicket(data.Ticket);
-                model.gameHostname(data.ServerHostname);
-                model.gamePort(data.ServerPort);
-                lobbyIdObs(lobbyId);
-                setText("ubernet game join successful, will connect now");
-                connectToServer();
-            }
-        }).fail(function (data) {
-        	setText("failed to join ubernet game");
-            reset();
-        });
+		engine.asyncCall("ubernet.getCurrentGames").done(function(data) {
+			// ignore the list, I am only doing this because I suspect that joinGame cannot work without it.
+			
+			console.log(data);
+			
+			setText("got game list, try to join now");
+	        engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
+	            data = JSON.parse(data);
+	            console.log(data);
+	            if (data.PollWaitTimeMS) {
+	            	window.setTimeout(function() {
+	            		joinGame(lobbyId);
+	            	}, 5000);
+	            } else {
+	    	 		engine.call('disable_lan_lookout');
+	                model.isLocalGame(false);
+	                model.gameTicket(data.Ticket);
+	                model.gameHostname(data.ServerHostname);
+	                model.gamePort(data.ServerPort);
+	                lobbyIdObs(lobbyId);
+	                setText("ubernet game join successful, will connect now");
+	                connectToServer();
+	            }
+	        }).fail(function (data) {
+	        	setText("failed to join ubernet game");
+				$('#youtubeconfig').remove();
+	            reset();
+	        });
+			
+		}).fail(function(data) {
+			setText("trying to get ubernet games failed, will try again...");
+			setTimeout(function() {
+				joinGame(lobbyId);
+			}, 5000);
+		});
 	}
 	
 	var waitForHost = function() {
@@ -437,6 +495,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 					joinGame(result.lobbyId);
 				} else if (result.hasTimeOut) {
 					setText("timeout while waiting for host...");
+					$('#youtubeconfig').remove();
 					reset();
 				} else {
 					if (!cancelLoops) {
@@ -461,6 +520,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			success: function(result) {
 				if (result.hasTimeOut) {
 					setText("timeout...");
+					$('#youtubeconfig').remove();
 					reset();
 				} else {
 					if (!cancelLoops) {
@@ -472,6 +532,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			},
 			error: function(r) {
 				setText("webservice error");
+				$('#youtubeconfig').remove();
 				reset();
 			}
 		});
@@ -498,6 +559,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			},
 			error: function() {
 				setText("webservice error");
+				$('#youtubeconfig').remove();
             	reset();
 			}
 		});
@@ -510,7 +572,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		var v = customVideo && customVideo.length && customVideo.length > 0 ? customVideo : defVideo;
 		
 		$('#youtubeconfig').remove();
-		$('#connecting').append('<div style="display: table; margin: 0 auto;" id="youtubewarning"><iframe width="300" height="200" src="http://www.youtube.com/embed/'+v+'?autoplay=1" frameborder="0"></iframe></div>');		
+		$('#searchingPaStatsGame').append('<div style="display: table; margin: 0 auto;" id="youtubewarning"><iframe width="300" height="200" src="http://www.youtube.com/embed/'+v+'?autoplay=1" frameborder="0"></iframe></div>');		
 		
 		hideCancelBtt();
 		if (data.isHost) {
@@ -539,6 +601,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			},
 			error: function (data) {
 				setText("webservice error");
+				$('#youtubeconfig').remove();
 				reset();
 			}
 		});
@@ -551,10 +614,13 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 	}
 	
 	model.startRankedGame = function() {
- 		engine.call('disable_lan_lookout');
-		showLoad();
-		reset();
-		setText("starting search...");
+		if (model.allowNewOrJoinGame()) {
+			showLoad();
+			reset();
+			setText("starting search...");
+		} else {
+			console.log("missing a login for a ranked game!");
+		}
 	};
 	
 	var unregister = function() {
@@ -590,8 +656,6 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		searching = false;
 		unregister();
 	}
-	
-	
 	
 	handlers.login_accepted = function(payload) {
 		setText("login accepted...");
@@ -665,9 +729,15 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 		serverLoaded = msg.sim_ready;
 	}
 	
+	handlers.game_config = function(payload) {
+		console.log("YES I WAS CALLED");
+		console.log(payload);
+	};
+	
 	handlers.server_state = function(msg) {
 	    // TODO: Remove when planets are parsed using the new schema
 	    function adaptServerGameConfig(desc) {
+	    	console.log(desc);
 	        var planets = desc.system.planets;
 	        for (var p = 0; p < planets.length; ++p)
 	        {
@@ -712,7 +782,7 @@ $("#A3").parent().parent().parent().before('<tr><td class="td_start_menu_item" d
 			// we are done after this
 			window.location.href = msg.url;
 		} else if (msg.state === "lobby") { // happens when connect to game is complete
-			if (msg.data) {
+			if (msg.data && !iAmHost) {
 				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data.game).system));
 			}
 			
