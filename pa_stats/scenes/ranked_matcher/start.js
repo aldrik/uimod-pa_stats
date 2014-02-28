@@ -253,21 +253,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		loadPlanet(createSimplePlanet(system));
 		fixupPlanetConfig(result);		
 		
-		
-//		var result = {"type":"0","armies":[{"slots":["player"],"alliance":false,"ai":false},{"slots":["player"],
-//			"alliance":false,"ai":false}],"system":{"name":"Beta System",
-//				"planets":[{"mass":10000,"position":[20000,0],"velocity":[0,158.114],
-//					"generator":{"seed":28630,"radius":449,
-//						"heightRange":72,"biomeScale":1,"waterHeight":21,
-//						"temperature":31,"biome":"moon","name":"moon","index":0}},
-//						{"mass":3000,"position":[24000,0],"velocity":[0,219.351],
-//							"generator":{"seed":28073,"radius":500,"heightRange":97,
-//								"biomeScale":1,"waterHeight":27,"temperature":95,
-//								"biome":"metal","name":"metal","index":0}}]},
-//								"enable_lan":false,"spectators":0,"friends":[],"public":true,"blocked":[]}
-//		
-
-		
 		return result;
 	};
 	
@@ -419,11 +404,10 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	
 	var toggleReady = function() {
 		model.send_message('start_game', undefined, function(success) {
-			if (!success) {
-				setText("start_game failed!");
-			} else {
-				setText("Ready: waiting for other players...");
-			}
+			// yes we do this like twice
+			// yes the 2nd fails
+			// whatever...
+			setText("Ready: waiting for other players...");
         });
 	};
 	
@@ -691,18 +675,27 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	var setPaStatsTeams = function() {
 		localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(iAmHost ? 0 : 1);
 		
+		console.log("taking data from:");
+		console.log(latestArmies[0]);
+		
+		var p0 = latestArmies[0].primary_color;
+		var s0 = latestArmies[0].secondary_color;
+		
+		var p1 = latestArmies[1].primary_color;
+		var s1 = latestArmies[1].secondary_color;
+		
 		var teams = [
 		  {
 			  index: 0,
-			  primaryColor: latestArmies["0"].primary_color,
-			  secondaryColor: latestArmies["0"].secondary_color,
-			  players: [{displayName: latestArmies["0"].slots[0]}],
+			  primaryColor: "rgb("+p0[0]+","+p0[1]+","+p0[2]+")",
+			  secondaryColor: "rgb("+s0[0]+","+s0[1]+","+s0[2]+")",
+			  players: [{displayName: latestArmies[0].name}],
 		  },
 		  {
 			  index: 1,
-			  primaryColor: latestArmies["1"].primary_color,
-			  secondaryColor: latestArmies["1"].secondary_color,
-			  players: [{displayName: latestArmies["1"].slots[0]}],		 
+			  primaryColor: "rgb("+p1[0]+","+p1[1]+","+p1[2]+")",
+			  secondaryColor: "rgb("+s1[0]+","+s1[1]+","+s1[2]+")",
+			  players: [{displayName: latestArmies[1].name}],
 		  }
 		];
 		
