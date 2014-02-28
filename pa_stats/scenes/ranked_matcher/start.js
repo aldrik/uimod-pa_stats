@@ -1,13 +1,27 @@
 // gamma broke it
-//$('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\', css: { nav_item_disabled: !allowNewOrJoinGame() } ">'+
-//		'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">Somebody else<br/>is searching!</div>'+
-//		'<span class="nav_item_text" data-bind="css: { nav_item_text_disabled: !allowNewOrJoinGame() }">'+
-//		'    PA STATS AUTO 1vs1'+
-//		'</span>'+
-//		'</a>');
+$('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\', css: { nav_item_disabled: !allowNewOrJoinGame() } ">'+
+		'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">Somebody else<br/>is searching!</div>'+
+		'<span class="nav_item_text" data-bind="css: { nav_item_text_disabled: !allowNewOrJoinGame() }">'+
+		'    PA STATS AUTO 1vs1'+
+		'</span>'+
+		'</a>');
 
 
 (function() {
+	function createSimplePlanet(system) {
+		console.log(system);
+		var simpleplanet = {
+			seed: system.planets[0].planet.seed,
+			temperature: system.planets[0].planet.temperature,
+			waterHeight: system.planets[0].planet.waterHeight,
+			heightRange: system.planets[0].planet.heightRange,
+			radius: system.planets[0].planet.radius,
+			biome: system.planets[0].planet.biome,
+			name: system.name
+		}
+		return simpleplanet;
+	}	
+	
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 	var ladderPassword = "pastatsPleaseDoNotJoinThisGame";
 	var pollingSpeed = paStatsGlobal.pollingSpeed;
@@ -215,43 +229,44 @@
         var systemN = Math.floor(Math.random() * mappool.length);
 		var system = mappool[systemN]; 
 		
-//		var result = { "armies" : [ 
-//		                            {
-//		                            	"slots" : [ "player" ],
-//		                            	"alliance": false,
-//		                            	"ai": false,
-//		                            }, {
-//		                            	"slots" : [ "player" ],
-//		                            	"alliance": false,
-//		                            	"ai": false,
-//		                            } 
-//		                         ],
-//	                      "blocked" : [  ],
-//	            		  "enable_lan" : false,
-//	            		  "friends" : [  ],
-//	            		  "password" : ladderPassword,
-//	            		  "spectators" : 0,
-//	            		  "system" : system,
-//	            		  "type" : "0",
-//	            		  "public" : true,
+		var result = { "armies" : [ 
+		                            {
+		                            	"slots" : [ "player" ],
+		                            	"alliance": false,
+		                            	"ai": false,
+		                            }, {
+		                            	"slots" : [ "player" ],
+		                            	"alliance": false,
+		                            	"ai": false,
+		                            } 
+		                         ],
+	                      "blocked" : [  ],
+	            		  "enable_lan" : false,
+	            		  "friends" : [  ],
+	            		  "password" : ladderPassword,
+	            		  "spectators" : 0,
+	            		  "system" : system,
+	            		  "type" : "0",
+	            		  "public" : true,
+		
+		};
+		loadPlanet(createSimplePlanet(system));
+		fixupPlanetConfig(result);		
+		
+		
+//		var result = {"type":"0","armies":[{"slots":["player"],"alliance":false,"ai":false},{"slots":["player"],
+//			"alliance":false,"ai":false}],"system":{"name":"Beta System",
+//				"planets":[{"mass":10000,"position":[20000,0],"velocity":[0,158.114],
+//					"generator":{"seed":28630,"radius":449,
+//						"heightRange":72,"biomeScale":1,"waterHeight":21,
+//						"temperature":31,"biome":"moon","name":"moon","index":0}},
+//						{"mass":3000,"position":[24000,0],"velocity":[0,219.351],
+//							"generator":{"seed":28073,"radius":500,"heightRange":97,
+//								"biomeScale":1,"waterHeight":27,"temperature":95,
+//								"biome":"metal","name":"metal","index":0}}]},
+//								"enable_lan":false,"spectators":0,"friends":[],"public":true,"blocked":[]}
 //		
-//		};
-		
-		
-		
-		var result = {"type":"0","armies":[{"slots":["player"],"alliance":false,"ai":false},{"slots":["player"],
-			"alliance":false,"ai":false}],"system":{"name":"Beta System",
-				"planets":[{"mass":10000,"position":[20000,0],"velocity":[0,158.114],
-					"generator":{"seed":28630,"radius":449,
-						"heightRange":72,"biomeScale":1,"waterHeight":21,
-						"temperature":31,"biome":"moon","name":"moon","index":0}},
-						{"mass":3000,"position":[24000,0],"velocity":[0,219.351],
-							"generator":{"seed":28073,"radius":500,"heightRange":97,
-								"biomeScale":1,"waterHeight":27,"temperature":95,
-								"biome":"metal","name":"metal","index":0}}]},
-								"enable_lan":false,"spectators":0,"friends":[],"public":true,"blocked":[]}
-		
-		//fixupPlanetConfig(result);
+
 		
 		return result;
 	};
@@ -347,8 +362,7 @@
 	
 	var writeDescription = function() {
 		var desc = makeDescription();
-		loadPlanet(createSimplePlanet(desc));
-        model.send_message('game_config', desc, function(success) {
+        model.send_message('update_game_config', desc, function(success) {
             if (!success) {
             	setText("setting planets failed");
             	reset();
@@ -404,8 +418,12 @@
 	}
 	
 	var toggleReady = function() {
-		model.send_message('toggle_ready', undefined, function(success) {
-            setText("Ready: waiting for other players...");
+		model.send_message('start_game', undefined, function(success) {
+			if (!success) {
+				setText("start_game failed!");
+			} else {
+				setText("Ready: waiting for other players...");
+			}
         });
 	};
 	
@@ -444,44 +462,30 @@
 	};
 	
 	var joinGame = function(lobbyId) {
-		setText("get games list");
 		refreshTimeout();
-		
-		engine.asyncCall("ubernet.getCurrentGames").done(function(data) {
-			// ignore the list, I am only doing this because I suspect that joinGame cannot work without it.
-			
-			console.log(data);
-			
-			setText("got game list, try to join now");
-	        engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
-	            data = JSON.parse(data);
-	            console.log(data);
-	            if (data.PollWaitTimeMS) {
-	            	window.setTimeout(function() {
-	            		joinGame(lobbyId);
-	            	}, 5000);
-	            } else {
-	    	 		engine.call('disable_lan_lookout');
-	                model.isLocalGame(false);
-	                model.gameTicket(data.Ticket);
-	                model.gameHostname(data.ServerHostname);
-	                model.gamePort(data.ServerPort);
-	                lobbyIdObs(lobbyId);
-	                setText("ubernet game join successful, will connect now");
-	                connectToServer();
-	            }
-	        }).fail(function (data) {
-	        	setText("failed to join ubernet game");
-				$('#youtubeconfig').remove();
-	            reset();
-	        });
-			
-		}).fail(function(data) {
-			setText("trying to get ubernet games failed, will try again...");
-			setTimeout(function() {
-				joinGame(lobbyId);
-			}, 5000);
-		});
+		setText("join now...");
+        engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
+            data = JSON.parse(data);
+            console.log(data);
+            if (data.PollWaitTimeMS) {
+            	window.setTimeout(function() {
+            		joinGame(lobbyId);
+            	}, 5000);
+            } else {
+    	 		engine.call('disable_lan_lookout');
+                model.isLocalGame(false);
+                model.gameTicket(data.Ticket);
+                model.gameHostname(data.ServerHostname);
+                model.gamePort(data.ServerPort);
+                lobbyIdObs(lobbyId);
+                setText("ubernet game join successful, will connect now");
+                connectToServer();
+            }
+        }).fail(function (data) {
+        	setText("failed to join ubernet game");
+			$('#youtubeconfig').remove();
+            reset();
+        });
 	}
 	
 	var waitForHost = function() {
@@ -610,7 +614,12 @@
 	
 	var joinSlot = function(slot) {
 		var acu = '/pa/units/commanders/quad_base/quad_base.json'; // TODO make this cool and dynamic
-		model.send_message("join_army", {army: slot, commander: acu})
+		model.send_message("join_army", {
+			army: slot,
+			commander: {
+				ObjectName: model.preferredCommander().ObjectName
+			}
+		})
 	}
 	
 	model.startRankedGame = function() {
@@ -701,9 +710,6 @@
 	};
 	
 	var latestArmies = undefined;
-	handlers.army_state = function(army) {
-		latestArmies = army;
-	}
 	
 	var waitForLoadLoop = function(callback) {
 		var loadFinished = loaded /*&& serverLoaded*/;
@@ -735,6 +741,13 @@
 	};
 	
 	handlers.server_state = function(msg) {
+		console.log("server state")
+		
+		if (msg.data) {
+			latestArmies = msg.data.armies;
+			console.log(latestArmies);
+		}
+		
 	    // TODO: Remove when planets are parsed using the new schema
 	    function adaptServerGameConfig(desc) {
 	    	console.log(desc);
@@ -762,19 +775,6 @@
 	        }
 	        return desc;
 	    }
-		
-		function createSimplePlanet(system) {
-			var simpleplanet = {
-				seed: system.planets[0].planet.seed,
-				temperature: system.planets[0].planet.temperature,
-				waterHeight: system.planets[0].planet.waterHeight,
-				heightRange: system.planets[0].planet.heightRange,
-				radius: system.planets[0].planet.radius,
-				biome: system.planets[0].planet.biome,
-				name: system.name
-			}
-			return simpleplanet;
-		}	
 
 		if (msg.state === "landing") { // this happens when the game moves into the live_game.js
 			localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
@@ -783,29 +783,31 @@
 			window.location.href = msg.url;
 		} else if (msg.state === "lobby") { // happens when connect to game is complete
 			if (msg.data && !iAmHost) {
-				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data.game).system));
+				console.log(msg);
+				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data).system));
 			}
 			
-			api.getWorldView(0).whenPlanetsReady().done(function() {
+//			api.getWorldView(0).whenPlanetsReady().done(function() {
 				loaded = true;
-			});
+//			});
+			
+			if (iAmHost) {
+				setText("configure planets...");
+				writeDescription();
+			}
 			
 			setText("join slot...");
 			if (!iAmHost) {
 				joinSlot(1);
-				toggleReady();
+				//toggleReady();
 				waitForLoadLoop(function() {
 					reportClientIsReadyToStart();
 				});
 			} else {
 				joinSlot(0);
+
 				notifyHosted(lobbyIdObs());
 				runHostWaitLoop();
-			}
-		} else if (msg.state === "config") { // happens when we can config the game (new_game scene)
-			if (iAmHost) {
-				setText("configure planets...");
-				writeDescription();
 			}
 		}
 	};
