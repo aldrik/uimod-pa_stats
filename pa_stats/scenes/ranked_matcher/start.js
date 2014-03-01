@@ -421,8 +421,10 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			success: function(result) {
 				if (result.shouldStart) {
 					waitForLoadLoop(function() {
+						var handle = setInterval(refreshTimeout, 9999);
 						toggleReady();
 						window.setTimeout(function() {
+							clearInterval(handle);
 							setText("timeout while loading, but all players were ready?!");
 							reset();
 						}, 180000);
