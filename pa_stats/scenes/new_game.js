@@ -115,6 +115,8 @@
 		grabData();
 	});
 	
+	setInterval(grabData, 10);
+	
 	var oldStart = model.startGame;
 	model.startGame = function() {
 		if (!model.gameIsNotOk()) {

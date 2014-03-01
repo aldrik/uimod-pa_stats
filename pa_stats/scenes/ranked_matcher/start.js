@@ -57,30 +57,30 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
         }
 		
         var mappool = [
-   {
-	      "name": "RedD",
-	      "planets": [
-	         {
-	            "name": "R2D666",
-	            "mass": 2500,
-	            "position_x": 20135.1,
-	            "position_y": -24.0562,
-	            "velocity_x": 0.188263,
-	            "velocity_y": 157.582,
-	            "planet": {
-	               "seed": 7846,
-	               "radius": 720,
-	               "heightRange": 77,
-	               "waterHeight": 40,
-	               "temperature": 100,
-	               "metalDensity": 50,
-	               "metalClusters": 50,
-	               "biomeScale": 23,
-	               "biome": "lava"
-	            }
-	         }
-	      ]
-	   },
+        {
+        	   "name": "Single Desert",
+        	   "planets": [
+        	      {
+        	         "name": "Oasis",
+        	         "mass": 10000,
+        	         "position_x": -13035.2,
+        	         "position_y": 34765.3,
+        	         "velocity_x": -108.659,
+        	         "velocity_y": -40.7416,
+        	         "planet": {
+        	            "seed": 3348,
+        	            "radius": 885,
+        	            "heightRange": 23,
+        	            "waterHeight": 50,
+        	            "temperature": 100,
+        	            "metalDensity": 50,
+        	            "metalClusters": 50,
+        	            "biomeScale": 73,
+        	            "biome": "earth"
+        	         }
+        	      }
+        	   ],
+        },
 	   {
 	      "name": "A1600",
 	      "planets": [
@@ -226,6 +226,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	      ]
 	   }
 	];
+        
+        
+
         
         var systemN = Math.floor(Math.random() * mappool.length);
 		var system = mappool[systemN]; 
