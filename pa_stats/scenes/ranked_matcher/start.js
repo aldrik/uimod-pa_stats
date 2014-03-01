@@ -269,8 +269,13 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var setText = function(txt) {
-		console.log(txt);
-		$("#msg_progress_pa_stats").text(txt);
+		if (!startedLoading) {
+			console.log(txt);
+			$("#msg_progress_pa_stats").text(txt);
+		} else {
+			console.log("loading started, ignoring further progress completely:");
+			console.log(txt);
+		}
 	}
 	
 	var getAndStoreVideoId = function() {
@@ -633,19 +638,23 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var reset = function() {
-		loaded = false;
-		serverLoaded = false;
-		localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
-		unregister();
-		engine.call('reset_game_state');
-		showCancelBtt();
-		window.setTimeout(function() {
-			searching = true;
-			pollHasGame();
-		}, pollingSpeed);
+		if (!startedLoading) {
+			startedLoading = false;
+			loaded = false;
+			serverLoaded = false;
+			localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+			unregister();
+			engine.call('reset_game_state');
+			showCancelBtt();
+			window.setTimeout(function() {
+				searching = true;
+				pollHasGame();
+			}, pollingSpeed);
+		}
 	}
 	
 	var cancel = function() {
+		startedLoading = false;
 		loaded = false;
 		serverLoaded = false;
 		engine.call('reset_game_state');
@@ -738,13 +747,12 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		console.log(payload);
 	};
 	
+	var startedLoading = false;
+	
 	handlers.control = function(payload) {
 		if (payload.starting) {
-			// this happens when the loading screen is entered
-			localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
-			setPaStatsTeams();
-			
-			window.location.href = 'coui://ui/alpha/building_planets/building_planets.html';
+			setText("The game is now loading...");
+			startedLoading = true;
 		}
 	};
 	
