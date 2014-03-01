@@ -1,4 +1,4 @@
-// gamma broke it
+// gamma broke it, I hacked it to "work" again. This is somehow rather ugly...
 $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\', css: { nav_item_disabled: !allowNewOrJoinGame() } ">'+
 		'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">Somebody else<br/>is searching!</div>'+
 		'<span class="nav_item_text" data-bind="css: { nav_item_text_disabled: !allowNewOrJoinGame() }">'+
@@ -738,6 +738,16 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		console.log(payload);
 	};
 	
+	handlers.control = function(payload) {
+		if (payload.starting) {
+			// this happens when the loading screen is entered
+			localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
+			setPaStatsTeams();
+			
+			window.location.href = 'coui://ui/alpha/building_planets/building_planets.html';
+		}
+	};
+	
 	handlers.server_state = function(msg) {
 		console.log("server state")
 		
@@ -774,6 +784,10 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	        return desc;
 	    }
 
+	    // this is not handled by this code anymore
+	    // however this code path would still work
+	    // the loading screen has some timeout-related advantages though
+	    // so I enter the loading screen and this will never happen here
 		if (msg.state === "landing") { // this happens when the game moves into the live_game.js
 			localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
 			setPaStatsTeams();
