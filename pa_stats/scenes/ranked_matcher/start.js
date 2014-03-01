@@ -350,6 +350,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
         model.send_message('update_game_config', desc, function(success) {
             if (!success) {
             	setText("setting planets failed");
+            	$('#youtubewarning').remove();
             	reset();
             }
         });
@@ -365,6 +366,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			data: JSON.stringify({uber_name: model.uberName(), game_id: gameId}),
 			error: function (data) {
 				setText("webservice error");
+				$('#youtubewarning').remove();
 				reset();
 			}
 		});
@@ -431,7 +433,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 					});
 				} else if (result.hasTimeOut) {
 					setText("got timeout");
-					$('#youtubeconfig').remove();
+					$('#youtubewarning').remove();
 					reset();
 				} else {
 					if (!cancelLoops) {
@@ -469,7 +471,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
             }
         }).fail(function (data) {
         	setText("failed to join ubernet game");
-			$('#youtubeconfig').remove();
+        	$('#youtubewarning').remove();
             reset();
         });
 	}
@@ -485,7 +487,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 					joinGame(result.lobbyId);
 				} else if (result.hasTimeOut) {
 					setText("timeout while waiting for host...");
-					$('#youtubeconfig').remove();
+					$('#youtubewarning').remove();
 					reset();
 				} else {
 					if (!cancelLoops) {
@@ -510,7 +512,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			success: function(result) {
 				if (result.hasTimeOut) {
 					setText("timeout...");
-					$('#youtubeconfig').remove();
+					$('#youtubewarning').remove();
 					reset();
 				} else {
 					if (!cancelLoops) {
@@ -522,7 +524,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			},
 			error: function(r) {
 				setText("webservice error");
-				$('#youtubeconfig').remove();
+				$('#youtubewarning').remove();
 				reset();
 			}
 		});
@@ -549,7 +551,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			},
 			error: function() {
 				setText("webservice error");
-				$('#youtubeconfig').remove();
+				$('#youtubewarning').remove();
             	reset();
 			}
 		});
@@ -562,6 +564,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		var v = customVideo && customVideo.length && customVideo.length > 0 ? customVideo : defVideo;
 		
 		$('#youtubeconfig').remove();
+		$('#youtubewarning').remove();
 		$('#searchingPaStatsGame').append('<div style="display: table; margin: 0 auto;" id="youtubewarning"><iframe width="300" height="200" src="http://www.youtube.com/embed/'+v+'?autoplay=1" frameborder="0"></iframe></div>');		
 		
 		hideCancelBtt();
@@ -591,7 +594,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			},
 			error: function (data) {
 				setText("webservice error");
-				$('#youtubeconfig').remove();
+				$('#youtubewarning').remove();
 				reset();
 			}
 		});
@@ -599,7 +602,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 
 	
 	var joinSlot = function(slot) {
-		var acu = '/pa/units/commanders/quad_base/quad_base.json'; // TODO make this cool and dynamic
 		model.send_message("join_army", {
 			army: slot,
 			commander: {
@@ -659,16 +661,19 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	
 	handlers.connection_failed = function(payload) {
 		setText("connection failed");
+		$('#youtubewarning').remove();
 		reset();
 	};
 	
 	handlers.connection_disconnected = function(payload) {
 		setText("connection disconnected");
+		$('#youtubewarning').remove();
 		reset();
 	};
 	
 	handlers.login_rejected = function(payload) {
 		setText("login rejected");
+		$('#youtubewarning').remove();
 		reset();
 	};
 	
@@ -676,9 +681,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 
 	var setPaStatsTeams = function() {
 		localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(iAmHost ? 0 : 1);
-		
-		console.log("taking data from:");
-		console.log(latestArmies[0]);
 		
 		var p0 = latestArmies[0].primary_color;
 		var s0 = latestArmies[0].secondary_color;
@@ -721,6 +723,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			}
 		}, function() {
 			setText("webservice error");
+			$('#youtubewarning').remove();
 			reset();
 		});
 	}
@@ -783,6 +786,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			}
 			
 //			api.getWorldView(0).whenPlanetsReady().done(function() {
+//				console.log("YES I STILL LOAD"); // seems not...
 				loaded = true;
 //			});
 			
