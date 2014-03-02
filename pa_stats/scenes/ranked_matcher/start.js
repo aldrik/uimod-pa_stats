@@ -165,10 +165,10 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	               "heightRange": 7,
 	               "metalClusters": 50,
 	               "metalDensity": 50,
-	               "radius": 599,
-	               "seed": 11375,
+	               "radius": 666,
+	               "seed": 12375,
 	               "temperature": 80,
-	               "waterHeight": 34
+	               "waterHeight": 100
 	            },
 	            "position_x": 19610,
 	            "position_y": -12317.2,
@@ -233,26 +233,15 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
         var systemN = Math.floor(Math.random() * mappool.length);
 		var system = mappool[systemN]; 
 		
-		var result = { "armies" : [ 
-		                            {
-		                            	"slots" : [ "player" ],
-		                            	"alliance": false,
-		                            	"ai": false,
-		                            }, {
-		                            	"slots" : [ "player" ],
-		                            	"alliance": false,
-		                            	"ai": false,
-		                            } 
-		                         ],
-	                      "blocked" : [  ],
-	            		  "enable_lan" : false,
-	            		  "friends" : [  ],
-	            		  "password" : ladderPassword,
-	            		  "spectators" : 0,
-	            		  "system" : system,
-	            		  "type" : "0",
-	            		  "public" : true,
-		
+		var result = { 
+              "blocked" : [  ],
+    		  "enable_lan" : false,
+    		  "friends" : [  ],
+    		  "password" : ladderPassword,
+    		  "spectators" : 0,
+    		  "system" : system,
+    		  "type" : "0",
+    		  "public" : true,
 		};
 		loadPlanet(createSimplePlanet(system));
 		fixupPlanetConfig(result);		
@@ -319,6 +308,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		if (warnId === undefined) {
 			warnId = "";
 		}
+		$('#youtubeconfig').remove();
 		$('#searchingPaStatsGame').append("<div id='youtubeconfig' style='display: table; margin 0 auto;'><input value='"+warnId+"' style='width: 650px;' id='gamefoundvideo' type='text' placeholder='yt video id for custom video, i.e. 9V1eOKhYDws'/></div>");
 		$("#searchingPaStatsGame").dialog({
             dialogClass: "no-close",
@@ -356,6 +346,12 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	
 	var writeDescription = function() {
 		var desc = makeDescription();
+		
+        model.send_message('reset_armies', [
+         { slots: 1, ai: false, alliance: false },
+         { slots: 1, ai: false, alliance: false }
+       ]);		
+		
         model.send_message('update_game_config', desc, function(success) {
             if (!success) {
             	setText("setting planets failed");
@@ -512,6 +508,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		});
 	}
 	
+	// this is actually rather pointless with the way the system works now...
 	var reportClientIsReadyToStart = function() {
 		$.ajax({
 			type : "POST",
@@ -643,6 +640,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	
 	var reset = function() {
 		if (!startedLoading) {
+			cancelLoops = true;
 			startedLoading = false;
 			loaded = false;
 			serverLoaded = false;
@@ -650,10 +648,13 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			unregister();
 			engine.call('reset_game_state');
 			showCancelBtt();
+			setText("gonna restart searching in a moment");
 			window.setTimeout(function() {
-				searching = true;
-				pollHasGame();
-			}, pollingSpeed);
+				window.setTimeout(function() {
+					searching = true;
+					pollHasGame();
+				}, pollingSpeed);
+			}, 5000);
 		}
 	}
 	

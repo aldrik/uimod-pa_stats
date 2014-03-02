@@ -69,6 +69,18 @@
 		return energyGain() - energyLoss();
 	});
 	
+	var oldSimDead = handlers.sim_terminated;
+	handlers.sim_terminated = function(payload) {
+		paStatsGlobal.unlockGame();
+		oldSimDead(payload);
+	};
+	
+	var oldConnectionList = handlers.connection_disconnected;
+	handlers.connection_disconnected = function(payload) {
+		paStatsGlobal.unlockGame();
+		oldConnectionList(payload);
+	};
+	
 	var oldHandlerArmy = handlers.army;
 	handlers.army = function(payload) {
 		

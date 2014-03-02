@@ -78,44 +78,30 @@
 	}
 	
 	var grabData = function() {
-		var fff = function() {
-			var d = getTeams();
-			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
-			localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
-		};
-		fff();
-		window.setTimeout(fff, 50);
-		window.setTimeout(fff, 150);
-		window.setTimeout(fff, 250);
+		var d = getTeams();
+		localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
+		localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
 	};
 	
-	// just try to hook as many places as possible...
-	
-	var oldCreatedGameDesc = model.createdGameDesc;
-	model.createdGameDesc = function(payload) {
-		oldCreatedGameDesc(payload);
-		grabData();
-	};
-	
-	var oldUpdateGameConfig = model.updateGameConfig;
-	model.updateGameConfig = function() {
-		oldUpdateGameConfig();
-		grabData();
-	};
-	
-	model.isGameCreator.subscribe(function(v) {
-		grabData();
-	});
-	
-	model.selectedTeamTypeIndex.subscribe(function(v) {
-		grabData();
-	});
-	
-	model.armies.subscribe(function(v) {
-		grabData();
-	});
-	
+	// handler is still broken
 	setInterval(grabData, 10);
+
+//	var oldControl = handlers.control;
+//	handlers.control = function(payload) {
+//		console.log("yey");
+//		if (payload.starting) {
+//			grabData();
+//		}
+//		oldControl(payload);
+//	};
+//	
+//	var oldServerState = handlers.server_state;
+//	handlers.server_state = function(msg) {
+//		if (msg.url && msg.url !== window.location.href && msg.state == 'landing') {
+//			grabData();
+//		}
+//		oldServerState(msg);
+//	}
 	
 	var oldStart = model.startGame;
 	model.startGame = function() {
