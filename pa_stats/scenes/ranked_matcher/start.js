@@ -1,7 +1,7 @@
 // This code is a mess. It's temporary. I hope Uber releases a proper ladder before I have to clean this up.
 // gamma broke it, I hacked it to "work" again. This is somehow rather ugly...
 $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\', css: { nav_item_disabled: !allowNewOrJoinGame() } ">'+
-		'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">Somebody else<br/>is searching!</div>'+
+		'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">You or somebody else<br/>is searching!</div>'+
 		'<span class="nav_item_text" data-bind="css: { nav_item_text_disabled: !allowNewOrJoinGame() }">'+
 		'    PA STATS AUTO 1vs1'+
 		'</span>'+
@@ -619,7 +619,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	model.startRankedGame = function() {
 		if (model.allowNewOrJoinGame()) {
 			showLoad();
-			reset();
+			doStart();
 			setText("starting search...");
 		} else {
 			console.log("missing a login for a ranked game!");
@@ -638,22 +638,30 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		});
 	}
 	
+	var doStart = function() {
+		startedLoading = false;
+		loaded = false;
+		serverLoaded = false;
+		engine.call('reset_game_state');
+		doPolls();
+	};
+	
+	var doPolls = function() {
+		window.setTimeout(function() {
+			searching = true;
+			pollHasGame();
+		}, pollingSpeed);
+	};
+	
 	var reset = function() {
 		if (!startedLoading) {
 			cancelLoops = true;
-			startedLoading = false;
-			loaded = false;
-			serverLoaded = false;
 			localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 			unregister();
-			engine.call('reset_game_state');
 			showCancelBtt();
 			setText("gonna restart searching in a moment");
 			window.setTimeout(function() {
-				window.setTimeout(function() {
-					searching = true;
-					pollHasGame();
-				}, pollingSpeed);
+				doStart();
 			}, 5000);
 		}
 	}

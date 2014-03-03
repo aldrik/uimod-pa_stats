@@ -93,7 +93,7 @@
         maxMetal(payload.metal.storage);
         metalGain(payload.metal.production);
         metalLoss(payload.metal.demand);
-		
+        
         hasFirstResourceUpdate(true);
         
 		if (oldHandlerArmy) {
@@ -254,7 +254,6 @@
 	
 	var oldServerState = handlers.server_state;
 	handlers.server_state = function(m) {
-		oldServerState(m);
 		if (m.state !== 'game_over' && m.url && m.url !== window.location.href) {
 			paStatsGlobal.unlockGame();
 		}
@@ -271,6 +270,7 @@
 				maySetupReportInterval();
 				break;
 		}
+		oldServerState(m);
 	};
 	
 	var oldNavToMainMenupas = model.navToMainMenu;
