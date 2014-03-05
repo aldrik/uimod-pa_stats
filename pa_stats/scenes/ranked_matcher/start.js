@@ -352,6 +352,8 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
          { slots: 1, ai: false, alliance: false }
        ]);		
 		
+        model.send_message('modify_settings', desc);
+        
         model.send_message('update_game_config', desc, function(success) {
             if (!success) {
             	setText("setting planets failed");
@@ -428,7 +430,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			success: function(result) {
 				if (result.shouldStart) {
 					waitForLoadLoop(function() {
-						var handle = setInterval(refreshTimeout, 9999);
+						var handle = setInterval(refreshTimeout, pollingSpeed);
 						toggleReady();
 						window.setTimeout(function() {
 							clearInterval(handle);
@@ -614,6 +616,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 				ObjectName: model.preferredCommander().ObjectName
 			}
 		})
+		model.send_message('update_commander', {
+            commander: { ObjectName: model.preferredCommander().ObjectName }
+        });
 	}
 	
 	model.startRankedGame = function() {
@@ -642,6 +647,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		startedLoading = false;
 		loaded = false;
 		serverLoaded = false;
+		cancelLoops = false;
 		engine.call('reset_game_state');
 		doPolls();
 	};
@@ -662,7 +668,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			setText("gonna restart searching in a moment");
 			window.setTimeout(function() {
 				doStart();
-			}, 5000);
+			}, pollingSpeed * 2);
 		}
 	}
 	
@@ -754,15 +760,14 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	handlers.lobby_state = function(msg) {
 		serverLoaded = msg.sim_ready;
 	}
-	
-	handlers.game_config = function(payload) {
-		console.log("YES I WAS CALLED");
-		console.log(payload);
-	};
-	
+
 	var startedLoading = false;
 	
 	handlers.control = function(payload) {
+		if (!payload.has_first_config && iAmHost) {
+			writeDescription();
+		}
+		
 		if (payload.starting) {
 			setText("The game is now loading...");
 			startedLoading = true;
@@ -770,11 +775,8 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	};
 	
 	handlers.server_state = function(msg) {
-		console.log("server state")
-		
 		if (msg.data) {
 			latestArmies = msg.data.armies;
-			console.log(latestArmies);
 		}
 		
 	    // TODO: Remove when planets are parsed using the new schema
@@ -816,7 +818,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			window.location.href = msg.url;
 		} else if (msg.state === "lobby") { // happens when connect to game is complete
 			if (msg.data && !iAmHost) {
-				console.log(msg);
 				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data).system));
 			}
 			

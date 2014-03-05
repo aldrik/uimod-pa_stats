@@ -23,8 +23,8 @@
 			// in case of reloaded UI we can only try to get the id by the displayname...
 			for (var a = 0; a < model.armies().length; a++) {
 				var army = model.armies()[a];
-				for (var p = 0; p < army.openSlots().length; p++) {
-					if (model.displayName() === army.openSlots()[p].playerName()) {
+				for (var p = 0; p < army.slots().length; p++) {
+					if (model.displayName() === army.slots()[p].playerName()) {
 						return a;
 					}
 				}
@@ -45,8 +45,8 @@
 				players: [],
 			}
 			
-			for (var p = 0; p < army.openSlots().length; p++) {
-				var slot = army.openSlots()[p];
+			for (var p = 0; p < army.slots().length; p++) {
+				var slot = army.slots()[p];
 				
 				var isHuman = slot.isPlayer();
 				var isAi = slot.isAI();
@@ -57,7 +57,7 @@
 //				}
 				
 				var player = {
-					displayName: isAi ? "AI" : army.openSlots()[p].playerName(),
+					displayName: isAi ? "AI" : army.slots()[p].playerName(),
 				};
 				
 				if (isHuman || isAi) {
@@ -84,24 +84,22 @@
 	};
 	
 	// handler is still broken
-	setInterval(grabData, 10);
+//	setInterval(grabData, 10);
 
-//	var oldControl = handlers.control;
-//	handlers.control = function(payload) {
-//		console.log("yey");
-//		if (payload.starting) {
-//			grabData();
-//		}
-//		oldControl(payload);
-//	};
-//	
-//	var oldServerState = handlers.server_state;
-//	handlers.server_state = function(msg) {
-//		if (msg.url && msg.url !== window.location.href && msg.state == 'landing') {
-//			grabData();
-//		}
-//		oldServerState(msg);
-//	}
+	var oldControl = handlers.control;
+	handlers.control = function(payload) {
+		console.log("yey");
+		grabData();
+		oldControl(payload);
+	};
+	
+	var oldServerState = handlers.server_state;
+	handlers.server_state = function(msg) {
+		if (msg.url && msg.url !== window.location.href && msg.state == 'landing') {
+			grabData();
+		}
+		oldServerState(msg);
+	}
 	
 	var oldStart = model.startGame;
 	model.startGame = function() {
