@@ -412,6 +412,11 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var toggleReady = function() {
+		setText("toggle ready...");
+		model.send_message('toggle_ready');
+	}
+	
+	var startGame = function() {
 		model.send_message('start_game', undefined, function(success) {
 			// yes we do this like twice
 			// yes the 2nd fails
@@ -431,7 +436,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 				if (result.shouldStart) {
 					waitForLoadLoop(function() {
 						var handle = setInterval(refreshTimeout, pollingSpeed);
-						toggleReady();
+						startGame();
 						window.setTimeout(function() {
 							clearInterval(handle);
 							setText("timeout while loading, but all players were ready?!");
@@ -834,14 +839,14 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			setText("join slot...");
 			if (!iAmHost) {
 				joinSlot(1);
-				//toggleReady();
+				toggleReady();
 				waitForLoadLoop(function() {
 					reportClientIsReadyToStart();
 				});
 			} else {
 				joinSlot(0);
-
 				notifyHosted(lobbyIdObs());
+				toggleReady();
 				runHostWaitLoop();
 			}
 		}
