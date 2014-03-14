@@ -82,28 +82,34 @@
 	}
 	
 	var grabData = function() {
-		if (model.gameIsNotOkInfo()) {
+		if (!model.gameIsNotOk()) {
 			var d = getTeams();
-			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
-			localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
+			if (d.teams.length > 1) {
+				localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
+				localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
+			}
 		}
 	};
 	
-	var oldControl = handlers.control;
-	handlers.control = function(payload) {
-		grabData();
-		oldControl(payload);
-	};
-	
-	var oldServerState = handlers.server_state;
-	handlers.server_state = function(msg) {
-		grabData();
-		oldServerState(msg);
-	}
-	
 	var oldEventMessage = handlers.event_message;
 	handlers.event_message = function(payload) {
-		grabData();
+		if (payload.type === 'countdown') {
+			if (Number(payload.message) > 1) {
+				grabData();
+			}
+		}
 		oldEventMessage(payload);
+	};
+	
+	var oldToggleReady = model.toggleReady;
+	model.toggleReady = function() {
+		grabData();
+		oldToggleReady();
+	};
+	
+	var oldStart = model.startGame;
+	model.startGame = function() {
+		grabData();
+		oldStart();
 	};
 }());
