@@ -10,7 +10,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 
 (function() {
 	function createSimplePlanet(system) {
-		console.log(system);
 		var simpleplanet = {
 			seed: system.planets[0].planet.seed,
 			temperature: system.planets[0].planet.temperature,
@@ -515,7 +514,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		});
 	}
 	
-	// this is actually rather pointless with the way the system works now...
 	var reportClientIsReadyToStart = function() {
 		$.ajax({
 			type : "POST",
@@ -742,7 +740,7 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	var latestArmies = undefined;
 	
 	var waitForLoadLoop = function(callback) {
-		var loadFinished = loaded /*&& serverLoaded*/;
+		var loadFinished = loaded && serverLoaded;
 		if (!loadFinished) {
 			setText("waiting for the game to load");
 		}
@@ -760,23 +758,33 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			reset();
 		});
 	}
-	
-	// this seems not to work reliably?!
-	handlers.lobby_state = function(msg) {
-		serverLoaded = msg.sim_ready;
-	}
 
 	var startedLoading = false;
+	
+    var testLoading = function() {
+        var worldView = api.getWorldView(0);
+        if (worldView) {
+            worldView.arePlanetsReady().then(function(ready) { 
+                loaded = ready;
+                model.send_message('set_loading', {loading: !ready});
+                setTimeout(testLoading, 500);
+            });
+        } else {
+        	setTimeout(testLoading, 500);
+        } 
+    };
 	
 	handlers.control = function(payload) {
 		if (!payload.has_first_config && iAmHost) {
 			writeDescription();
 		}
 		
-		if (payload.starting) {
-			setText("The game is now loading...");
-			startedLoading = true;
-		}
+		serverLoaded = payload.sim_ready;
+		
+		//if (payload.starting) {
+		//	setText("The game is now loading...");
+		//	startedLoading = true;
+		//}
 	};
 	
 	handlers.server_state = function(msg) {
@@ -786,7 +794,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		
 	    // TODO: Remove when planets are parsed using the new schema
 	    function adaptServerGameConfig(desc) {
-	    	console.log(desc);
 	        var planets = desc.system.planets;
 	        for (var p = 0; p < planets.length; ++p)
 	        {
@@ -825,18 +832,16 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			if (msg.data && !iAmHost) {
 				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data).system));
 			}
-			
-//			api.getWorldView(0).whenPlanetsReady().done(function() {
-//				console.log("YES I STILL LOAD"); // seems not...
-				loaded = true;
-//			});
-			
+				
 			if (iAmHost) {
 				setText("configure planets...");
 				writeDescription();
 			}
 			
+			setTimeout(testLoading, pollingSpeed);
+			
 			setText("join slot...");
+			
 			if (!iAmHost) {
 				joinSlot(1);
 				toggleReady();
@@ -851,6 +856,8 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			}
 		}
 	};
+	
+	
 	
 	paStatsGlobal.checkIfPlayersAvailable("#pa_stats_players_note");
 })();

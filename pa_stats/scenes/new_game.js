@@ -1,11 +1,14 @@
 (function() {
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 	
-	var loadPlanet = ko.observable({}).extend({ local: 'pa_stats_loaded_planet' });
+	var setCapturedSystem = function(v) {
+		localStorage['pa_stats_loaded_planet'] = encode(paStatsGlobal.createSimplePlanet(v));
+	};
 	model.loadedSystem.subscribe(function(v) {
-		loadPlanet(paStatsGlobal.createSimplePlanet(v));
+		setCapturedSystem(v);
 		grabData();
 	});
+	setCapturedSystem(model.loadedSystem());
 	
 	var joinedTeamIndexWasSet = false;
 	var joinedTeamIndex = 0;
@@ -71,6 +74,7 @@
 			
 			result.push(team);
 		}
+		
 		return {
 			teams: result,
 			myTeamIndex: getJoinedTeamIndex()
@@ -78,34 +82,28 @@
 	}
 	
 	var grabData = function() {
-		var d = getTeams();
-		localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
-		localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
+		if (model.gameIsNotOkInfo()) {
+			var d = getTeams();
+			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
+			localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
+		}
 	};
 	
-	// handler is still broken
-//	setInterval(grabData, 10);
-
 	var oldControl = handlers.control;
 	handlers.control = function(payload) {
-		console.log("yey");
 		grabData();
 		oldControl(payload);
 	};
 	
 	var oldServerState = handlers.server_state;
 	handlers.server_state = function(msg) {
-		if (msg.url && msg.url !== window.location.href && msg.state == 'landing') {
-			grabData();
-		}
+		grabData();
 		oldServerState(msg);
 	}
 	
-	var oldStart = model.startGame;
-	model.startGame = function() {
-		if (!model.gameIsNotOk()) {
-			grabData();
-		}
-		oldStart();
+	var oldEventMessage = handlers.event_message;
+	handlers.event_message = function(payload) {
+		grabData();
+		oldEventMessage(payload);
 	};
 }());
