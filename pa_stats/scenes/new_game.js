@@ -84,17 +84,34 @@
 	var grabData = function() {
 		if (!model.gameIsNotOk()) {
 			var d = getTeams();
-			if (d.teams.length > 1) {
+			var realData = true;
+			if (d.teams.length <= 1) {
+				realData = false;
+			}
+			for (var i = 0; i < d.teams.length; i++) {
+				if (d.teams[i].players.length === 0) {
+					realData = false;
+				}
+			}
+			if (realData) {
 				localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
 				localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
+			} else {
+				console.log("prevented bogus data from fucking me up");
 			}
 		}
+	};
+	
+	var oldServerState = handlers.server_state;
+	handlers.server_state = function(payload) {
+		grabData();
+		oldServerState(payload);
 	};
 	
 	var oldEventMessage = handlers.event_message;
 	handlers.event_message = function(payload) {
 		if (payload.type === 'countdown') {
-			if (Number(payload.message) > 1) {
+			if (Number(payload.message) > 2) {
 				grabData();
 			}
 		}
