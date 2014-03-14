@@ -82,23 +82,21 @@
 	}
 	
 	var grabData = function() {
-		if (!model.gameIsNotOk()) {
-			var d = getTeams();
-			var realData = true;
-			if (d.teams.length <= 1) {
+		var d = getTeams();
+		var realData = true;
+		if (d.teams.length <= 1) {
+			realData = false;
+		}
+		for (var i = 0; i < d.teams.length; i++) {
+			if (d.teams[i].players.length === 0) {
 				realData = false;
 			}
-			for (var i = 0; i < d.teams.length; i++) {
-				if (d.teams[i].players.length === 0) {
-					realData = false;
-				}
-			}
-			if (realData) {
-				localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
-				localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
-			} else {
-				console.log("prevented bogus data from fucking me up");
-			}
+		}
+		if (realData) {
+			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(d.teams);
+			localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(d.myTeamIndex);
+		} else {
+			console.log("prevented bogus data from fucking me up");
 		}
 	};
 	
