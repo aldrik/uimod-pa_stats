@@ -4,11 +4,15 @@
 	var setCapturedSystem = function(v) {
 		localStorage['pa_stats_loaded_planet'] = encode(paStatsGlobal.createSimplePlanet(v));
 	};
-	model.loadedSystem.subscribe(function(v) {
-		setCapturedSystem(v);
-		grabData();
-	});
-	setCapturedSystem(model.loadedSystem());
+
+	var oldSystemHandler = handlers.system;
+	handlers.system = function(payload) {
+		var system = model.unfixupPlanetConfig(payload);
+		if (system.planets.length > 0) {
+			setCapturedSystem(system);
+		}
+		oldSystemHandler(payload);
+	};
 	
 	var joinedTeamIndexWasSet = false;
 	var joinedTeamIndex = 0;
