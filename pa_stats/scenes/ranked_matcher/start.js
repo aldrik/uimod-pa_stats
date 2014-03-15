@@ -711,31 +711,30 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	var loadPlanet = ko.observable({}).extend({ local: 'pa_stats_loaded_planet' });
 
 	var setPaStatsTeams = function() {
-		// these are not actually used anymore for now in live_game
-//		localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(iAmHost ? 0 : 1);
-//		
-//		var p0 = latestArmies[0].primary_color;
-//		var s0 = latestArmies[0].secondary_color;
-//		
-//		var p1 = latestArmies[1].primary_color;
-//		var s1 = latestArmies[1].secondary_color;
-//		
-//		var teams = [
-//		  {
-//			  index: 0,
-//			  primaryColor: "rgb("+p0[0]+","+p0[1]+","+p0[2]+")",
-//			  secondaryColor: "rgb("+s0[0]+","+s0[1]+","+s0[2]+")",
-//			  players: [{displayName: latestArmies[0].name}],
-//		  },
-//		  {
-//			  index: 1,
-//			  primaryColor: "rgb("+p1[0]+","+p1[1]+","+p1[2]+")",
-//			  secondaryColor: "rgb("+s1[0]+","+s1[1]+","+s1[2]+")",
-//			  players: [{displayName: latestArmies[1].name}],
-//		  }
-//		];
-//		
-//		localStorage[paStatsGlobal.pa_stats_session_teams] = encode(teams);
+		localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(iAmHost ? 0 : 1);
+		
+		var p0 = latestArmies[0].primary_color;
+		var s0 = latestArmies[0].secondary_color;
+		
+		var p1 = latestArmies[1].primary_color;
+		var s1 = latestArmies[1].secondary_color;
+		
+		var teams = [
+		  {
+			  index: 0,
+			  primaryColor: "rgb("+p0[0]+","+p0[1]+","+p0[2]+")",
+			  secondaryColor: "rgb("+s0[0]+","+s0[1]+","+s0[2]+")",
+			  players: [{displayName: latestArmies[0].name}],
+		  },
+		  {
+			  index: 1,
+			  primaryColor: "rgb("+p1[0]+","+p1[1]+","+p1[2]+")",
+			  secondaryColor: "rgb("+s1[0]+","+s1[1]+","+s1[2]+")",
+			  players: [{displayName: latestArmies[1].name}],
+		  }
+		];
+		
+		localStorage[paStatsGlobal.pa_stats_session_teams] = encode(teams);
 	};
 	
 	var latestArmies = undefined;
