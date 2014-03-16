@@ -7,6 +7,8 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		'</span>'+
 		'</a>');
 
+var forcePASGameStart = undefined;
+
 
 (function() {
 	function createSimplePlanet(system) {
@@ -66,6 +68,8 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
         	         "position_y": 34765.3,
         	         "velocity_x": -108.659,
         	         "velocity_y": -40.7416,
+ 		        	 "required_thrust_to_move": 0,
+		             "starting_planet": true,        	
         	         "planet": {
         	            "seed": 3348,
         	            "radius": 885,
@@ -90,6 +94,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	            "position_y": -13515.5,
 	            "velocity_x": -105.267,
 	            "velocity_y": -116.925,
+	 "required_thrust_to_move": 0,
+     "starting_planet": true,        	
+	
 	            "planet": {
 	               "seed": 17753,
 	               "radius": 670,
@@ -121,6 +128,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	               "temperature": 0,
 	               "waterHeight": 35
 	            },
+	 "required_thrust_to_move": 0,
+     "starting_planet": true,        	
+	
 	            "position_x": 22564.8,
 	            "position_y": -6463.92,
 	            "velocity_x": -40.1926,
@@ -145,6 +155,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	               "temperature": 57,
 	               "waterHeight": 33
 	            },
+	 "required_thrust_to_move": 0,
+     "starting_planet": true,        	
+
 	            "position_x": 28682.5,
 	            "position_y": -545.396,
 	            "velocity_x": 2.50988,
@@ -169,6 +182,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	               "temperature": 80,
 	               "waterHeight": 100
 	            },
+	 "required_thrust_to_move": 0,
+     "starting_planet": true,        	
+
 	            "position_x": 19610,
 	            "position_y": -12317.2,
 	            "velocity_x": 78.1559,
@@ -193,6 +209,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	               "temperature": 0,
 	               "waterHeight": 5
 	            },
+	 "required_thrust_to_move": 0,
+     "starting_planet": true,        	
+
 	            "position_x": 13775.9,
 	            "position_y": -16516.4,
 	            "velocity_x": 117.09,
@@ -217,6 +236,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	               "temperature": 100,
 	               "waterHeight": 33
 	            },
+	 "required_thrust_to_move": 0,
+     "starting_planet": true,        	
+
 	            "position_x": 29560.5,
 	            "position_y": -20109.9,
 	            "velocity_x": 66.5178,
@@ -225,9 +247,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	      ]
 	   }
 	];
-        
-        
-
         
         var systemN = Math.floor(Math.random() * mappool.length);
 		var system = mappool[systemN]; 
@@ -261,18 +280,13 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var setText = function(txt) {
-		if (!startedLoading) {
-			console.log(txt);
-			$("#msg_progress_pa_stats").text(txt);
-		} else {
-			console.log("loading started, ignoring further progress completely:");
-			console.log(txt);
-		}
+		console.log(txt);
+		$("#msg_progress_pa_stats").text(txt);
 	}
 	
 	var getAndStoreVideoId = function() {
     	var customVideo = $('#gamefoundvideo').val();
-    	console.log(customVideo);
+    	console.log("customVideo is " + customVideo);
     	if (customVideo && customVideo.length && customVideo.length > 0) {
     		localStorage['info.nanodesu.warnVideoId'] = customVideo;
     	} else {
@@ -417,15 +431,19 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	
 	var startGame = function() {
 		model.send_message('start_game', undefined, function(success) {
-			// yes we do this like twice
-			// yes the 2nd fails
-			// whatever...
 			setText("Ready: waiting for other players...");
+			if (!success) {
+			    console.log('start_game failed');
+			    reset();
+			}
         });
 	};
 	
 	var runHostWaitLoop = function() {
-		setText("waiting for other player to join...");
+		if (cancelLoops) {
+			cancelLoop();
+		}
+		setText("waiting for other player to join and load...");
 		$.ajax({
 			type : "POST",
 			url : queryUrlBase + "shouldStartServer",
@@ -461,10 +479,14 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	};
 	
 	var joinGame = function(lobbyId) {
+		if (cancelLoops) {
+			cancelLoop();
+		}
 		refreshTimeout();
 		setText("join now...");
         engine.asyncCall("ubernet.joinGame", lobbyId).done(function (data) {
             data = JSON.parse(data);
+            console.log("ubernet.joinGame result:");
             console.log(data);
             if (data.PollWaitTimeMS) {
             	window.setTimeout(function() {
@@ -488,6 +510,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var waitForHost = function() {
+		if (cancelLoops) {
+			cancelLoop();
+		}
 		setText("waiting for host...");
 		$.ajax({
 			type : "GET",
@@ -515,6 +540,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var reportClientIsReadyToStart = function() {
+		if (cancelLoops) {
+			cancelLoop();
+		}
 		$.ajax({
 			type : "POST",
 			url : queryUrlBase + "readyToStart",
@@ -542,6 +570,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var registerForSearch = function() {
+		if (cancelLoops) {
+			cancelLoop();
+		}
 		setText("searching 1vs1 vs other PA Stats users... The game will play a youtube video, even when minimized. Enter a custom video id here:");
 
 		$.ajax({
@@ -569,6 +600,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 
 	var handleFoundGame = function(data) {
+		if (cancelLoops) {
+			cancelLoop();
+		}
 		var defVideo = "9V1eOKhYDws";
 		var customVideo = getAndStoreVideoId();
 		
@@ -587,6 +621,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	};
 	
 	var pollHasGame = function() {
+		if (cancelLoops) {
+			cancelLoop();
+		}
 		$.ajax({
 			type : "POST",
 			url : paStatsGlobal.queryUrlBase + "hasGame",
@@ -613,6 +650,9 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 
 	
 	var joinSlot = function(slot) {
+		if (cancelLoops) {
+			cancelLoop();
+		}
 		model.send_message("join_army", {
 			army: slot,
 			commander: {
@@ -647,7 +687,6 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	}
 	
 	var doStart = function() {
-		startedLoading = false;
 		loaded = false;
 		serverLoaded = false;
 		cancelLoops = false;
@@ -662,21 +701,52 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 		}, pollingSpeed);
 	};
 	
+	var testLoadInterval = undefined;
+    var testLoading = function() {
+    	stopTestLoading();
+    	var worker = function() {
+            var worldView = api.getWorldView(0);
+            if (worldView) {
+                worldView.arePlanetsReady().then(function(ready) { 
+                    loaded = ready;
+                    model.send_message('set_loading', {loading: !ready});
+                });
+            }
+    	};
+    	testLoadInterval = setInterval(worker, 750);
+    };
+	
+    var stopTestLoading = function() {
+    	if (testLoadInterval) {
+    		clearInterval(testLoadInterval);
+    		testLoadInterval = undefined;
+    	}    	
+    };
+    
+	var handledLobby = false;
+	
+	var shouldRestart = false;
+	
 	var reset = function() {
-		if (!startedLoading) {
-			cancelLoops = true;
-			localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
-			unregister();
-			showCancelBtt();
-			setText("gonna restart searching in a moment");
-			window.setTimeout(function() {
+		shouldRestart = true;
+		stopTestLoading();
+		handledLobby = false;
+		cancelLoops = true;
+		localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+		unregister();
+		showCancelBtt();
+		setText("gonna restart searching in a moment");
+		window.setTimeout(function() {
+			if (shouldRestart) {
 				doStart();
-			}, pollingSpeed * 2);
-		}
+			}
+		}, pollingSpeed * 4);
 	}
 	
 	var cancel = function() {
-		startedLoading = false;
+		shouldRestart = false;
+		stopTestLoading();
+		handledLobby = false;
 		loaded = false;
 		serverLoaded = false;
 		engine.call('reset_game_state');
@@ -740,7 +810,17 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	var latestArmies = undefined;
 	
 	var waitForLoadLoop = function(callback) {
-		var loadFinished = loaded && serverLoaded;
+		if (cancelLoops) {
+			cancelLoop();
+			return;
+		}
+		var loadFinished = loaded && (serverLoaded || !iAmHost);
+		if (iAmHost) {
+			console.log("server loaded = "+serverLoaded);
+		} else {
+			console.log("only the host cares for the load state of the server!");
+		}
+		console.log("client loaded = "+loaded);
 		if (!loadFinished) {
 			setText("waiting for the game to load");
 		}
@@ -758,33 +838,19 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 			reset();
 		});
 	}
-
-	var startedLoading = false;
 	
-    var testLoading = function() {
-        var worldView = api.getWorldView(0);
-        if (worldView) {
-            worldView.arePlanetsReady().then(function(ready) { 
-                loaded = ready;
-                model.send_message('set_loading', {loading: !ready});
-                setTimeout(testLoading, 500);
-            });
-        } else {
-        	setTimeout(testLoading, 500);
-        } 
-    };
+	forcePASGameStart = function() {
+		loaded = true;
+		serverLoaded = true;
+	}
 	
 	handlers.control = function(payload) {
 		if (!payload.has_first_config && iAmHost) {
+			setText("configure planets...");
 			writeDescription();
 		}
 		
-		serverLoaded = payload.sim_ready;
-		
-		//if (payload.starting) {
-		//	setText("The game is now loading...");
-		//	startedLoading = true;
-		//}
+		serverLoaded = payload.has_first_config && payload.sim_ready;
 	};
 	
 	handlers.server_state = function(msg) {
@@ -819,40 +885,44 @@ $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: st
 	        return desc;
 	    }
 
-	    // this is not handled by this code anymore
-	    // however this code path would still work
-	    // the loading screen has some timeout-related advantages though
-	    // so I enter the loading screen and this will never happen here
 		if (msg.state === "landing") { // this happens when the game moves into the live_game.js
+			console.log("handle landing");
 			localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
 			setPaStatsTeams();
 			// we are done after this
 			window.location.href = msg.url;
 		} else if (msg.state === "lobby") { // happens when connect to game is complete
-			if (msg.data && !iAmHost) {
-				loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data).system));
-			}
+			if (!handledLobby) {
+				console.log("handle lobby entry");
+				handledLobby = true;
+				if (msg.data && !iAmHost) {
+					loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data).system));
+				}
 				
-			if (iAmHost) {
-				setText("configure planets...");
-				writeDescription();
-			}
-			
-			setTimeout(testLoading, pollingSpeed);
-			
-			setText("join slot...");
-			
-			if (!iAmHost) {
-				joinSlot(1);
-				toggleReady();
-				waitForLoadLoop(function() {
-					reportClientIsReadyToStart();
-				});
+				// seems this should be done in control now?
+//				if (iAmHost) {
+//					setText("configure planets...");
+//					writeDescription();
+//				}
+				
+				testLoading();
+				
+				setText("join slot...");
+				
+				if (!iAmHost) {
+					joinSlot(1);
+					toggleReady();
+					waitForLoadLoop(function() {
+						reportClientIsReadyToStart();
+					});
+				} else {
+					joinSlot(0);
+					notifyHosted(lobbyIdObs());
+					toggleReady();
+					runHostWaitLoop();
+				}
 			} else {
-				joinSlot(0);
-				notifyHosted(lobbyIdObs());
-				toggleReady();
-				runHostWaitLoop();
+				console.log("ignore futher lobby entries!");
 			}
 		}
 	};
