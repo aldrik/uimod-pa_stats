@@ -311,7 +311,7 @@ var forcePASGameStart = undefined;
     $('body').append(
     		'<div id="searchingPaStatsGame">'+
     			'<div class="div_alert" >' +
-    			'<img src="../shared/img/loading.gif" class="img_progress_icon" style="margin:0px 8px 0px 0px"></img><div id="msg_progress_pa_stats" class="msg_progress_icon"></div>'+ 
+    			'<img src="coui://ui/main/shared/img/loading.gif" class="img_progress_icon" style="margin:0px 8px 0px 0px"></img><div id="msg_progress_pa_stats" class="msg_progress_icon"></div>'+ 
     			'</div>'+
     		'</div>'
     );
@@ -365,9 +365,15 @@ var forcePASGameStart = undefined;
          { slots: 1, ai: false, alliance: false }
        ]);		
 		
-        model.send_message('modify_settings', desc);
+        model.send_message('modify_settings', desc, function(success) {
+        	if (!success) {
+        		setText("setting settings failed");
+            	$('#youtubewarning').remove();
+            	reset();        		
+        	}
+        });
         
-        model.send_message('update_game_config', desc, function(success) {
+        model.send_message('modify_system', desc.system, function(success) {
             if (!success) {
             	setText("setting planets failed");
             	$('#youtubewarning').remove();
@@ -653,14 +659,15 @@ var forcePASGameStart = undefined;
 		if (cancelLoops) {
 			cancelLoop();
 		}
+		var acu = model.preferredCommander() || {ObjectName: "QuadOsiris"};
 		model.send_message("join_army", {
 			army: slot,
 			commander: {
-				ObjectName: model.preferredCommander().ObjectName
+				ObjectName: acu.ObjectName
 			}
 		})
 		model.send_message('update_commander', {
-            commander: { ObjectName: model.preferredCommander().ObjectName }
+            commander: { ObjectName: acu.ObjectName }
         });
 	}
 	
