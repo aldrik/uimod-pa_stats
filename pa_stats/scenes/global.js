@@ -7,13 +7,7 @@ function checkPaStatsVersion() {
 }
 var paStatsGlobal = (function() {
 	//check if we are currently in development mode and determine correct URL to use
-	var _queryUrlBase = undefined;
-
-	if (typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined') {
-		_queryUrlBase = "http://127.0.0.1:8080/";
-	} else {
-		_queryUrlBase = "http://www.nanodesu.info/pastats/";
-	}
+	var _queryUrlBase = paStatsHost;
 
 	var _reportVersion = 16;
 
