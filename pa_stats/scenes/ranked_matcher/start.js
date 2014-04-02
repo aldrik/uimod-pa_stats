@@ -85,10 +85,10 @@ var forcePASGameStart = undefined;
         	   ],
         },
 	   {
-	      "name": "A1600",
+	      "name": "Eye Of The Storm",
 	      "planets": [
 	         {
-	            "name": "1400866",
+	            "name": "Eye Of The Storm",
 	            "mass": 1800,
 	            "position_x": 15012.4,
 	            "position_y": -13515.5,
@@ -98,14 +98,14 @@ var forcePASGameStart = undefined;
      "starting_planet": true,        	
 	
 	            "planet": {
-	               "seed": 17753,
-	               "radius": 670,
-	               "heightRange": 65,
-	               "waterHeight": 30,
-	               "temperature": 65,
+	               "seed": 14451,
+	               "radius": 699,
+	               "heightRange": 50,
+	               "waterHeight": 23,
+	               "temperature": 0,
 	               "metalDensity": 50,
 	               "metalClusters": 50,
-	               "biomeScale": 57,
+	               "biomeScale": 0,
 	               "biome": "earth"
 	            }
 	         }
@@ -166,21 +166,21 @@ var forcePASGameStart = undefined;
 	      ]
 	   },
 	   {
-	      "name": "Finns Revenge",
+	      "name": "1v1 750",
 	      "planets": [
 	         {
 	            "mass": 2100,
-	            "name": "Finns Revenge",
+	            "name": "1v1 750",
 	            "planet": {
 	               "biome": "tropical",
 	               "biomeScale": 50,
-	               "heightRange": 7,
+	               "heightRange": 25,
 	               "metalClusters": 50,
 	               "metalDensity": 50,
-	               "radius": 666,
-	               "seed": 12375,
-	               "temperature": 80,
-	               "waterHeight": 100
+	               "radius": 750,
+	               "seed": 4915,
+	               "temperature": 39,
+	               "waterHeight": 31
 	            },
 	 "required_thrust_to_move": 0,
      "starting_planet": true,        	
