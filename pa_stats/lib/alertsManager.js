@@ -15,7 +15,8 @@ var alertsManager =
 			var _watchTypes = {
 				CREATED: 0,
 				DAMAGED: 1,
-				DESTROYED: 2
+				DESTROYED: 2,
+				PING: 3
 			};
 			
 			var _makeEmptyFilterSettings = function() {
@@ -71,9 +72,16 @@ var alertsManager =
 					}
 					
 					function shouldBeRetained(notice) {
-						var checkTypes = selectedTypes[notice.watch_type];
-						var includeSpecs = includedUnits[notice.watch_type];
-						var excludeSpecs = excludedUnits[notice.watch_type];
+						var wt = notice.watch_type;
+						// prevent killing yet unknown alert types
+						if (wt !== _watchTypes.CREATED && 
+								wt !== _watchTypes.DAMAGED && 
+								wt !== _watchTypes.DESTROYED) {
+							return true;
+						}
+						var checkTypes = selectedTypes[wt];
+						var includeSpecs = includedUnits[wt];
+						var excludeSpecs = excludedUnits[wt];
 						
 						if (contains(includeSpecs, notice.spec_id)) {
 							return true;
