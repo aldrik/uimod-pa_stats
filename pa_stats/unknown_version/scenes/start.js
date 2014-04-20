@@ -15,9 +15,12 @@
 	var oldSetupInfo = handlers.setup_info;
 	handlers.setup_info = function(payload) {
 		oldSetupInfo(payload);
-		if (payload.username && payload.username.indexOf("replay=") === 0) {
-			replayToStart = payload.username.substring("replay=".length, payload.username.length);
-			console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
+		if (payload.username && payload.username.indexOf("startpa://") === 0) {
+			payload.username = payload.username.replace("startpa://", "").replace("/", "");
+			if (payload.username.indexOf("replay=") === 0) {
+				replayToStart = payload.username.substring("replay=".length, payload.username.length);
+				console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
+			}
 		}
 	};
 	
