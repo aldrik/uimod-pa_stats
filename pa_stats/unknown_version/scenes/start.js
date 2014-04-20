@@ -8,7 +8,7 @@
                 $(".div_build_number_dialog").dialog('open');
             }
         });
-	}, 5000);
+	}, 3000);
 	
 	var replayToStart = undefined;
 	
@@ -24,11 +24,13 @@
 		}
 	};
 	
-	model.mode.subscribe(function(v) {
-		if (v === 2 && replayToStart) {
-			var replayPath = 'coui://ui/main/game/connect_to_game/connect_to_game.html?mode=start&replayid=' + replayToStart;
-			console.log("will switch now to start replay @ "+replayPath);
-			window.location.href = replayPath;
+	model.inMainMenu.subscribe(function(v) {
+		if (v && replayToStart) {
+			window.setTimeout(function() {
+				var replayPath = 'coui://ui/main/game/connect_to_game/connect_to_game.html?mode=start&replayid=' + replayToStart;
+				console.log("will switch now to start replay @ "+replayPath);
+				window.location.href = replayPath;
+			}, 1000);
 		}
 	});
 	
