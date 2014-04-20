@@ -1,4 +1,16 @@
 (function() {
+	// the way we load the version breaks this, so let's do it ourself
+	// so let's do it ourselfs
+	window.setTimeout(function() {
+        engine.asyncCall("ubernet.getCurrentClientVersion").then(function (data) {
+            model.ubernetBuildVersion(data);
+            if (!model.buildOk()) {
+                model.showNewBuild(true);
+                $(".div_build_number_dialog").dialog('open');
+            }
+        });
+	}, 5000);
+	
 	var oldJoinGame = model.joinGame;
 	model.joinGame = function(lobbyId) {
 		localStorage['lobbyId'] = encode(lobbyId);
