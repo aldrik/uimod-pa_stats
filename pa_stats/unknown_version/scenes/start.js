@@ -1,6 +1,5 @@
 (function() {
 	// the way we load the version breaks this, so let's do it ourself
-	// so let's do it ourselfs
 	window.setTimeout(function() {
         engine.asyncCall("ubernet.getCurrentClientVersion").then(function (data) {
             model.ubernetBuildVersion(data);
@@ -10,6 +9,25 @@
             }
         });
 	}, 5000);
+	
+	var replayToStart = undefined;
+	
+	var oldSetupInfo = handlers.setup_info;
+	handlers.setup_info = function(payload) {
+		oldSetupInfo(payload);
+		if (payload.username && payload.username.indexOf("replay=") === 0) {
+			replayToStart = payload.username.substring("replay=".length, payload.username.length);
+			console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
+		}
+	};
+	
+	model.mode.subscribe(function(v) {
+		if (v === 2 && replayToStart) {
+			var replayPath = 'coui://ui/main/game/connect_to_game/connect_to_game.html?mode=start&replayid=' + replayToStart;
+			console.log("will switch now to start replay @ "+replayPath);
+			window.location.href = replayPath;
+		}
+	});
 	
 	var oldJoinGame = model.joinGame;
 	model.joinGame = function(lobbyId) {

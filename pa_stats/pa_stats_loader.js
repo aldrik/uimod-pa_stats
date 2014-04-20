@@ -20,6 +20,10 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 			};
 			recheckVersionSoon();
 		}
+		if (sessionStorage['build_version']) {
+			// need to request this again for mods that parse --username
+			engine.call('request_setup_info');
+		}
 		
 		var knownVersions = ["63475"];
 		var version = decode(sessionStorage['build_version']);
