@@ -219,9 +219,7 @@
 	var metalWastingAccu = new ValueChangeAccumulator(wastingMetalObs);
 	var energyWastingAccu = new ValueChangeAccumulator(wastingEnergyObs);
 	
-	var loadedPlanet = ko.observable({}).extend({
-		local : 'pa_stats_loaded_planet'
-	})();
+	var loadedPlanet = localStorage['pa_stats_loaded_planet_json'];
 	
 	var apmCnt = 0;
 	
@@ -491,14 +489,9 @@
 			report.firstStats = statsPacket;
 			report.paVersion = model.buildVersion();
 			
-			report.planet = {};
-			report.planet.seed = loadedPlanet.seed;
-			report.planet.temperature = loadedPlanet.temperature + "";
-			report.planet.water_height = loadedPlanet.waterHeight + "";
-			report.planet.height_range = loadedPlanet.heightRange + "";
-			report.planet.radius = loadedPlanet.radius + "";
-			report.planet.biome = loadedPlanet.biome;
-			report.planet.planet_name = loadedPlanet.name;
+			report.planet = {
+				json:loadedPlanet
+			};
 			
 			report.armyEvents = pasCapturedEvents;
 			

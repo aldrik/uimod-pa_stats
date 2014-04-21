@@ -2,7 +2,7 @@
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 	
 	var setCapturedSystem = function(v) {
-		localStorage['pa_stats_loaded_planet'] = encode(paStatsGlobal.createSimplePlanet(v));
+		localStorage['pa_stats_loaded_planet_json'] = JSON.stringify(v);
 	};
 
 	var oldSystemHandler = handlers.system;
