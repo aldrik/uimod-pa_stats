@@ -25,13 +25,10 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 			engine.call('request_setup_info');
 		}
 		
-		var knownVersions = ["63475"];
+		var validatedPublicVersions = ["63475", "64498"];
 		var version = decode(sessionStorage['build_version']);
 		
-		console.log(knownVersions);
-		console.log(version);
-		
-		if (knownVersions.indexOf(version) === -1) {
+		if (validatedPublicVersions.indexOf(version) === -1) {
 			version = "unknown_version";
 		}
 		paStatsBaseDir = paStatsBaseDir + version + "/";

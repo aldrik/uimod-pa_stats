@@ -10,6 +10,30 @@
         });
 	}, 3000);
 	
+	var replayToStart = undefined;
+	
+	var oldSetupInfo = handlers.setup_info;
+	handlers.setup_info = function(payload) {
+		oldSetupInfo(payload);
+		if (payload.username && payload.username.indexOf("startpa://") === 0) {
+			payload.username = payload.username.replace("startpa://", "").replace("/", "");
+			if (payload.username.indexOf("replay=") === 0) {
+				replayToStart = payload.username.substring("replay=".length, payload.username.length);
+				console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
+			}
+		}
+	};
+	
+	model.inMainMenu.subscribe(function(v) {
+		if (v && replayToStart) {
+			window.setTimeout(function() {
+				var replayPath = 'coui://ui/main/game/connect_to_game/connect_to_game.html?mode=start&replayid=' + replayToStart;
+				console.log("will switch now to start replay @ "+replayPath);
+				window.location.href = replayPath;
+			}, 1000);
+		}
+	});
+	
 	var oldJoinGame = model.joinGame;
 	model.joinGame = function(lobbyId) {
 		localStorage['lobbyId'] = encode(lobbyId);
