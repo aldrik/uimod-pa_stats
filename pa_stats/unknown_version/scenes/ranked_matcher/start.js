@@ -3,7 +3,7 @@
 $('#navigation_items').append('<a href="#" class="nav_item" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\', css: { nav_item_disabled: !allowNewOrJoinGame() } ">'+
 		'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">You or somebody else<br/>is searching!</div>'+
 		'<span class="nav_item_text" data-bind="css: { nav_item_text_disabled: !allowNewOrJoinGame() }">'+
-		'    PA STATS AUTO 1vs1 '+ (!statsDevelopmentNeverUseThisNameAnywhereElseIDareYou ? " IS DISABLED FOR PTE BUILDS" : " PTE, but DEV-MODE") + 
+		'    PA STATS AUTO 1vs1 '+ (!statsDevelopmentNeverUseThisNameAnywhereElseIDareYou ? " IS DISABLED FOR UNKNOWN BUILDS" : " PTE, but DEV-MODE") + 
 		'</span>'+
 		'</a>');
 
