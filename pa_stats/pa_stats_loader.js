@@ -12,7 +12,8 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		// this results in a bit of extra flicker on the game start, but it is the only way to get the start scene to be knowledgable about the version of PA
 		if (window.location.href.indexOf("start.html") !== -1 && sessionStorage['build_version'] === undefined) {
 			var recheckVersionSoon = function() {
-				if (sessionStorage['build_version'] !== undefined) {
+				if (sessionStorage['build_version'] !== undefined && 
+						(!(model.hasCmdLineTicket() || model.useSteam()) || model.inMainMenu() && model.hasUberNetRegion())) {
 					api.game.debug.reloadScene(api.Panel.pageId);
 				} else {
 					window.setTimeout(recheckVersionSoon, 1000);
