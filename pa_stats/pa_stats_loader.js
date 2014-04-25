@@ -24,17 +24,22 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		}
 
 		if (window.location.href.indexOf("start.html") !== -1 && sessionStorage['build_version']) {
-			window.setTimeout(function() {
-				model.signedInToUbernet.subscribe(function(v) {
-					window.setTimeout(function() {
-						if (model.hasCmdLineTicket() || model.useSteam()) {
-							model.signedInToUbernet(true);
-						}
-					}, 10);
-				});
-				// need to request this again for mods that parse --username
-				engine.call('request_setup_info');
-			}, 500);
+			var fixIt = function() {
+				if (model) {
+					model.signedInToUbernet.subscribe(function(v) {
+						window.setTimeout(function() {
+							if (model.hasCmdLineTicket() || model.useSteam()) {
+								model.signedInToUbernet(true);
+							}
+						}, 10);
+					});
+					// need to request this again for mods that parse --username
+					engine.call('request_setup_info');
+				} else {
+					window.setTimeout(fixIt, 500);
+				}
+			};
+			window.setTimeout(fixIt, 500);
 		}
 		
 		var validatedPublicVersions = ["63475", "64498"];
