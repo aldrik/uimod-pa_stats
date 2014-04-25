@@ -29,6 +29,10 @@ var forcePASGameStart = undefined;
 	var pollingSpeed = paStatsGlobal.pollingSpeed;
 	var queryUrlBase = paStatsGlobal.queryUrlBase;
 	
+	var loadPlanet = function(p) {
+		localStorage['pa_stats_loaded_planet_json'] = JSON.stringify(p);
+	};
+	
 	var makeDescription = function() {
         // TODO: Remove when planets are generated using the new schema
         function fixupPlanetConfig(desc) {
@@ -261,7 +265,7 @@ var forcePASGameStart = undefined;
     		  "type" : "0",
     		  "public" : true,
 		};
-		loadPlanet(createSimplePlanet(system));
+		loadPlanet(system);
 		fixupPlanetConfig(result);		
 		
 		return result;
@@ -790,8 +794,6 @@ var forcePASGameStart = undefined;
 		reset();
 	};
 	
-	var loadPlanet = ko.observable({}).extend({ local: 'pa_stats_loaded_planet' });
-
 	var setPaStatsTeams = function() {
 		localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(iAmHost ? 0 : 1);
 		
@@ -908,7 +910,7 @@ var forcePASGameStart = undefined;
 				console.log("handle lobby entry");
 				handledLobby = true;
 				if (msg.data && !iAmHost) {
-					loadPlanet(createSimplePlanet(adaptServerGameConfig(msg.data).system));
+					loadPlanet(adaptServerGameConfig(msg.data).system);
 				}
 				
 				// seems this should be done in control now?
