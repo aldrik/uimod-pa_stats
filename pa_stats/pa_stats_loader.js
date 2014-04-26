@@ -70,6 +70,10 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		scene_mod_list['lobby'].push(b+'scenes/lobby.js');
 		scene_mod_list['start'].push(b+'scenes/start.js');
 		scene_mod_list['settings'].push(b+'scenes/settings.js');
+		if (scene_mod_list['uberbar'] === undefined) {
+			scene_mod_list['uberbar'] = [];
+		}
+		scene_mod_list['uberbar'].push(b+'scenes/uberbar.js');
 	}
 }());
 
