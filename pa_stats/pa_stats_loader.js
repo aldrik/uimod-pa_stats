@@ -26,10 +26,15 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		if (window.location.href.indexOf("start.html") !== -1 && sessionStorage['build_version']) {
 			var fixIt = function() {
 				if (model) {
+					var wasLoggedIn = decode(sessionStorage['signed_in_to_ubernet']) === true;
 					model.signedInToUbernet.subscribe(function(v) {
 						window.setTimeout(function() {
 							if (model.hasCmdLineTicket() || model.useSteam()) {
 								model.signedInToUbernet(true);
+							} else {
+								if (v === false) {
+									model.signedInToUbernet(wasLoggedIn);	
+								}
 							}
 						}, 10);
 					});
