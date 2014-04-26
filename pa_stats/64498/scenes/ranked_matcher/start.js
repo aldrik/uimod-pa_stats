@@ -61,196 +61,172 @@ var forcePASGameStart = undefined;
             return desc;
         }
 		
-        var mappool = [
-        {
-        	   "name": "Single Desert",
-        	   "planets": [
-        	      {
-        	         "name": "Oasis",
-        	         "mass": 10000,
-        	         "position_x": -13035.2,
-        	         "position_y": 34765.3,
-        	         "velocity_x": -108.659,
-        	         "velocity_y": -40.7416,
- 		        	 "required_thrust_to_move": 0,
-		             "starting_planet": true,        	
-        	         "planet": {
-        	            "seed": 3348,
-        	            "radius": 885,
-        	            "heightRange": 23,
-        	            "waterHeight": 50,
-        	            "temperature": 100,
-        	            "metalDensity": 50,
-        	            "metalClusters": 50,
-        	            "biomeScale": 73,
-        	            "biome": "earth"
-        	         }
-        	      }
-        	   ],
-        },
-	   {
-	      "name": "Eye Of The Storm",
-	      "planets": [
-	         {
-	            "name": "Eye Of The Storm",
-	            "mass": 1800,
-	            "position_x": 15012.4,
-	            "position_y": -13515.5,
-	            "velocity_x": -105.267,
-	            "velocity_y": -116.925,
-	 "required_thrust_to_move": 0,
-     "starting_planet": true,        	
-	
-	            "planet": {
-	               "seed": 14451,
-	               "radius": 699,
-	               "heightRange": 50,
-	               "waterHeight": 23,
-	               "temperature": 0,
-	               "metalDensity": 50,
-	               "metalClusters": 50,
-	               "biomeScale": 0,
-	               "biome": "earth"
-	            }
-	         }
-	      ]
-	   },
-	   {
-	      "name": "Winter Duel",
-	      "planets": [
-	         {
-	            "mass": 2000,
-	            "name": "Winter Duel",
-	            "planet": {
-	               "biome": "earth",
-	               "biomeScale": 50,
-	               "heightRange": 8,
-	               "metalClusters": 50,
-	               "metalDensity": 50,
-	               "radius": 375,
-	               "seed": 13295,
-	               "temperature": 0,
-	               "waterHeight": 35
-	            },
-	 "required_thrust_to_move": 0,
-     "starting_planet": true,        	
-	
-	            "position_x": 22564.8,
-	            "position_y": -6463.92,
-	            "velocity_x": -40.1926,
-	            "velocity_y": -140.308
-	         }
-	      ]
-	   },
-	   {
-	      "name": "Open Palms",
-	      "planets": [
-	         {
-	            "mass": 1800,
-	            "name": "Open Palms",
-	            "planet": {
-	               "biome": "earth",
-	               "biomeScale": 50,
-	               "heightRange": 50,
-	               "metalClusters": 50,
-	               "metalDensity": 50,
-	               "radius": 900,
-	               "seed": 3348,
-	               "temperature": 57,
-	               "waterHeight": 33
-	            },
-	 "required_thrust_to_move": 0,
-     "starting_planet": true,        	
-
-	            "position_x": 28682.5,
-	            "position_y": -545.396,
-	            "velocity_x": 2.50988,
-	            "velocity_y": 131.995
-	         }
-	      ]
-	   },
-	   {
-	      "name": "1v1 750",
-	      "planets": [
-	         {
-	            "mass": 2100,
-	            "name": "1v1 750",
-	            "planet": {
-	               "biome": "tropical",
-	               "biomeScale": 50,
-	               "heightRange": 25,
-	               "metalClusters": 50,
-	               "metalDensity": 50,
-	               "radius": 750,
-	               "seed": 4915,
-	               "temperature": 39,
-	               "waterHeight": 31
-	            },
-	 "required_thrust_to_move": 0,
-     "starting_planet": true,        	
-
-	            "position_x": 19610,
-	            "position_y": -12317.2,
-	            "velocity_x": 78.1559,
-	            "velocity_y": 124.431
-	         }
-	      ]
-	   },
-	   {
-	      "name": "Fields of Isis",
-	      "planets": [
-	         {
-	            "mass": 1000,
-	            "name": "Fields of Isis",
-	            "planet": {
-	               "biome": "moon",
-	               "biomeScale": 50,
-	               "heightRange": 75,
-	               "metalClusters": 50,
-	               "metalDensity": 50,
-	               "radius": 653,
-	               "seed": 28151,
-	               "temperature": 0,
-	               "waterHeight": 5
-	            },
-	 "required_thrust_to_move": 0,
-     "starting_planet": true,        	
-
-	            "position_x": 13775.9,
-	            "position_y": -16516.4,
-	            "velocity_x": 117.09,
-	            "velocity_y": 97.6618
-	         }
-	      ]
-	   },
-	   {
-	      "name": "Painted Desert",
-	      "planets": [
-	         {
-	            "mass": 1800,
-	            "name": "Painted Desert",
-	            "planet": {
-	               "biome": "earth",
-	               "biomeScale": 50,
-	               "heightRange": 21,
-	               "metalClusters": 50,
-	               "metalDensity": 50,
-	               "radius": 1050,
-	               "seed": 3348,
-	               "temperature": 100,
-	               "waterHeight": 33
-	            },
-	 "required_thrust_to_move": 0,
-     "starting_planet": true,        	
-
-	            "position_x": 29560.5,
-	            "position_y": -20109.9,
-	            "velocity_x": 66.5178,
-	            "velocity_y": 97.7777
-	         }
-	      ]
-	   }
-	];
+        
+        // 1:1 rip off from exodus, system sharing provides the exact same format :D
+    	var mappool = [
+      {
+         "name": "F3 Lech-Lecha",
+         "planets": [
+            {
+               "name": "Lech-Lecha",
+               "mass": 7500,
+               "position_x": 22906,
+               "position_y": -6015.72,
+               "velocity_x": 36.9082,
+               "velocity_y": 140.535,
+               "required_thrust_to_move": 0,
+               "starting_planet": 0,
+               "planet": {
+                  "seed": 24234,
+                  "radius": 808,
+                  "heightRange": 19,
+                  "waterHeight": 35,
+                  "temperature": 76,
+                  "metalDensity": 15,
+                  "metalClusters": 25,
+                  "biomeScale": 70,
+                  "biome": "tropical"
+               }
+            }
+         ],
+         "creator": "ZaphodX"
+      },
+      {
+         "name": "F2 Ki-Thissa",
+         "planets": [
+            {
+               "name": "Ki-Thissa",
+               "mass": 7500,
+               "position_x": -29661.4,
+               "position_y": -96.2245,
+               "velocity_x": 0.421198,
+               "velocity_y": -129.833,
+               "required_thrust_to_move": 0,
+               "starting_planet": 1,
+               "planet": {
+                  "seed": 35999,
+                  "radius": 509,
+                  "heightRange": 29,
+                  "waterHeight": 32,
+                  "temperature": 83,
+                  "metalDensity": 75,
+                  "metalClusters": 0,
+                  "biomeScale": 17,
+                  "biome": "tropical"
+               }
+            }
+         ],
+         "creator": "ZaphodX"
+      },
+      {
+         "name": "F1 Veira",
+         "planets": [
+            {
+               "name": "Veira",
+               "mass": 10000,
+               "position_x": -36696.4,
+               "position_y": 5649.39,
+               "velocity_x": -17.6572,
+               "velocity_y": -114.695,
+               "required_thrust_to_move": 0,
+               "starting_planet": 1,
+               "planet": {
+                  "seed": 9239,
+                  "radius": 683,
+                  "heightRange": 8,
+                  "waterHeight": 39,
+                  "temperature": 0,
+                  "metalDensity": 75,
+                  "metalClusters": 0,
+                  "biomeScale": 13,
+                  "biome": "earth"
+               }
+            }
+         ],
+         "creator": "ZaphodX"
+      },
+      {
+         "name": "R3 Shemot",
+         "planets": [
+            {
+               "name": "Shemot",
+               "mass": 7500,
+               "position_x": 3488.16,
+               "position_y": -23238.3,
+               "velocity_x": 144.253,
+               "velocity_y": 21.6529,
+               "required_thrust_to_move": 0,
+               "starting_planet": 1,
+               "planet": {
+                  "seed": 4915,
+                  "radius": 610,
+                  "heightRange": 25,
+                  "waterHeight": 30,
+                  "temperature": 77,
+                  "metalDensity": 65,
+                  "metalClusters": 0,
+                  "biomeScale": 35,
+                  "biome": "desert"
+               }
+            }
+         ],
+         "creator": "ZaphodX"
+      },
+      {
+         "name": "R2 Bereit",
+         "planets": [
+            {
+               "name": "Bereit",
+               "mass": 7500,
+               "position_x": 28756.5,
+               "position_y": -6.61121,
+               "velocity_x": 0.0303095,
+               "velocity_y": 131.861,
+               "required_thrust_to_move": 0,
+               "starting_planet": 0,
+               "planet": {
+                  "seed": 3686,
+                  "radius": 627,
+                  "heightRange": 20,
+                  "waterHeight": 25,
+                  "temperature": 50,
+                  "metalDensity": 24,
+                  "metalClusters": 32,
+                  "biomeScale": 50,
+                  "biome": "earth"
+               }
+            }
+         ],
+         "creator": "ZaphodX"
+      },
+      {
+         "name": "R1 Vayakhel",
+         "planets": [
+            {
+               "name": "Vayakhel",
+               "mass": 10000,
+               "position_x": 5220.21,
+               "position_y": -15251.7,
+               "velocity_x": 166.626,
+               "velocity_y": 57.0313,
+               "required_thrust_to_move": 0,
+               "starting_planet": 1,
+               "planet": {
+                  "seed": 30553,
+                  "radius": 540,
+                  "heightRange": 31,
+                  "waterHeight": 27,
+                  "temperature": 52,
+                  "metalDensity": 90,
+                  "metalClusters": 6,
+                  "biomeScale": 13,
+                  "biome": "earth"
+               }
+            }
+         ],
+         "creator": "ZaphodX"
+      }
+   ];
         
         var systemN = Math.floor(Math.random() * mappool.length);
 		var system = mappool[systemN]; 

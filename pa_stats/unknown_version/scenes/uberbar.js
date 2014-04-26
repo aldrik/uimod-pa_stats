@@ -6,6 +6,7 @@
 				localStorage['lobbyId'] = encode(command.payload.lobby_id);
 			}
 		} catch (iCouldNotActuallyTestTheCodeAbove) {
+			console.log("There is no cake for you");
 		}
 		oldOnCommand(uberid, command);
 	}
