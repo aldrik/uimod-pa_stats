@@ -21,7 +21,7 @@
 	};
 	
 	model.inMainMenu.subscribe(function(v) {
-		if (v && replayToStart) {
+		if (v && replayToStart && model.signedInToUbernet()) {
 			window.setTimeout(function() {
 				var replayPath = 'coui://ui/main/game/connect_to_game/connect_to_game.html?mode=start&replayid=' + replayToStart;
 				console.log("will switch now to start replay @ "+replayPath);
