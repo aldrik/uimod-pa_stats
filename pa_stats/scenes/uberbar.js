@@ -1,5 +1,5 @@
 (function() {
-	var oldOnCommand = model.onCommmand;
+	var oldOnCommand = model.onCommand;
 	model.onCommand = function(uberid, command) {
 		try {
 			if (command.message_type === 'game_lobby_info' && model.acceptedGameInviteFrom() === uberid) {

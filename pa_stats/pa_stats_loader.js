@@ -26,12 +26,14 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		scene_mod_list['live_game'].push(b+'lib/alertsManager.js');
 		scene_mod_list['live_game'].push(b+'scenes/live_game.js');
 		scene_mod_list['lobby'].push(b+'scenes/lobby.js');
-		scene_mod_list['start'].push(noVersionbase+'scenes/start.js');
 		scene_mod_list['settings'].push(b+'scenes/settings.js');
+	
+		// the following scenes cannot find the version of PA correctly without huge troubles
+		scene_mod_list['start'].push(noVersionbase+'scenes/start.js');		
 		if (scene_mod_list['uberbar'] === undefined) {
 			scene_mod_list['uberbar'] = [];
 		}
-		scene_mod_list['uberbar'].push(b+'scenes/uberbar.js');
+		scene_mod_list['uberbar'].push(noVersionbase+'scenes/uberbar.js');
 	}
 }());
 
