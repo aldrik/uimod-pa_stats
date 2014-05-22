@@ -55,13 +55,11 @@
 			for (var p = 0; p < army.slots().length; p++) {
 				var slot = army.slots()[p];
 				
-				var isHuman = slot.isPlayer();
-				var isAi = slot.isAI();
+				console.log(slot);
 				
-				// this seems to fail for non host people...
-//				if (slot.containsThisPlayer()) {
-//					mySlotId = p;
-//				}
+				var isHuman = slot.isPlayer();
+				var isAiFunc = slot.isAI || slot.ai; // I can't believe they really will let the method name stay like this...
+				var isAi = isAiFunc();
 				
 				var player = {
 					displayName: isAi ? "AI" : army.slots()[p].playerName(),

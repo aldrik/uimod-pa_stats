@@ -490,7 +490,7 @@
 			report.paVersion = model.buildVersion();
 			
 			report.planet = {
-					json:loadedPlanet
+				json:loadedPlanet
 			};
 			
 			report.armyEvents = pasCapturedEvents;

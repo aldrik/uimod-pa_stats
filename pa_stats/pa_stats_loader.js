@@ -5,7 +5,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 
 (function() {
 	if (typeof paStatsGlobal === 'undefined') {
-		var validatedPublicVersions = ["63475", "64498", "65588"];
+		var validatedPublicVersions = ["63475", "64498", "65588", "6650a3"];
 		var version = decode(sessionStorage['build_version']);
 		
 		if (validatedPublicVersions.indexOf(version) === -1) {
