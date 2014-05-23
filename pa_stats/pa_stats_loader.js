@@ -4,8 +4,15 @@ var paStatsHost = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou !=
 var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined' ? 'coui://pa_stats/' : 'http://ns393951.ip-176-31-115.eu/mod/live/';
 
 (function() {
+	
+	function fixModList(key) {
+		if (scene_mod_list[key] === undefined) {
+			scene_mod_list[key] = [];
+		}
+	}
+	
 	if (typeof paStatsGlobal === 'undefined') {
-		var validatedPublicVersions = ["63475", "64498", "65588", "66503", "66516"];
+		var validatedPublicVersions = ["66516"];
 		var version = decode(sessionStorage['build_version']);
 		
 		if (validatedPublicVersions.indexOf(version) === -1) {
@@ -27,12 +34,16 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		scene_mod_list['live_game'].push(b+'scenes/live_game.js');
 		scene_mod_list['lobby'].push(b+'scenes/lobby.js');
 		scene_mod_list['settings'].push(b+'scenes/settings.js');
-	
+		
+		
+		fixModList("gw_start");
+		scene_mod_list['gw_start'].push(b+'scenes/gw_start.js');
+		
 		// the following scenes cannot find the version of PA correctly without huge troubles
 		scene_mod_list['start'].push(noVersionbase+'scenes/start.js');		
-		if (scene_mod_list['uberbar'] === undefined) {
-			scene_mod_list['uberbar'] = [];
-		}
+		
+		fixModList("uberbar");
+		
 		scene_mod_list['uberbar'].push(noVersionbase+'scenes/uberbar.js');
 	}
 }());

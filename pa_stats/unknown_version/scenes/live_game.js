@@ -219,8 +219,6 @@
 	var metalWastingAccu = new ValueChangeAccumulator(wastingMetalObs);
 	var energyWastingAccu = new ValueChangeAccumulator(wastingEnergyObs);
 	
-	var loadedPlanet = localStorage['pa_stats_loaded_planet_json'];
-	
 	var apmCnt = 0;
 	
 	// http://stackoverflow.com/questions/2360655/jquery-event-handlers-always-execute-in-order-they-were-bound-any-way-around-t
@@ -314,6 +312,34 @@
 		oldServerState(m);
 	};
 	
+	var oldOptions = handlers.game_options;
+	handlers.game_options = function(payload) {
+		oldOptions(payload);
+		if (payload.game_type && payload.game_type === "Galactic War") {
+			var gwConf = decode(sessionStorage["gw_battle_config"]);
+			delete gwConf.system.description;
+			gwConf.system.name = "Galactic War: "+gwConf.system.name;
+			gwConf.system.planets = [{"name":"This is wrong. Dunno yet if I can get the correct data :(","mass":1000,"starting_planet":true,"required_thrust_to_move":0,"position_x":15000,"position_y":0,"velocity_x":0,"velocity_y":182,"planet":{"temperature":-0.31,"seed":3493,"radius":380,"biome":"lava","waterHeight":0.135,"heightRange":67.4,"metalDensity":50,"biomeScale":100,"metalClusters":50,"metal_density":50,"metal_clusters":50,"index":0}}];
+			localStorage['pa_stats_loaded_planet_json'] = encode(gwConf.system);
+			localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(0);
+			var teams = [
+		   		  {
+		   			  index: 0,
+		   			  primaryColor: "rgb(201,83,56)", // too lazy to grab the right colors right now, they are there though
+		   			  secondaryColor: "rgb(65,152,217)",
+		   			  players: [{displayName: displayName}],
+		   		  },
+		   		  {
+		   			  index: 1,
+		   			  primaryColor: "rgb(0,160,233)",
+		   			  secondaryColor: "rgb(0,155,105)",
+		   			  players: [{displayName: "Galactic War"}],
+		   		  }
+			];
+			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(teams);
+		}
+	};
+	
 	var oldNavToMainMenupas = model.navToMainMenu;
 	model.navToMainMenu = function() {
 		paStatsGlobal.unlockGame(oldNavToMainMenupas);
@@ -385,8 +411,12 @@
 	var pasSeenConstructionEvents = {};
 	
 	alertsManager.addListener(function(payload) {
-		
 		function makeArmyEvent(spec, x, y, z, planetId, watchType, time) {
+            var strip = /.*\.json/.exec(spec);
+            if (strip) {
+            	spec = strip.pop();
+            }
+			
 			return {
 				spec: spec,
 				x: x,
@@ -490,7 +520,7 @@
 			report.paVersion = model.buildVersion();
 			
 			report.planet = {
-				json:loadedPlanet
+				json:localStorage['pa_stats_loaded_planet_json']
 			};
 			
 			report.armyEvents = pasCapturedEvents;

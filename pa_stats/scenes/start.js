@@ -6,6 +6,8 @@
 			'</span>'+
 			'</a>');
 	
+	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+	
 	var replayToStart = undefined;
 	
 	var oldSetupInfo = handlers.setup_info;
