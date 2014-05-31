@@ -12,11 +12,13 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	}
 	
 	if (typeof paStatsGlobal === 'undefined') {
-		var validatedPublicVersions = ["66567"];
+		var validatedPublicVersions = ["66830"];
 		var version = decode(sessionStorage['build_version']);
 		
 		if (validatedPublicVersions.indexOf(version) === -1) {
 			version = "unknown_version";
+		} else {
+			version = "stable";
 		}
 		var noVersionbase = paStatsBaseDir;
 		paStatsBaseDir = paStatsBaseDir + version + "/";
