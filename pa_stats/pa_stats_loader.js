@@ -5,10 +5,11 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 
 (function() {
 	
-	function fixModList(key) {
-		if (scene_mod_list[key] === undefined) {
-			scene_mod_list[key] = [];
+	function addSceneEntry(scene, entry) {
+		if(!scene_mod_list[scene]) {
+			scene_mod_list[scene] = [];
 		}
+		scene_mod_list[scene].push(entry);
 	}
 	
 	if (typeof paStatsGlobal === 'undefined') {
@@ -27,26 +28,23 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		loadScript(b+'lib/unitInfoParser.js');
 		loadScript(b+'scenes/global.js');
 		var c = b+'lib/captureLobbyId.js';
-		scene_mod_list['server_browser'].push(b+"scenes/ranked_matcher/server_browser.js");
-		scene_mod_list['connect_to_game'].push(c);
-		scene_mod_list['server_browser'].push(b+"scenes/server_browser.js");
-		scene_mod_list['new_game'].push(b+"scenes/new_game.js");
-		scene_mod_list['game_over'].push(b+'scenes/game_over.js');
-		scene_mod_list['live_game'].push(b+'lib/alertsManager.js');
-		scene_mod_list['live_game'].push(b+'scenes/live_game.js');
-		scene_mod_list['lobby'].push(b+'scenes/lobby.js');
-		scene_mod_list['settings'].push(b+'scenes/settings.js');
+		addSceneEntry('server_browser', b+"scenes/ranked_matcher/server_browser.js");
+		addSceneEntry('connect_to_game', c);
+		addSceneEntry('server_browser', b+"scenes/server_browser.js");
+		addSceneEntry('new_game', b+"scenes/new_game.js");
+		addSceneEntry('game_over', b+'scenes/game_over.js');
+		addSceneEntry('live_game', b+'lib/alertsManager.js');
+		addSceneEntry('live_game', b+'scenes/live_game.js');
+		addSceneEntry('lobby', b+'scenes/lobby.js');
+		addSceneEntry('settings', b+'scenes/settings.js');
 		
 		
-		fixModList("gw_start");
-		scene_mod_list['gw_start'].push(b+'scenes/gw_start.js');
+		addSceneEntry('gw_start', b+'scenes/gw_start.js');
 		
 		// the following scenes cannot find the version of PA correctly without huge troubles
-		scene_mod_list['start'].push(noVersionbase+'scenes/start.js');		
+		addSceneEntry('start', noVersionbase+'scenes/start.js');		
 		
-		fixModList("uberbar");
-		
-		scene_mod_list['uberbar'].push(noVersionbase+'scenes/uberbar.js');
+		addSceneEntry('uberbar', noVersionbase+'scenes/uberbar.js');
 	}
 }());
 
