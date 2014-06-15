@@ -1,3 +1,4 @@
+console.log("load alertsManager");
 var alertsManager =
 	(typeof alertsManager === 'undefined') ? 
 	(function(){
@@ -8,25 +9,37 @@ var alertsManager =
 		  	// so this is kind of useless, thus no support for them is implemented
 		  	// that means: only the commander damage alert will trigger by default
 		  	// I am also concerned about the amount of damaged alerts that could be triggered
-		  	// if you want to try them just uncomment them, all other code will be able to handle them if you use the right watch_type
-		  	var _hookIntoAlerts = ['watchlist.setCreationAlertTypes', 'watchlist.setDeathAlertTypes'/*, 'watchlist.setDamageAlertTypes'*/];
-		  	var _allAlertsTypes = ['Mobile', 'Structure'];
+		// sight buggy, changing it kills enemy located messages
+		  	var _hookIntoAlerts = ['watchlist.setCreationAlertTypes', 'watchlist.setDeathAlertTypes', /*'watchlist.setSightAlertTypes',*/ 'watchlist.setTargetDestroyedAlertTypes'/*, 'watchlist.setDamageAlertTypes'*/];
+		  	var _allAlertsTypes = ['Mobile', 'Structure', 'Recon'];
 
 			var _watchTypes = {
 				CREATED: 0,
 				DAMAGED: 1,
 				DESTROYED: 2,
-				PING: 3
+				PING: 3,
+				SIGHT: 4,
+				PROJECTILE: 5,
+				FIRST_CONTACT: 6,
+				TARGET_DESTROYED: 7
 			};
 			
 			var _makeEmptyFilterSettings = function() {
-				return {selectedTypes: {}, includedUnits: {}, excludedUnits: {}};
-			}
+				return {selectedTypes: {}, excludedTypes: {}, includedUnits: {}, excludedUnits: {}};
+			};
 			
 			var _defaultFilterSettings = _makeEmptyFilterSettings();
-			_defaultFilterSettings.selectedTypes[_watchTypes.CREATED] = ['Factory'];
+			_defaultFilterSettings.selectedTypes[_watchTypes.CREATED] = ['Factory', 'Recon'];
+			
 			_defaultFilterSettings.selectedTypes[_watchTypes.DAMAGED] = ['Commander'];
+			
 			_defaultFilterSettings.selectedTypes[_watchTypes.DESTROYED] = ['Structure'];
+			_defaultFilterSettings.excludedTypes[_watchTypes.DESTROYED] = ['Wall'];
+			
+			_defaultFilterSettings.selectedTypes[_watchTypes.SIGHT] = ['Commander'];
+			
+			_defaultFilterSettings.selectedTypes[_watchTypes.TARGET_DESTROYED] = ['Commander', 'Structure'];
+			
 			// includedUnits and excludedUnits are not used by the default settings
 			
 			var _listenerCounter = 0;
@@ -64,6 +77,7 @@ var alertsManager =
 			var _makeFilterBy = function(settings) {
 				return function(payload) {
 					var selectedTypes = settings.selectedTypes;
+					var excludedTypes = settings.excludedTypes;
 					var includedUnits = settings.includedUnits;
 					var excludedUnits = settings.excludedUnits;
 
@@ -73,23 +87,32 @@ var alertsManager =
 					
 					function shouldBeRetained(notice) {
 						var wt = notice.watch_type;
-						// prevent killing yet unknown alert types
+						// prevent killing yet unknown alert types or types we do not handle, like i.e. projectile or ping
 						if (wt !== _watchTypes.CREATED && 
 								wt !== _watchTypes.DAMAGED && 
-								wt !== _watchTypes.DESTROYED) {
+								wt !== _watchTypes.DESTROYED &&
+								wt !== _watchTypes.SIGHT && 
+								wt !== _watchTypes.TARGET_DESTROYED) {
 							return true;
 						}
-						var checkTypes = selectedTypes[wt];
-						var includeSpecs = includedUnits[wt];
-						var excludeSpecs = excludedUnits[wt];
+						var checkTypes = selectedTypes[wt] || [];
+						var exTypes = excludedTypes[wt] || [];
+						var includeSpecs = includedUnits[wt] || [];
+						var excludeSpecs = excludedUnits[wt] || [];
 						
 						if (contains(includeSpecs, notice.spec_id)) {
 							return true;
 						} else if (contains(excludeSpecs, notice.spec_id)) {
 							return false;
 						} else {
+							var unitTypeBySpec = _unitSpecMapping[notice.spec_id];
+							for (var i = 0; i < exTypes.length; i++) {
+								if (contains(unitTypeBySpec, exTypes[i])) {
+									return false;
+								}
+							}
 							for (var i = 0; i < checkTypes.length; i++) {
-								if (contains(_unitSpecMapping[notice.spec_id], checkTypes[i])) {
+								if (contains(unitTypeBySpec, checkTypes[i])) {
 									return true;
 								}
 							}
@@ -116,25 +139,25 @@ var alertsManager =
 			var _removeDisplayListener = undefined;
 			
 			var _initHook = function() {
-				var oldApplyUiStuff = model.applyUIDisplaySettings;
-				model.applyUIDisplaySettings = function() {
-				  function listenToAllAlerts() {
-					 for (var i = 0; i < _hookIntoAlerts.length; i++) {
+				function listenToAllAlerts() {
+					for (var i = 0; i < _hookIntoAlerts.length; i++) {
+//						console.log("engine.call('"+_hookIntoAlerts[i]+"', '"+JSON.stringify(_allAlertsTypes)+"', '"+JSON.stringify([])+"');");
 						engine.call(_hookIntoAlerts[i], JSON.stringify(_allAlertsTypes), JSON.stringify([])); // I am assuming the 2nd on is an exclusion, tests need to validate it. If yes it should be used, too
 					 }
-				   }
-				   listenToAllAlerts();
-				   // to get rid of wrong settings by rAlertsFilter
-				   window.setTimeout(listenToAllAlerts, 3000);
-				   // this basically is a race condition vs rAlertsFilter, so better save than sorry
-				   window.setTimeout(listenToAllAlerts, 5000);
+				}
+				for (var i = 0; i < 9; i+=2) {
+					window.setTimeout(listenToAllAlerts, i*1000);					
+				}
 				   
-				   oldApplyUiStuff();
-				};
-				
 				_displayHandler = handlers.watch_list;
-				_removeDisplayListener = _addFilteredListener(_displayHandler, _defaultFilterSettings);
+				if (_displayHandler !== undefined) {
+					_removeDisplayListener = _addFilteredListener(_displayHandler, _defaultFilterSettings);					
+				} else {
+					_removeDisplayListener = function() {};
+				}
+				
 				handlers.watch_list = function(payload) {
+					console.log(payload);
 					_watchListHandler(payload);
 				};
 			};
@@ -145,7 +168,11 @@ var alertsManager =
 			
 			var _replaceDisplayFilter = function(settings) {
 				_removeDisplayListener();
-				_removeDisplayListener = _addFilteredListener(_displayHandler, settings);
+				if (_displayHandler !== undefined) {
+					_removeDisplayListener = _addFilteredListener(_displayHandler, settings);					
+				} else {
+					_removeDisplayListener = function() {};
+				}
 			};
 			
 			_initHook();

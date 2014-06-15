@@ -291,30 +291,7 @@
 		}
 	}
 	
-	var oldServerState = handlers.server_state;
-	handlers.server_state = function(m) {
-		if (m.state !== 'game_over' && m.url && m.url !== window.location.href) {
-			paStatsGlobal.unlockGame();
-		}
-		switch(m.state) {
-			case 'landing':
-				pasHadReconnect = false;
-				break;
-			case 'game_over':
-				gameIsOverOrPlayerIsDead = true;
-				paStatsGlobal.unlockGame();
-				break;
-			case 'playing':
-				updatePlayStartTime();
-				maySetupReportInterval();
-				break;
-		}
-		oldServerState(m);
-	};
-	
-	var oldOptions = handlers.game_options;
-	handlers.game_options = function(payload) {
-		oldOptions(payload);
+	var handleOptions = function(payload) {
 		if (payload.game_type && payload.game_type === "Galactic War") {
 			var gwConf = decode(sessionStorage["gw_battle_config"]);
 			delete gwConf.system.description;
@@ -338,6 +315,33 @@
 			];
 			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(teams);
 		}
+	};
+	
+	var oldServerState = handlers.server_state;
+	handlers.server_state = function(m) {
+		console.log(m);
+		if (m.state !== 'game_over' && m.url && m.url !== window.location.href) {
+			paStatsGlobal.unlockGame();
+		}
+		switch(m.state) {
+			case 'landing':
+				pasHadReconnect = false;
+				break;
+			case 'game_over':
+				gameIsOverOrPlayerIsDead = true;
+				paStatsGlobal.unlockGame();
+				break;
+			case 'playing':
+				updatePlayStartTime();
+				maySetupReportInterval();
+				break;
+		}
+		
+		if (m.data.client && m.data.client.hasOwnProperty('game_options')) {
+			handleOptions(m.data.client.game_options);
+		}
+		
+		oldServerState(m);
 	};
 	
 	var oldNavToMainMenupas = model.navToMainMenu;
@@ -465,6 +469,7 @@
 		if (!hasFirstResourceUpdate() // game has not yet started
 				|| gameIsOverOrPlayerIsDead // review
 				|| (model.armySize() == 0) // observer
+				|| model.isSpectator()
 				|| paStatsGlobal.reportVersion < localStorage['pa_stats_req_version'] // bad version
 				|| model.showTimeControls() // chonocam
 				|| (!model.wantsToSend() && !decode(localStorage[paStatsGlobal.isRankedGameKey])) // user refused at the start of the game, careful of ranked, PA Stats is mandatory for them

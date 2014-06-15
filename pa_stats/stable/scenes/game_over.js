@@ -98,7 +98,8 @@
 
 
 		var button_str = '<a data-bind="click_sound: \'default\', rollover_sound: \'default\'"><input type="button" value="SHOW GAME GRAPHS" id="" class="btn_commit" data-bind="click: showGraph"/></a>';
-		$(".div_commit_buttons_cont").append(button_str); // button for toggling between graph and table
+		// this is broken and a noop since ages, so let's not show it
+//		$(".div_commit_buttons_cont").append(button_str); // button for toggling between graph and table
 
 		model.showGraph = function ()
 		{

@@ -1,30 +1,61 @@
 (function() {
-	 $("#main .header").children(":first").append("<li><a href='#tab_pa_stats' data-toggle='pill'>PA Stats</a></li>");
-     $("#main .content").children(":first").append('<div class="option-list tab-pane" id="tab_pa_stats"></div>');	
-	
 	function PaStatsSettingsModel() {
 		var self = this;
-		self.wantsToSend = ko.observable(decode(localStorage[paStatsGlobal.wantsToSendKey]));
-		self.showDataLive = ko.observable(decode(localStorage[paStatsGlobal.showDataLiveKey]));
+		var oldWantsToSend = ko.observable();
+		var oldShowDataLive = ko.observable();
+		
+		self.reloadCleanState = function() {
+			oldWantsToSend(decode(localStorage[paStatsGlobal.wantsToSendKey]));
+			oldShowDataLive(decode(localStorage[paStatsGlobal.showDataLiveKey]));
+		};
+		
+		self.reloadCleanState();
+		
+		self.wantsToSend = ko.observable(oldWantsToSend());
+		self.showDataLive = ko.observable(oldShowDataLive());
+		
+		self.dirty = ko.computed(function() {
+			return self.wantsToSend() !== oldWantsToSend() ||
+				self.showDataLive() !== oldShowDataLive();
+		});
 	}
 
 	var paStatsSettingsModel = new PaStatsSettingsModel();
 
-	var paStatsOldOk = model.save;
-	model.save = function() {
+	model.paStatsSettingsModel = paStatsSettingsModel;
+	
+	var oldClean = model.clean;
+	model.clean = ko.computed(function() {
+		return oldClean() && !model.paStatsSettingsModel.dirty();
+	});
+	
+	var doStore = function() {
 		paStatsOldOk();
 		localStorage[paStatsGlobal.wantsToSendKey] = encode(paStatsSettingsModel.wantsToSend());
 		localStorage[paStatsGlobal.showDataLiveKey] = encode(paStatsSettingsModel.showDataLive());
-	}
-
+		paStatsSettingsModel.reloadCleanState();
+	};
+	
+	var paStatsOldOk = model.save;
+	model.save = function() {
+		paStatsOldOk();
+		doStore();
+	};
+	
+	var paStatsOldOkClose = model.saveAndExit;
+	model.saveAndExit = function() {
+		paStatsOldOkClose();
+		doStore();
+	};
+	
 	var paStatsOldDefaults = model.restoreDefaults;
 	model.restoreDefaults = function() {
 		paStatsOldDefaults();
 		paStatsSettingsModel.wantsToSend(true);
 		paStatsSettingsModel.showDataLive(true);
-	}
-
-	$('#tab_pa_stats').load(paStatsBaseDir+"scenes/settings.html", function() {
-		ko.applyBindings(paStatsSettingsModel, $('#tab_pa_stats').get(0));
-	});
+	};
+	
+	model.settingGroups().push("pastats");
+    model.settingDefinitions()["pastats"] = {title:"PA Stats",settings:{}};
+	$("#main .content .wrapper .option-list").first().append($('<div>').load(paStatsBaseDir+"scenes/settings.html", function () {}));
 }());

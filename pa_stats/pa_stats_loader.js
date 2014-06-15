@@ -13,7 +13,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	}
 	
 	if (typeof paStatsGlobal === 'undefined') {
-		var validatedPublicVersions = ["66943"];
+		var validatedPublicVersions = ["67342"];
 		var version = decode(sessionStorage['build_version']);
 		
 		if (validatedPublicVersions.indexOf(version) === -1) {
@@ -21,6 +21,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		} else {
 			version = "stable";
 		}
+		console.log("load pa stats for version "+version);
 		var noVersionbase = paStatsBaseDir;
 		paStatsBaseDir = paStatsBaseDir + version + "/";
 		
@@ -38,7 +39,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry('lobby', b+'scenes/lobby.js');
 		addSceneEntry('settings', b+'scenes/settings.js');
 		
-		
+		addSceneEntry("live_game_unit_alert", b+'lib/alertsManager.js');
 		addSceneEntry('gw_start', b+'scenes/gw_start.js');
 		
 		// the following scenes cannot find the version of PA correctly without huge troubles
