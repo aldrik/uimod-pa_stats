@@ -13,7 +13,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	}
 	
 	if (typeof paStatsGlobal === 'undefined') {
-		var validatedPublicVersions = ["67342"];
+		var validatedPublicVersions = ["67457"];
 		var version = decode(sessionStorage['build_version']);
 		
 		if (validatedPublicVersions.indexOf(version) === -1) {
