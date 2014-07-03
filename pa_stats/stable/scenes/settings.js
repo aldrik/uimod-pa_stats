@@ -57,5 +57,7 @@
 	
 	model.settingGroups().push("pastats");
     model.settingDefinitions()["pastats"] = {title:"PA Stats",settings:{}};
-	$("#main .content .wrapper .option-list").first().append($('<div>').load(paStatsBaseDir+"scenes/settings.html", function () {}));
+	$("#main .content .wrapper .option-list").first().append($('<div>').load(paStatsBaseDir+"scenes/settings.html", function () {
+		model.settingGroups.notifySubscribers();
+	}));
 }());

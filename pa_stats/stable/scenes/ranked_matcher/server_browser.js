@@ -178,33 +178,6 @@ var forcePASGameStart = undefined;
          "creator": "ZaphodX"
       },
       {
-         "name": "R2 Bereit",
-         "planets": [
-            {
-               "name": "Bereit",
-               "mass": 7500,
-               "position_x": 28756.5,
-               "position_y": -6.61121,
-               "velocity_x": 0.0303095,
-               "velocity_y": 131.861,
-               "required_thrust_to_move": 0,
-               "starting_planet": 0,
-               "planet": {
-                  "seed": 3686,
-                  "radius": 627,
-                  "heightRange": 20,
-                  "waterHeight": 25,
-                  "temperature": 50,
-                  "metalDensity": 24,
-                  "metalClusters": 32,
-                  "biomeScale": 50,
-                  "biome": "earth"
-               }
-            }
-         ],
-         "creator": "ZaphodX"
-      },
-      {
          "name": "R1 Vayakhel",
          "planets": [
             {
