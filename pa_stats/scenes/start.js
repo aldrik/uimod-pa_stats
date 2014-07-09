@@ -7,12 +7,10 @@
 			'</a>');
 	
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
-	
-	var replayToStart = undefined;
-	
-	var oldSetupInfo = handlers.setup_info;
-	handlers.setup_info = function(payload) {
-		oldSetupInfo(payload);
+
+	api.game.getSetupInfo().then(function(payload) {
+		console.log("getSetupInfo");
+		console.log(payload);
 		
 		// support both startpa:// formats, prefer the newer one (which so far I do not use xD)
 		var custData = payload.ui_options || payload.username;
@@ -20,19 +18,22 @@
 		if (custData && custData.indexOf("startpa://") === 0) {
 			custData = custData.replace("startpa://", "").replace("/", "");
 			if (custData.indexOf("replay=") === 0) {
-				replayToStart = custData.substring("replay=".length, custData.length);
+				var replayToStart = custData.substring("replay=".length, custData.length);
 				replayToStart = 'coui://ui/main/game/connect_to_game/connect_to_game.html?action=start&replayid=' + replayToStart;
 				console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
+				
+				var startPoll = function() {
+					if (model.signedInToUbernet()) {
+						setTimeout(function() {
+							console.log("will switch now to start replay @ "+replayToStart);
+							window.location.href = replayToStart;
+						}, 500);
+					} else {
+						setTimeout(startPoll, 500);
+					}
+				};
+				setTimeout(startPoll);
 			}
-		}
-	};
-	
-	model.inMainMenu.subscribe(function(v) {
-		if (v && replayToStart && model.signedInToUbernet()) {
-			window.setTimeout(function() {
-				console.log("will switch now to start replay @ "+replayToStart);
-				window.location.href = replayToStart;
-			}, 1000);
 		}
 	});
 	

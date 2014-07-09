@@ -271,10 +271,16 @@
 		         
 		   }
 
-		   $.getJSON(url, dataHandler);
+		   $.getJSON(url, dataHandler).fail(function(){
+			   console.log("failed to load, retrying...");
+			   setTimeout(window.location.reload, 5000);
+		   });
 		   
 		}
 
+		
 		loadData(jsonURL);
 	}
 }());
+
+
