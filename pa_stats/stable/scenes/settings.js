@@ -38,8 +38,8 @@
 	
 	var paStatsOldOk = model.save;
 	model.save = function() {
-		paStatsOldOk();
 		doStore();
+		return paStatsOldOk();
 	};
 	
 	var paStatsOldOkClose = model.saveAndExit;
@@ -57,7 +57,7 @@
 	
 	model.settingGroups().push("pastats");
     model.settingDefinitions()["pastats"] = {title:"PA Stats",settings:{}};
-	$("#main .content .wrapper .option-list").first().append($('<div>').load(paStatsBaseDir+"scenes/settings.html", function () {
+	$(".option-list").first().append($('<div>').load(paStatsBaseDir+"scenes/settings.html", function () {
 		model.settingGroups.notifySubscribers();
 	}));
 }());

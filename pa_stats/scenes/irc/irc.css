@@ -1,0 +1,8 @@
+#irc-pane {
+	padding: 20px;
+	background-color: #000;
+}
+
+.ui-resizable-handle {
+	background-color: #333;
+}

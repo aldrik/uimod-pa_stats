@@ -13,7 +13,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	}
 	
 	if (typeof paStatsGlobal === 'undefined') {
-		var validatedPublicVersions = ["68568"];
+		var validatedPublicVersions = ["69564"];
 		var version = decode(sessionStorage['build_version']);
 		
 		if (validatedPublicVersions.indexOf(version) === -1) {
@@ -47,6 +47,9 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry('start', noVersionbase+'scenes/start.js');		
 		
 		addSceneEntry('uberbar', noVersionbase+'scenes/uberbar.js');
+		
+		addSceneEntry('uberbar', noVersionbase+"scenes/irc/irc.css");
+		addSceneEntry('uberbar', noVersionbase+"scenes/irc/irc.js");
 	}
 }());
 
