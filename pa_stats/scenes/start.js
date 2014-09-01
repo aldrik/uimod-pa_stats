@@ -1,11 +1,5 @@
 // there are only _HORRIBLE_ hacky ways to load this file by version. So don't do it. It's a can of worms that nobody wants to open, really.
 (function() {
-	$('#navigation_items').append('<a href="#" class="nav_item">'+
-			'<span class="nav_item_text">'+
-			'    PA Stats 1v1 is now in the serverbrowser!'+
-			'</span>'+
-			'</a>');
-	
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 
 	api.game.getSetupInfo().then(function(payload) {
