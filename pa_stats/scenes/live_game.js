@@ -461,7 +461,7 @@
 				|| model.isSpectator()
 				|| paStatsGlobal.reportVersion < localStorage['pa_stats_req_version'] // bad version
 				|| model.showTimeControls() // chonocam
-				|| (!model.wantsToSend() && !decode(localStorage[paStatsGlobal.isRankedGameKey])) // user refused at the start of the game, careful of ranked, PA Stats is mandatory for them
+				|| (!decode(localStorage[paStatsGlobal.wantsToSendKey]) && !decode(localStorage[paStatsGlobal.isRankedGameKey])) // user refused at the start of the game, careful of ranked, PA Stats is mandatory for them
 				|| playStartTime === undefined) { // quering the starttime from the server has not yet been successful
 			actionsSinceLastTick = 0;
 			return;
