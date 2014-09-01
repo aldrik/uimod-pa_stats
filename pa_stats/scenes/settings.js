@@ -57,7 +57,18 @@
 	
 	model.settingGroups().push("pastats");
     model.settingDefinitions()["pastats"] = {title:"PA Stats",settings:{}};
-	$(".option-list").first().append($('<div>').load(paStatsBaseDir+"scenes/settings.html", function () {
+    $(".option-list.ui .form-group").append('<div class="sub-group pastatssettings">');
+    
+    
+    $(".option-list.keyboard").parent().append('<div class="option-list pastats" '+
+    		'data-bind="visible:($root.settingGroups()[$root.activeSettingsGroupIndex()] === \'pastats\'), '+
+    		'with: model.paStatsSettingsModel" style="display: none;">');
+    
+	$(".option-list.pastats").load(paStatsBaseDir+"scenes/settings.html", function () {
+		var targetElement = $('#pasttatssettingspanel').get(0);
+		ko.cleanNode(targetElement); // this seems not even to be strictly required, but better safe than sorry
+		ko.applyBindings(paStatsSettingsModel, targetElement);
+		console.log("pa stats settings tab injected");
 		model.settingGroups.notifySubscribers();
-	}));
+	});
 }());
