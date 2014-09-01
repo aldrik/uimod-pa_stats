@@ -13,24 +13,13 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	}
 	
 	if (typeof paStatsGlobal === 'undefined') {
-		var validatedPublicVersions = ["69564"];
-		var version = decode(sessionStorage['build_version']);
+		var b = paStatsBaseDir+ "/";
 		
-		if (validatedPublicVersions.indexOf(version) === -1) {
-			version = "unknown_version";
-		} else {
-			version = "stable";
-		}
-		console.log("load pa stats for version "+version);
-		var noVersionbase = paStatsBaseDir;
-		paStatsBaseDir = paStatsBaseDir + version + "/";
-		
-		var b = paStatsBaseDir;
 		loadScript(b+'lib/unitInfoParser.js');
 		loadScript(b+'scenes/global.js');
-		var c = b+'lib/captureLobbyId.js';
+		
 		addSceneEntry('server_browser', b+"scenes/ranked_matcher/server_browser.js");
-		addSceneEntry('connect_to_game', c);
+		addSceneEntry('connect_to_game', b+'lib/captureLobbyId.js');
 		addSceneEntry('server_browser', b+"scenes/server_browser.js");
 		addSceneEntry('new_game', b+"scenes/new_game.js");
 		addSceneEntry('game_over', b+'scenes/game_over.js');
@@ -43,13 +32,11 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry("live_game_message", b+"scenes/live_game_message.js");
 		addSceneEntry('gw_start', b+'scenes/gw_start.js');
 		
-		// the following scenes cannot find the version of PA correctly without huge troubles
-		addSceneEntry('start', noVersionbase+'scenes/start.js');		
+		addSceneEntry('start', b+'scenes/start.js');		
 		
-		addSceneEntry('uberbar', noVersionbase+'scenes/uberbar.js');
+		addSceneEntry('uberbar', b+'scenes/uberbar.js');
 		
-		addSceneEntry('uberbar', noVersionbase+"scenes/irc/irc.css");
-		addSceneEntry('uberbar', noVersionbase+"scenes/irc/irc.js");
+		addSceneEntry('uberbar', b+"scenes/irc/irc.css");
+		addSceneEntry('uberbar', b+"scenes/irc/irc.js");
 	}
 }());
-
