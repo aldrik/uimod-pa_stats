@@ -1,5 +1,5 @@
 (function() {
-	var channels = "planetaryannihilation,palookingforgames";
+	var channels = "planetaryannihilation";
 	
 	var keyWidth = 'info.nanodesu.irc.width';
 	var keyHeight = 'info.nanodesu.irc.height';
@@ -33,7 +33,7 @@
 		var name = decode(sessionStorage['displayName']);
 
 		if (name != null) {
-			var iframe = '<iframe id="irc-iframe" src="http://webchat.esper.net/?nick=' + name + '&channels='+ channels + '" width="100%" height="100%"></iframe>';
+			var iframe = '<iframe id="irc-iframe" src="http://webchat.esper.net/?nick=' + name + '&channels='+ channels + '" position="absolute" width="100%" height="100%"></iframe>';
 			$('#irc-pane').append(iframe);
 
 			$("#irc-pane").resizable({
@@ -64,8 +64,8 @@
 	var h = decode(localStorage[keyHeight]);
 	var t = decode(localStorage[keyTop]);
 	var l = decode(localStorage[keyLeft]);
-	var button = '<a data-bind="visible: showUberBar() && model.hasJabber(), click: toggleIRC" href="#" class="btn_std" style="position: absolute; z-index: 1000; bottom: 0;width:200px;height: 50px" data-bind="click_sound: \'default\', rollover_sound: \'default\' ">PA IRC</a>';
-	var container = '<div data-bind="visible: showIRC" id="irc-pane" style="width: '+w+'px; height: '+h+'px;z-index: 999;position:absolute;top:'+t+'px;left:'+l+'px"></div>';
+	var button = '<a data-bind="visible: showUberBar() && model.hasJabber(), click: toggleIRC" href="#" class="btn_std" style="position: absolute; z-index: 1000; bottom: 0;width:200px;height: 50px" data-bind="click_sound: \'default\', rollover_sound: \'default\' ">PA Stats IRC</a>';
+	var container = '<div data-bind="visible: showIRC" id="irc-pane" style="width: '+w+'px; height: '+h+'px;z-index: 999;position:fixed;top:'+t+'px;left:'+l+'px"></div>';
 	$('body').append(button + container);	
 	
 	tryAddChat();
