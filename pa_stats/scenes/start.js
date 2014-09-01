@@ -1,35 +1,39 @@
-// there are only _HORRIBLE_ hacky ways to load this file by version. So don't do it. It's a can of worms that nobody wants to open, really.
 (function() {
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 
-	api.game.getSetupInfo().then(function(payload) {
-		console.log("getSetupInfo");
-		console.log(payload);
+	if (sessionStorage[paStatsGlobal.pa_stats_replay_started_in_session] == undefined) {
+		sessionStorage[paStatsGlobal.pa_stats_replay_started_in_session] = "true";
 		
-		// support both startpa:// formats, prefer the newer one (which so far I do not use xD)
-		var custData = payload.ui_options || payload.username;
-		
-		if (custData && custData.indexOf("startpa://") === 0) {
-			custData = custData.replace("startpa://", "").replace("/", "");
-			if (custData.indexOf("replay=") === 0) {
-				var replayToStart = custData.substring("replay=".length, custData.length);
-				replayToStart = 'coui://ui/main/game/connect_to_game/connect_to_game.html?action=start&replayid=' + replayToStart;
-				console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
-				
-				var startPoll = function() {
-					if (model.signedInToUbernet()) {
-						setTimeout(function() {
-							console.log("will switch now to start replay @ "+replayToStart);
-							window.location.href = replayToStart;
-						}, 500);
-					} else {
-						setTimeout(startPoll, 500);
-					}
-				};
-				setTimeout(startPoll);
+		api.game.getSetupInfo().then(function(payload) {
+			console.log("getSetupInfo");
+			console.log(payload);
+			
+			// support both startpa:// formats, prefer the newer one
+			var custData = payload.ui_options || payload.username;
+			
+			if (custData && custData.indexOf("startpa://") === 0) {
+				custData = custData.replace("startpa://", "").replace("/", "");
+				if (custData.indexOf("replay=") === 0) {
+					var replayToStart = custData.substring("replay=".length, custData.length);
+					replayToStart = 'coui://ui/main/game/connect_to_game/connect_to_game.html?action=start&replayid=' + replayToStart;
+					console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
+					
+					var startPoll = function() {
+						if (model.signedInToUbernet()) {
+							setTimeout(function() {
+								console.log("will switch now to start replay @ "+replayToStart);
+								window.location.href = replayToStart;
+							}, 500);
+						} else {
+							setTimeout(startPoll, 500);
+						}
+					};
+					setTimeout(startPoll);
+				}
 			}
-		}
-	});
+		});
+	}
+	
 	
 	var oldJoinGame = model.joinGame;
 	model.joinGame = function(lobbyId) {

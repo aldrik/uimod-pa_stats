@@ -77,6 +77,7 @@ var paStatsGlobal = (function() {
 		pa_stats_session_teams : nanodesu + "teams",
 		pa_stats_session_team_index : nanodesu + "team_index",
 		pa_stats_stored_version : nanodesu + "version",
+		pa_stats_replay_started_in_session: nanodesu + "replaystarted", 
 		wantsToSendKey : _wantsToSendKey,
 		showDataLiveKey : _showDataLiveKey,
 		isRankedGameKey: _isRankedGame,
