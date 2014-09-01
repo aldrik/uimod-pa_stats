@@ -12,8 +12,29 @@
 		return model.wantsToSend() || model.isRanked();
 	});
 	
-	$(".div_message_display_cont").prepend(
-			'<div id="pastatsadds"><div data-bind="visible: isRanked">When playing automatches PA Stats is mandatory for fairness of reporting. However you can select if you want to show live updates.</div><div data-bind="visible: isNotRanked">Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
-			'<div data-bind="visible: liveShouldBeVisible">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div></div>');	
+	var sendConfig = function(showLive, sendData) {
+		api.Panel.message(api.Panel.parentId, 'pastats.sendConfig', {
+			showDataLive: showLive,
+			wantsToSend: sendData
+		});
+	};
 	
+	model.showDataLive.subscribe(function(v) {
+		sendConfig(v, model.wantsToSend());
+	});
+	
+	model.wantsToSend.subscribe(function(v) {
+		sendConfig(model.showDataLive(), v);
+	});
+	
+	$(".div_instruct_bar").prepend(
+			'<div id="pastatsadds"><div data-bind="visible: isRanked">When playing automatches PA Stats is mandatory for fairness of reporting. However you can select if you want to show live updates.</div><div data-bind="visible: isNotRanked">Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
+			'<div data-bind="visible: liveShouldBeVisible">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div></div>');
+	
+	var oldClick = model.clickButton;
+	
+	model.clickButton = function() {
+		oldClick();
+		$('#pastatsadds').remove();
+	};
 }());

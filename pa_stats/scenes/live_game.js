@@ -152,6 +152,11 @@
 	model.showDataLive = ko.observable(true).extend({local: paStatsGlobal.showDataLiveKey})
 	model.wantsToSend = ko.observable(true).extend({local : paStatsGlobal.wantsToSendKey});
 	
+	handlers["pastats.sendConfig"] = function(payload) {
+		model.showDataLive(payload.showDataLive);
+		model.wantsToSend(payload.wantsToSend);
+	};
+	
 	function ValueChangeAccumulator(observable) {
 		var self = this;
 		self.tickValueAccumulation = 0;
