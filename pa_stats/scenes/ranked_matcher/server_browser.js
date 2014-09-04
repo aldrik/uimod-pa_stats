@@ -1,6 +1,7 @@
 var forcePASGameStart = undefined;
 
-if (decode(sessionStorage['ubernet_build_version']) == "71459" || statsDevelopmentNeverUseThisNameAnywhereElseIDareYou) { // TODO query this number from the server instead  
+// ubernet build version should be the non pte version, so this actually checks "are we on the current official public live build or are we in a test environment" :)
+if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['build_version'])  || (typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined')) {  
 	// This code is a mess. It's temporary. I hope Uber releases a proper ladder before I have to clean this up.
 	// gamma broke it, I hacked it to "work" again. This is somehow rather ugly...
 	$('.section_controls').append('<a href="#" class="btn_std" style="width: 100%" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\' ">'+

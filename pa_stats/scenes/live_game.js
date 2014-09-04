@@ -511,7 +511,7 @@
 			report.observedTeams =  decode(localStorage[paStatsGlobal.pa_stats_session_teams]); //teams.teams;
 			report.showLive = model.showDataLive();
 			report.firstStats = statsPacket;
-			report.paVersion = decode(sessionStorage['ubernet_build_version']);
+			report.paVersion = decode(sessionStorage['build_version']);
 			
 			report.planet = {
 				json:localStorage['pa_stats_loaded_planet_json']
