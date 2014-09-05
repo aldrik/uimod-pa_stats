@@ -931,6 +931,8 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 				}
 			});
 		});
+		
+		$('.title').text("Multiplayer, now with skill based matchmaking by PA Stats");
 	})();
 } else {
 	console.log("disabled matchmaking as the version of pa is unexpected");
