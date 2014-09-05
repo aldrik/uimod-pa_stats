@@ -3,6 +3,11 @@
 	var displayName = decode(sessionStorage['displayName']);
 	var uberName = decode(localStorage['uberName']);
 	
+	if (decode(localStorage[paStatsGlobal.isRankedGameKey]) && decode(localStorage[paStatsGlobal.lastConfirmedRankedLobby]) != gameIdent) {
+		localStorage[paStatsGlobal.lastConfirmedRankedLobby] = encode(gameIdent);
+		$.get(paStatsGlobal.queryUrlBase+"confirmLobby?lobby="+gameIdent);
+	}
+	
 	function ReportData() {
 		var self = this;
 		self.ident = "";

@@ -4,13 +4,15 @@ var forcePASGameStart = undefined;
 if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['build_version'])  || (typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined')) {  
 	// This code is a mess. It's temporary. I hope Uber releases a proper ladder before I have to clean this up.
 	// gamma broke it, I hacked it to "work" again. This is somehow rather ugly...
-	$('.section_controls').append('<a href="#" class="btn_std" style="width: 100%" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\' ">'+
+	$('.section_controls > div:nth-child(1)').after('<a href="#" class="btn_std" style="width: 100%" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\' ">'+
 			'<div class="btn_label">'+
 			'    PA STATS 1vs1'+
 			'</div>'+
-			'<div style="margin-top: 8px; margin-right: 10px; font-size: 12px; float: right; display: none" id="pa_stats_players_note">You or somebody else<br/>is searching!</div>'+		
-			'</a>');
+						'</a>');
 
+
+	$('.div_commit_cont').prepend('<div style="font-size: 20px;padding-right: 100px;display: none;" id="pa_stats_players_note"></div>');
+	
 	(function() {
 		model.uberName = ko.observable('').extend({ local: 'uberName' });
 		model.uberNetRegion = ko.observable().extend({ session: 'uber_net_region', local: 'uber_net_region' });
@@ -28,7 +30,7 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 				name: system.name
 			}
 			return simpleplanet;
-		}	
+		}
 		
 		localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 		var ladderPassword = "pastatsPleaseDoNotJoinThisGame";
@@ -281,7 +283,7 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 				warnId = "";
 			}
 			$('#youtubeconfig').remove();
-			$('#searchingPaStatsGame').append("<div id='youtubeconfig' style='display: table; margin 0 auto;'><input value='"+warnId+"' style='width: 650px;' id='gamefoundvideo' type='text' placeholder='yt video id for custom video, i.e. 9V1eOKhYDws'/></div>");
+			//$('#searchingPaStatsGame').append("<div id='youtubeconfig' style='display: table; margin 0 auto;'><input value='"+warnId+"' style='width: 650px;' id='gamefoundvideo' type='text' placeholder='yt video id for custom video, i.e. 9V1eOKhYDws'/></div>");
 			$("#searchingPaStatsGame").dialog({
 	            dialogClass: "no-close",
 	            closeOnEscape : false,
@@ -552,7 +554,7 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 				cancelLoop();
 				return;
 			}
-			setText("searching 1vs1 vs other PA Stats users... The game will play a youtube video, even when minimized. Enter a custom video id here:");
+			setText("searching 1vs1 vs other PA Stats users... The game will play a 'loud' youtube video, even when minimized. Hint: If this seems to be frozen for more than ~ 5 minutes and you can't cancel press F5");
 
 			$.ajax({
 				type : "POST",
@@ -593,6 +595,7 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 			$('#searchingPaStatsGame').append('<div style="display: table; margin: 0 auto;" id="youtubewarning"><iframe width="300" height="200" src="http://www.youtube.com/embed/'+v+'?autoplay=1" frameborder="0"></iframe></div>');		
 			
 			hideCancelBtt();
+			iAmHost = data.isHost;
 			if (data.isHost) {
 				publishAGame();
 			} else {
@@ -648,7 +651,11 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 		}
 		
 		model.startRankedGame = function() {
+			// remove stupid cpu intensive glow stuff, we will need cpu power to load planets
+			$('.title_watermark').remove();
+			$('.background_glow').remove();
 			showLoad();
+			unregister();
 			doStart();
 			setText("starting search...");
 		};
@@ -715,6 +722,7 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 			stopTestLoading();
 			handledLobby = false;
 			cancelLoops = true;
+			iAmHost = false;
 			localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
 			unregister();
 			showCancelBtt();
@@ -908,11 +916,22 @@ if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['bu
 			}
 		};
 		
+		var closeNote = "Someone close to your skill level is searching 1vs1 via PA Stats";
+		var notCloseNote = "Another player is searching 1vs1 via PA Stats";
 		
-		
-		paStatsGlobal.checkIfPlayersAvailable("#pa_stats_players_note");
+		paStatsGlobal.checkIfPlayersAvailable("#pa_stats_players_note", function() {
+			$.getJSON(paStatsGlobal.queryUrlBase+"minutesTillMatch?ubername="+model.uberName(), function(data) {
+				if (data.minutes <= 3) {
+					$('#pa_stats_players_note').text(closeNote);
+				} else {
+					$('#pa_stats_players_note').text(notCloseNote);
+				}
+				if (searching) {
+					$('#pa_stats_players_note').text("");
+				}
+			});
+		});
 	})();
-
 } else {
 	console.log("disabled matchmaking as the version of pa is unexpected");
 }

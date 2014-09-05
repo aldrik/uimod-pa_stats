@@ -9,7 +9,7 @@ var paStatsGlobal = (function() {
 	//check if we are currently in development mode and determine correct URL to use
 	var _queryUrlBase = paStatsHost;
 
-	var _reportVersion = 17;
+	var _reportVersion = 18;
 
 	var _pollingSpeed = 3000;
 	
@@ -45,18 +45,21 @@ var paStatsGlobal = (function() {
 		}
 	}
 
-	var _checkIfPlayersAvailable = function(elemId) {
+	var _checkIfPlayersAvailable = function(elemId, cb) {
 		$.ajax({
 			type : "GET",
 			url : _queryUrlBase + "hasPlayersSearching",
 			contentType : "application/json",
 			success : function(result) {
 				if (result.hasPlayers) {
+					if (cb) {
+						cb();
+					}
 					$(elemId).show();
 				} else {
 					$(elemId).hide();
 				}
-				setTimeout(function() {_checkIfPlayersAvailable(elemId);}, _pollingSpeed)
+				setTimeout(function() {_checkIfPlayersAvailable(elemId, cb);}, _pollingSpeed)
 			}
 		});
 	};
@@ -78,6 +81,7 @@ var paStatsGlobal = (function() {
 		pa_stats_session_team_index : nanodesu + "team_index",
 		pa_stats_stored_version : nanodesu + "version",
 		pa_stats_replay_started_in_session: nanodesu + "replaystarted", 
+		lastConfirmedRankedLobby: nanodesu + "lastConfirmedRankedLobby",
 		wantsToSendKey : _wantsToSendKey,
 		showDataLiveKey : _showDataLiveKey,
 		isRankedGameKey: _isRankedGame,
