@@ -22,7 +22,7 @@
 		var notCloseNote = "Another player is searching 1vs1 via PA Stats";
 		
 		paStatsGlobal.checkIfPlayersAvailable("#pa_stats_players_note", function() {
-			$.getJSON(paStatsGlobal.queryUrlBase+"minutesTillMatch?ubername="+localStorage['uberName'], function(data) {
+			$.getJSON(paStatsGlobal.queryUrlBase+"minutesTillMatch?ubername="+decode(localStorage['uberName']), function(data) {
 				if (data.minutes <= 3) {
 					$('#pa_stats_players_note').text(closeNote);
 				} else {
