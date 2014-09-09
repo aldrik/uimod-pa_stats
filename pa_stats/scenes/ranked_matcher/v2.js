@@ -118,8 +118,9 @@
 		
 		gamesetupjs.setAcu(preferredCommander() || {ObjectName: "QuadOsiris"});
 		gamesetupjs.setupHandlers(handlers);
+		
 		gamesetupjs.setMap(pa_stats_mappool[Math.floor(Math.random() * pa_stats_mappool.length)]);
-	
+		
 		var setPaStatsTeams = function() {
 			var latestArmies = gamesetupjs.getLatestArmies();
 			
