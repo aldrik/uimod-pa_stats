@@ -10,6 +10,8 @@
 		var settingupGame = ko.observable(false);
 		var isHost = ko.observable(false);
 
+		model.showYoutubeWarningForGameFound = ko.observable(true).extend({ local: 'info.nanodesu.showyoutubewarning' });
+		
 		$('.section_controls > div:nth-child(1)').after('<a href="#" class="btn_std" style="width: 100%" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\' ">'+
 				'<div class="btn_label">'+
 				'    PA STATS 1vs1'+
@@ -46,6 +48,7 @@
 	    			'<div class="div_alert" style="height: 92%" >' +
 	    			'<img src="coui://ui/main/shared/img/loading.gif" class="img_progress_icon" style="margin:0px 8px 0px 0px"></img>'+
 	    			'<div id="msg_progress_pa_stats" class="msg_progress_icon"></div><div id="small_msg_progress_pa_stats"></div>'+
+	    			"<div>Show loud youtube warning on matchstart:  <input type='checkbox' data-bind='checked: showYoutubeWarningForGameFound' /></div>"+
 	    			"<div id='ytholder'></div>"+'</div>'+
 	    			"<div><span data-bind='if: model.serverLoaded'>Server ready</span> <span data-bind='if: model.clientLoaded'>Client ready</span></div>"+
 	    		'</div>'
@@ -171,7 +174,7 @@
 		});
 
 		settingupGame.subscribe(function(v) {
-			if (v) {
+			if (v && model.showYoutubeWarningForGameFound()) {
 				$('#ytholder').append('<div style="display: table; margin: 0 auto;" id="youtubewarning"><iframe width="300" height="200" src="http://www.youtube.com/embed/9V1eOKhYDws?autoplay=1" frameborder="0"></iframe></div>');
 			} else {
 				$('#youtubewarning').remove();
