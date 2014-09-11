@@ -124,41 +124,11 @@
 
 		gamesetupjs.setMap(pa_stats_mappool[Math.floor(Math.random() * pa_stats_mappool.length)]);
 
-		var setPaStatsTeams = function() {
-			var latestArmies = gamesetupjs.getLatestArmies();
-
-			localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(latestArmies[0].name == uberName() || latestArmies[0].name == displayName() ? 0 : 1);
-
-			var p0 = latestArmies[0].primary_color;
-			var s0 = latestArmies[0].secondary_color;
-
-			var p1 = latestArmies[1].primary_color;
-			var s1 = latestArmies[1].secondary_color;
-
-			var teams = [
-			  {
-				  index: 0,
-				  primaryColor: "rgb("+p0[0]+","+p0[1]+","+p0[2]+")",
-				  secondaryColor: "rgb("+s0[0]+","+s0[1]+","+s0[2]+")",
-				  players: [{displayName: latestArmies[0].name}],
-			  },
-			  {
-				  index: 1,
-				  primaryColor: "rgb("+p1[0]+","+p1[1]+","+p1[2]+")",
-				  secondaryColor: "rgb("+s1[0]+","+s1[1]+","+s1[2]+")",
-				  players: [{displayName: latestArmies[1].name}],
-			  }
-			];
-
-			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(teams);
-		};
-
 		gamesetupjs.setLandingHandler(function(lander) {
 			smallNotice("configure pa stats data...");
 			localStorage['pa_stats_loaded_planet_json'] = JSON.stringify(gamesetupjs.getLoadedMap());
 			localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
 			localStorage['lobbyId'] = encode(gamesetupjs.getLobbyId());
-			setPaStatsTeams();
 			setTimeout(function() {
 				smallNotice("landing...");
 				lander();

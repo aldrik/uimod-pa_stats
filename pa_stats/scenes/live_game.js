@@ -24,85 +24,6 @@
 		self.gameStartTime = 0;
 	}
 	
-	// flawed: fails in shared army games
-//	var getTeams = function() {
-//		var friends = [];
-//		
-//		var findFriends = function(id) {
-//			for (var i = 0; i < friends.length; i++) {
-//				if (friends[i][id]) {
-//					return i;
-//				}
-//			}
-//			return -1;
-//		};
-//		
-//		for (var i = 0; i < model.players().length; i++) {
-//			var player = model.players()[i];
-//			
-//			var friendsIndex = findFriends(player.id);
-//			
-//			if (friendsIndex === -1) {
-//				var newTeam = {};
-//				newTeam[player.id] = true;
-//				for (x in player.diplomaticState) {
-//					if (player.diplomaticState.hasOwnProperty(x)) {
-//						if (player.diplomaticState[x].state === 'allied') {
-//							newTeam[x] = true;
-//						}
-//					}
-//				}
-//				friends.push(newTeam);
-//			}
-//		}
-//		
-//		var getPlayerById = function(id) {
-//			for (var i = 0; i < model.players().length; i++) {
-//				if (model.players()[i].id === Number(id)) {
-//					return model.players()[i];
-//				}
-//			}
-//
-//			return {};
-//		};
-//		
-//		var teams = [];
-//		var mySlotId = 0;
-//		
-//		for (var i = 0; i < friends.length; i++) {
-//			var team = {
-//				index: i,
-//				players: []
-//			};
-//			
-//			for (p in friends[i]) {
-//				if (!friends[i].hasOwnProperty(p)) {
-//					continue;
-//				}
-//				var slot = getPlayerById(p);
-//
-//				var player = {
-//					displayName: slot.ai ? "AI" : slot.name
-//				};
-//
-//				if (slot.name === decode(sessionStorage['displayName'])) {
-//					mySlotId = i;
-//				}
-//				
-//				team.players.push(player);
-//				team.primaryColor = "rgb("+slot.primary_color[0]+","+slot.primary_color[1]+","+slot.primary_color[2]+")";
-//				team.secondaryColor = "rgb("+slot.secondary_color[0]+","+slot.secondary_color[1]+","+slot.secondary_color[2]+")";
-//			}
-//			
-//			teams.push(team);
-//		}
-//		
-//		return {
-//			teams: teams,
-//			myTeamIndex: mySlotId
-//		};
-//	};
-	
 	// these are no longer part of the default live_game scene, so create my own
 	var currentEnergy = ko.observable(0);
 	var maxEnergy = ko.observable(0);
@@ -285,6 +206,8 @@
 		}
 	}
 	
+	var capturedTeams = undefined;
+	
 	var handleOptions = function(payload) {
 		if (payload.game_type && payload.game_type === "Galactic War") {
 			var gwConf = decode(sessionStorage["gw_battle_config"]);
@@ -292,7 +215,7 @@
 			gwConf.system.name = "Galactic War: "+gwConf.system.name;
 			gwConf.system.planets = [{"name":"This is wrong. Dunno yet if I can get the correct data :(","mass":1000,"starting_planet":true,"required_thrust_to_move":0,"position_x":15000,"position_y":0,"velocity_x":0,"velocity_y":182,"planet":{"temperature":-0.31,"seed":3493,"radius":380,"biome":"lava","waterHeight":0.135,"heightRange":67.4,"metalDensity":50,"biomeScale":100,"metalClusters":50,"metal_density":50,"metal_clusters":50,"index":0}}];
 			localStorage['pa_stats_loaded_planet_json'] = encode(gwConf.system);
-			localStorage[paStatsGlobal.pa_stats_session_team_index] = encode(0);
+			
 			var teams = [
 		   		  {
 		   			  index: 0,
@@ -307,13 +230,74 @@
 		   			  players: [{displayName: "Galactic War"}],
 		   		  }
 			];
-			localStorage[paStatsGlobal.pa_stats_session_teams] = encode(teams);
+			capturedTeams = {
+				myTeamIndex: 0,
+				teams: teams
+			};
+		}
+	};
+	
+	var captureTeams = function(armies) {
+		var teams = [];
+		var myTeamIndex = -1;
+		
+		var findTeamByAllianceGroup = function(allianceGroup) {
+			for (var i = 0; i < allianceGroup.length; i++) {
+				for (j = 0; j < teams.length; j++) {
+					if (teams[j].allyIds.indexOf(allianceGroup[i].id) !== -1) {
+						return j;
+					}
+				}
+			}
+			return -1;
+		};
+		
+		for (var i = 0; i < armies.length; i++) {
+			var a = armies[i];
+			var teamIndex = findTeamByAllianceGroup(a.allies)
+			var team = teamIndex !== -1 ? teams[teamIndex] : {index: teams.length, players:[], allyIds: []};
+			if (teamIndex === -1) {
+				team.primaryColor = "rgb("+a.primary_color[0]+","+a.primary_color[1]+","+a.primary_color[2]+")";
+				team.secondaryColor = "rgb("+a.secondary_color[0]+","+a.secondary_color[1]+","+a.secondary_color[2]+")";	
+				teams.push(team);
+			}
+			team.allyIds.push(a.id);
+			
+			var aiAdd = a.ai ? "AI : " : "";
+			for (var s = 0; s < a.slots.length; s++) {
+				team.players.push({displayName: aiAdd + a.slots[s]});
+			}
+			
+			if (a.stateToPlayer === 'self') {
+				myTeamIndex = team.index;
+			}
+		}
+		
+		for (var i = 0; i < teams.length; i++) {
+			delete teams[i].allyIds;
+		}
+		
+		var fullData = {
+			teams: teams,
+			myTeamIndex: myTeamIndex
+		};
+		
+		console.log(fullData);
+		
+		return fullData;
+	};
+	
+	var oldHandleArmyState = handlers.army_state;
+	handlers.army_state = function(m) {
+		oldHandleArmyState(m);
+		
+		if (model.gameOptions.game_type() !== 'Galactic War') {
+			capturedTeams = captureTeams(m);
 		}
 	};
 	
 	var oldServerState = handlers.server_state;
 	handlers.server_state = function(m) {
-		console.log(m);
 		if (m.state !== 'game_over' && m.url && m.url !== window.location.href) {
 			paStatsGlobal.unlockGame();
 		}
@@ -507,13 +491,13 @@
 		if (gameLinkId === undefined) {
 			report = new ReportData();
 			
-//			var teams = getTeams();
+			var teams = capturedTeams;
 			
 			report.ident = gameIdent;
 			report.reporterUberName = uberName;
 			report.reporterDisplayName = displayName;
-			report.reporterTeam = decode(localStorage[paStatsGlobal.pa_stats_session_team_index]);  //teams.myTeamIndex;
-			report.observedTeams =  decode(localStorage[paStatsGlobal.pa_stats_session_teams]); //teams.teams;
+			report.reporterTeam = teams.myTeamIndex;
+			report.observedTeams =  teams.teams;
 			report.showLive = model.showDataLive();
 			report.firstStats = statsPacket;
 			report.paVersion = decode(sessionStorage['build_version']);
