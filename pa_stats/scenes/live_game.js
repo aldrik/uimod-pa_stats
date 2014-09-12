@@ -291,7 +291,7 @@
 	handlers.army_state = function(m) {
 		oldHandleArmyState(m);
 		
-		if (model.gameOptions.game_type() !== 'Galactic War') {
+		if (model.gameOptions.game_type() !== 'Galactic War' && !model.isSpectator()) {
 			capturedTeams = captureTeams(m);
 		}
 	};
