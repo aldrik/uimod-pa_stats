@@ -9,7 +9,10 @@
 		var searching = ko.observable(false);
 		var settingupGame = ko.observable(false);
 		var isHost = ko.observable(false);
-
+		
+		var checkedVetos = false;
+		var opponentVetoMaps = undefined;
+		
 		model.showYoutubeWarningForGameFound = ko.observable(true).extend({ local: 'info.nanodesu.showyoutubewarning' });
 		
 		$('.section_controls > div:nth-child(1)').after('<a href="#" class="btn_std" style="width: 100%" data-bind="click: startRankedGame, click_sound: \'default\', rollover_sound: \'default\' ">'+
@@ -36,7 +39,7 @@
 			});
 		});
 
-		$('.title').text("Multiplayer with 1vs1 ranked games by pa stats (new maps, better code!)");
+		$('.title').html("Multiplayer with 1vs1 ranked games by pa stats. <a class='text-glow-hover' style='text-decoration: underline;' href='coui://ui/main/game/load_planet/load_planet.html?pastats=true'>MAPS</a>");
 
 		// remove stupid cpu intensive glow stuff, we will need cpu power to load
 		// planets
@@ -58,7 +61,7 @@
 			console.log("hide cancel btt");
 			$("#searchingPaStatsGame").dialog("option", "buttons", {
 			});
-		}
+		};
 
 		var dialogShowing = false;
 
@@ -72,7 +75,7 @@
 					model.cancelSearch();
 	           }
 			});
-		}
+		};
 
 		var showWaitDlg = function() {
 			dialogShowing = true;
@@ -121,9 +124,38 @@
 
 		gamesetupjs.setAcu(preferredCommander() || {ObjectName: "QuadOsiris"});
 		gamesetupjs.setupHandlers(handlers);
-
-		gamesetupjs.setMap(pa_stats_mappool[Math.floor(Math.random() * pa_stats_mappool.length)]);
-
+		
+		var getMap = function(vetos) {
+			console.log("get a map, vetos are ");
+			console.log(vetos);
+			var system = undefined;
+			for (var t = 0; t < 1337; t++) {
+				var candidate = pa_stats_mappool[Math.floor(Math.random() * pa_stats_mappool.length)];
+				var veto = false;
+				for (var i = 0; i < vetos.length; i++) {
+					if (candidate.name === vetos[i]) {
+						veto = true;
+					}
+				}
+				if (!veto) {
+					system = candidate;
+					break;
+				}
+			}
+			
+			if (system === undefined) {
+				console.log("faild to consider vetos :(");
+				system = pa_stats_mappool[Math.floor(Math.random() * pa_stats_mappool.length)];
+			}
+			
+			console.log("selected map is ");
+			console.log(system);
+			
+			return system;
+		};
+		
+		gamesetupjs.setMap(getMap([decode(localStorage[paStatsGlobal.vetoMapName])]));
+		
 		gamesetupjs.setLandingHandler(function(lander) {
 			smallNotice("configure pa stats data...");
 			localStorage['pa_stats_loaded_planet_json'] = JSON.stringify(gamesetupjs.getLoadedMap());
@@ -199,6 +231,23 @@
 			}
 		};
 
+		gamesetupjs.setChatHandler(function(txt) {
+			try {
+				var obj = JSON.parse(txt);
+				if (obj.type === 'vetos' && isHost) {
+					opponentVetoMaps = obj.vetos;
+					console.log("set opponent vetos");
+					console.log(opponentVetoMaps);
+				} else {
+					console.log("unknown chat message type");
+					console.log(obj);
+				}
+			} catch (e) {
+				console.log("failed to parse chat");
+				console.log(e);
+			}
+		});
+		
 		var heartBeat = function() {
 			console.log("heartbeat");
 			if (settingupGame()) {
@@ -211,6 +260,7 @@
 				setTimeout(function() {
 					checkForceBeat();
 					if (beatHandler) {
+						console.log("running beat @ "+new Date().getTime());
 						beatHandler(heartBeat);
 					} else {
 						heartBeat();
@@ -235,6 +285,7 @@
 		gamesetupjs.setFailHandler(function(reason) {
 			console.log("gamesetup failed completely due to reason: "+reason);
 			bigNotice("failed to setup game: '"+reason+"', will retry vs the same opponent");
+			gamesetupjs.setMap(getMap([decode(localStorage[paStatsGlobal.vetoMapName])]));
 			forceBeatHandler = function(next) {
 				matchmakingjs.resetGameSetup(function() {
 					smallNotice("reset game notice sent");
@@ -276,10 +327,12 @@
 
 		var searchMatchBeat = function(next) {
 			bigNotice("looking for games");
+			opponentVetoMaps = undefined; // TODO it is somewhat not very transparent why this has to be here
+			checkedVetos = false;
 			$.getJSON(paStatsGlobal.queryUrlBase+"minutesTillMatch?ubername="+decode(localStorage['uberName']), function(data) {
 				if (searching()) {
 					if (data.minutes > -1) {
-						var ssss = data.minutes > 1 ? "s" : "";
+						var ssss = data.minutes !== 1 ? "s" : "";
 						smallNotice("if nobody joins or leaves the pool, you will get a game in ~"+data.minutes+" minute"+ssss);
 					} else {
 						smallNotice("can't estimate time till match");
@@ -305,6 +358,32 @@
 			}, next, webserviceFailure);
 		};
 
+		var getAllVetos = function() {
+			var allVetos = [decode(localStorage[paStatsGlobal.vetoMapName])];
+
+			if (opponentVetoMaps) {
+				for(var i = 0; i < opponentVetoMaps.length; i++) {
+					allVetos.push(opponentVetoMaps[i]);
+				}
+			}
+			
+			return allVetos;
+		};
+		
+		var hasVeto = function() {
+			var hasVeto = false;
+			var allVetos = getAllVetos();
+			
+			for (var i = 0; i < allVetos.length; i++) {
+				if (allVetos[i] == gamesetupjs.getLoadedMap().name) {
+					hasVeto = true;
+				}
+			}
+			
+			return hasVeto;
+		};
+				
+		
 		/* Client heartbeats */
 
 		var clientLeavePreparedServerBeat = function(next) {
@@ -322,6 +401,10 @@
 				smallNotice("got lobby, joining now");
 				gamesetupjs.joinLobby(lobbyId, displayName(), function() {
 					smallNotice("joined lobby");
+					gamesetupjs.sendChat(JSON.stringify({
+						type: 'vetos',
+						vetos: [decode(localStorage[paStatsGlobal.vetoMapName])]
+					}));
 					beatHandler = waitForClientLoadBeat;
 					next();
 				});
@@ -330,9 +413,13 @@
 
 		var waitForClientLoadBeat = function(next) {
 			bigNotice("waiting for planets to be build");
-			if (gamesetupjs.myLoadIsComplete()) {
-				smallNotice("planets are build, reporting we are ready to host, game should start very soon");
+			if (!hasVeto() && gamesetupjs.myLoadIsComplete()) {
+				smallNotice("planets are accepted and build, game should start very soon");
+				gamesetupjs.ensureReadyUp();
+				// this serves as a check we are in the correct lobby
 				matchmakingjs.reportClientIsReadyToStart(gamesetupjs.getLobbyId(), webserviceFailure);
+			} else if (hasVeto()) {
+				smallNotice("veto: waiting for host to change the map");
 			}
 			next();
 		};
@@ -350,18 +437,31 @@
 			}
 			next();
 		};
-
+		
+		var checkVetosProcessed = function(next) {
+			if (!checkedVetos && opponentVetoMaps) {
+				console.log("check vetos...");
+				checkedVetos = true;
+				if (hasVeto()) {
+					smallNotice("has map veto, changing map...");
+					gamesetupjs.changeMap(getMap(getAllVetos()), next);
+				} else {
+					smallNotice("checked for vetos: no vetos");
+					next();
+				}
+			} else {
+				next();
+			}
+		};
+		
 		var hostWaitsForStartBeat = function(next) {
 			bigNotice("waiting for planets to be build on server and both clients");
-			matchmakingjs.queryShouldStartServer(gamesetupjs.getLobbyId(), function() {
-				smallNotice("our partner reports he is finished loading the planets");
-				if (gamesetupjs.myLoadIsComplete()) {
-					smallNotice("everyone is finished loading the planets, starting game now");
-					gamesetupjs.startGame();
-					beatHandler = undefined;
-				}
-				next();
-			}, next, webserviceFailure);
+			if (checkedVetos && !hasVeto() && gamesetupjs.playersReadyFor1vs1()) {
+				smallNotice("everyone is finished loading the planets, starting game now");
+				gamesetupjs.startGame();
+				beatHandler = undefined;
+			}
+			checkVetosProcessed(next);
 		};
 
 		// end of heartbeats

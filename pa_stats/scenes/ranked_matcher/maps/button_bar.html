@@ -1,0 +1,12 @@
+<!-- ko if: showPaStatsSystems -->
+<div id="pastats-button-bar-inner">
+<h2 style="float: left; margin-right: 50px">Please direct suggestions for new maps to the forums</h2>
+
+	<div id="pastats-loadButton" class="" style="float: right;" data-bind="click: loadPaStatsMap,
+		css: { btn_hero_disabled: model.selectedSystemIndex() === -1, btn_hero: model.selectedSystemIndex() !== -1 }">
+		<div class="btn_label" style="padding:0px 40px;">
+			<loc data-i18n="load_planet:load_system.message" desc="">Load System</loc>
+		</div>
+	</div>
+</div>
+<!--/ko  -->

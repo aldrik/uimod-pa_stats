@@ -10,7 +10,9 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 	var isHost = false;
 
 	var lobbyId = undefined;
-
+	
+	var chatHandler = undefined;
+	
 	var serverCreated = ko.observable(false);
 	var serverLoaded = ko.observable(false);
 	var clientLoaded = ko.observable(false);
@@ -37,6 +39,11 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 	
 	var startedServer = false;
 	var startedConnectingLobby = false;
+	
+	var playersInLobby = undefined;
+	
+	var thisPlayerReady = false;
+	var thisPlayerName = undefined;
 	
 	var ignoreNextMessageResult = false;
 	var oldSendMessage = model.send_message;
@@ -65,6 +72,9 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 		ignoreNextMessageResult = false;
 		startedServer = false;
 		startedConnectingLobby = false;
+		playersInLobby = undefined;
+		thisPlayerReady = false;
+		thisPlayerName = undefined;
 		serverCreated(false);
 	};
 
@@ -95,8 +105,7 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 		}
 	};
 	
-	function fixupPlanetConfig(desc) {
-		var planets = desc.system.planets;
+	function fixupPlanetConfig(planets) {
 		for (var p = 0; p < planets.length; ++p) {
 			var planet = planets[p];
 			if (planet.hasOwnProperty('position_x')) {
@@ -114,7 +123,7 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 				delete planet.planet;
 			}
 		}
-		return desc;
+		return planets;
 	}
 
 	var testLoading = function() {
@@ -156,7 +165,7 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 				}
 			};
 	
-			fixupPlanetConfig(desc);
+			fixupPlanetConfig(desc.system.planets);
 			return desc;
 	};
 	
@@ -194,6 +203,29 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 		tryMakePublic(1);
 	};
 	
+	var changeMap = function(system, cb) {
+		var tryChangeMap = function(cnt) { 
+			if (cnt < 4) {
+				fixupPlanetConfig(system.planets);
+				model.send_message('modify_system', system, function(s) {
+					if (s) {
+						console.log("map changed");
+						cb();
+					} else {
+						console.log("failed to change the map.");
+						setTimeout(function() {
+							tryChangeMap(cnt + 1);
+						}, cnt * 3000);
+					}
+				});
+			} else {
+				fail("coult not change map");
+			}
+		};
+		
+		tryChangeMap(1);
+	};
+	
 	var configure1v1 = function(failhandler) { // configure has no callback for finished, as the server load will only be finished if configure is done anyway
 		console.log("configure 1vs1");
 
@@ -205,10 +237,9 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 					failhandler("modify_system: "+JSON.stringify(desc.system));
 				} else {
 					console.log("modified system");
-					loadedPlanet = desc.system; // TODO format?
 				}
 			});
-		};		
+		};
 		
 		var modifySettings = function() {
 			model.send_message('modify_settings', desc, function(success) {
@@ -244,6 +275,7 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 	};
 
 	var joinLobby = function(lobbyId, playerName, loadedHandler) {
+		thisPlayerName = playerName;
 		if (startedConnectingLobby) {
 			return;
 		}
@@ -269,6 +301,7 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 	};
 	
 	var internalJoinLobby = function(lId, pName) {
+		console.log("internal join lobby");
 		messagePending = true;
 		engine.asyncCall("ubernet.joinGame", lId).done(function(data) {
 			messagePending = false;
@@ -277,7 +310,10 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 				data = JSON.parse(data);
 				if (data.PollWaitTimeMS) {
 					console.log("pollWaitTimeMS is set, wait a little while");
-					setTimeout(internalJoinLobby, 5000);
+					setTimeout(function() {
+						console.log("waited enough, retrying...");
+						internalJoinLobby(lId, pName);
+					}, 5000);
 				} else {
 					engine.call('disable_lan_lookout');
 					lobbyId = lId;
@@ -293,6 +329,7 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 	};
 	
 	var createServer = function(playerName, region, lobbyLoadCb) {
+		thisPlayerName = playerName;
 		if (startedServer) {
 			return;
 		}
@@ -323,6 +360,16 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 		}, 10000);
 	};
 
+	var ensureReadyUp = function() {
+		console.log("ensureReadyUp, current ready state = "+thisPlayerReady);
+		if (!thisPlayerReady) {
+			console.log("try to toggle ready");
+			model.send_message('toggle_ready', undefined, function(r) {
+				console.log("toggle ready success = "+r);
+			});
+		}
+	};
+	
 	var configureCommanderAndReadyUpBase = function(completeHandler, failHandler) {
 		var toggleReady = function() {
 			model.send_message('toggle_ready', undefined, function(r) {
@@ -394,6 +441,15 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 	};
 		
 	var setupHandlers = function(handlers) {
+		
+		handlers.chat_message = function(msg) {
+			console.log("received chat");
+			console.log(msg);
+			if (chatHandler) {
+				chatHandler(msg.message);
+			}
+		};
+		
 		handlers.control = function(payload) {
 			console.log("control triggered");
 			console.log(payload);
@@ -424,15 +480,30 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 			console.log("server load state = " + serverLoaded());
 		};
 
+		handlers.system = function(payload) {
+			loadedPlanet = payload;
+			console.log("got configured system");
+			console.log(loadedPlanet);
+		};
+		
+		handlers.armies = function(payload) {
+			latestArmies = payload;
+			console.log("latestArmies set");
+			console.log(latestArmies);
+		};
+		
 		handlers.server_state = function(msg) {
 			console.log("server_state = " + msg.state);
 			console.log(msg);
-			if (msg.data) {
-				latestArmies = msg.data.armies;
-				console.log("latestArmies set");
-				console.log(latestArmies);
+
+			if (msg.data && msg.data.armies) {
+				handlers.armies(msg.data.armies);
 			}
 
+			if (msg.data && msg.data.system) {
+				handlers.system(msg.data.system);
+			}
+			
 			if (msg.state === 'landing') {
 				landingHandler(function() {
 					window.location.href = msg.url;
@@ -440,13 +511,6 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 			} else if (msg.state === 'lobby' && !joinedLobby) {
 				joinedLobby = true;
 				console.log("entered lobby");
-				if (msg.data && !isHost) {
-					loadedPlanet = msg.data.system;
-					console.log("got configured system");
-					console.log(loadedPlanet);
-				} else {
-					console.log("ignore server config, I am host!");
-				}
 
 				testLoading();
 
@@ -479,6 +543,18 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 			console.log("login accepted");
 			app.hello(handlers.server_state, handlers.connection_disconnected);
 		};
+		
+		handlers.players = function(payload) {
+			playersInLobby = payload;
+			
+			_.forEach(payload, function(element) {
+				if (thisPlayerName == element.name) {
+					thisPlayerReady = element.ready;
+				} 
+			});
+			
+			thisPlayerReady
+		};
 	};
 
 	var adaptServerGameConfig = function(system) {
@@ -503,6 +579,20 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 		return system;
 	}	
 	
+	var sendChat = function(msg) {
+		model.send_message("chat_message", {message: msg}, function(r) {
+			if (r) {
+				console.log("send chat: "+msg);
+			} else {
+				console.log("failed to send chat: "+msg);
+			}
+		});
+	};
+	
+	var playersReadyFor1vs1 = function() {
+		return playersInLobby && playersInLobby.length === 2 && !playersInLobby[0].loading && !playersInLobby[1].loading;
+	};
+	
 	return {
 		setupHandlers : setupHandlers,
 		createServer : createServer,
@@ -510,7 +600,7 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 			map = m;
 		},
 		getLoadedMap: function() {
-			return adaptServerGameConfig(loadedPlanet);
+			return loadedPlanet ? adaptServerGameConfig(loadedPlanet) : undefined;
 		},
 		setAcu : function(a) {
 			acu = a;
@@ -518,11 +608,18 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 		setFailHandler : function(cb) {
 			everythingFailedHandler = cb;
 		},
+		setChatHandler: function(h) {
+			chatHandler = h;
+		},
+		ensureReadyUp: ensureReadyUp,
+		sendChat: sendChat,
 		serverLoaded : serverLoaded,
 		clientLoaded : clientLoaded,
+		playersReadyFor1vs1: playersReadyFor1vs1,
 		myLoadIsComplete: myLoadIsComplete,
 		leaveGame : leaveGame,
 		setPublic: setPublic, /** it seems that if you know the lobbyid you can actually join private games directly, so this is not strictly required */
+		changeMap: changeMap,
 		joinLobby: joinLobby,
 		startGame: startGame,
 		getLobbyId: function() {
@@ -538,3 +635,4 @@ var gamesetupjs = (typeof gamesetupjs === "undefined") ? (function() {
 		}
 	}
 }()) : gamesetupjs;
+

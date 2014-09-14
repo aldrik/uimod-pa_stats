@@ -18,9 +18,13 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		loadScript(b+'lib/unitInfoParser.js');
 		loadScript(b+'scenes/global.js');
 		
-		addSceneEntry('server_browser', b+"scenes/ranked_matcher/mappool.js");
+		addSceneEntry('load_planet', b+"scenes/ranked_matcher/maps/mappool.js");
+		addSceneEntry('load_planet', b+"scenes/ranked_matcher/maps/mapsview.js");
+		
+		addSceneEntry('server_browser', b+"scenes/ranked_matcher/maps/mappool.js");
 		addSceneEntry('server_browser', b+'lib/matchmaking.js');
 		addSceneEntry('server_browser', b+'lib/gamesetup.js');
+		addSceneEntry('server_browser', b+'scenes/ranked_matcher/v2.css');
 		addSceneEntry('server_browser', b+"scenes/ranked_matcher/v2.js");
 		
 		addSceneEntry('connect_to_game', b+'lib/captureLobbyId.js');

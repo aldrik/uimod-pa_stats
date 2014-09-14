@@ -1,0 +1,25 @@
+<h2 style="display: inline;">PA Stats 1vs1 automatches mappool</h2>
+<h5>You may put a veto on one map to never play it.</h5>
+<div id="system-list" data-bind="foreach: pa_stats_mappool">
+	<div class="one-system" style="position: relative; width: 150px; height: 400px"
+		data-bind="css: { one_system_selected: model.selectedSystemIndex() == $index() }">
+		
+		<div style="height: 100%" data-bind="click: function () { model.selectedSystemIndex($index()); }">
+			<div class="system-title-grp">
+				<div class="system-title" data-bind="text: $data.name"></div>
+				<div class="div_version_info_cont" data-bind="text: $data.creator"></div>
+			</div>
+			<div class="system-thumb">
+				<div class="position">
+					<img style="height: 100px; width: 100px; margin: 60px 0px 0px 0px;" src="" data-bind="attr: { src: $root.imageSourceForSystem($data) }" />
+				</div>
+			</div>
+			<div data-bind="text: $data.description"></div>
+		</div>
+
+		<div style="position: absolute; bottom: 0px">
+			Veto <input type="checkbox" data-bind="checked: generatePaStatsVetoComputable($data.name)" />
+		</div>
+	</div>
+
+</div>
