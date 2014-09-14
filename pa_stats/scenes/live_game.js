@@ -3,11 +3,6 @@
 	var displayName = decode(sessionStorage['displayName']);
 	var uberName = decode(localStorage['uberName']);
 	
-	if (decode(localStorage[paStatsGlobal.isRankedGameKey]) && decode(localStorage[paStatsGlobal.lastConfirmedRankedLobby]) != gameIdent) {
-		localStorage[paStatsGlobal.lastConfirmedRankedLobby] = encode(gameIdent);
-		$.get(paStatsGlobal.queryUrlBase+"confirmLobby?lobby="+gameIdent);
-	}
-	
 	function ReportData() {
 		var self = this;
 		self.ident = "";
@@ -501,6 +496,7 @@
 			report.showLive = model.showDataLive();
 			report.firstStats = statsPacket;
 			report.paVersion = decode(sessionStorage['build_version']);
+			report.isAutomatch = decode(localStorage[paStatsGlobal.isRankedGameKey]);
 			
 			report.planet = {
 				json:localStorage['pa_stats_loaded_planet_json']
