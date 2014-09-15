@@ -31,8 +31,12 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry('server_browser', b+"scenes/server_browser.js");
 		addSceneEntry('new_game', b+"scenes/new_game.js");
 		addSceneEntry('game_over', b+'scenes/game_over.js');
+		
+		
+		addSceneEntry('live_game', b+'scenes/autopause.js');
 		addSceneEntry('live_game', b+'lib/alertsManager.js');
 		addSceneEntry('live_game', b+'scenes/live_game.js');
+		
 		addSceneEntry('lobby', b+'scenes/lobby.js');
 		addSceneEntry('settings', b+'scenes/settings.js');
 		
