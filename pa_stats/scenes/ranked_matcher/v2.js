@@ -412,7 +412,7 @@
 		};
 
 		var waitForClientLoadBeat = function(next) {
-			bigNotice("waiting for planets to be build");
+			bigNotice("waiting for planets to be built");
 			if (!hasVeto() && gamesetupjs.myLoadIsComplete()) {
 				smallNotice("planets are accepted and build, game should start very soon");
 				gamesetupjs.ensureReadyUp();
@@ -455,7 +455,7 @@
 		};
 		
 		var hostWaitsForStartBeat = function(next) {
-			bigNotice("waiting for planets to be build on server and both clients");
+			bigNotice("waiting for planets to be built on server and both clients");
 			if (checkedVetos && !hasVeto() && gamesetupjs.playersReadyFor1vs1()) {
 				smallNotice("everyone is finished loading the planets, starting game now");
 				gamesetupjs.startGame();
