@@ -50,7 +50,7 @@
 	        'Welcome to PA Stats' +
 	    '</div>' +
 		'<div>Your PA Stats Version was automatically updated to the latest version.</div><br/>' +
-		'<div style="font-weight: bold">This version of PA Stats features skill based matchmaking. So play 1vs1 now!. Old games are already taken into account, so if you played a lot of 1v1, your rating should already be helping you to find decent opponents. Make sure to tell everyone who may or may not be interested into 1vs1 of this, it can only work if everyone knows about it.</div>'+
+		'<div style="font-weight: bold">This version of PA Stats features skill based matchmaking. So play 1vs1 now! Old games are already taken into account, so if you played a lot of 1v1, your rating should already be helping you to find decent opponents. Make sure to tell everyone who may or may not be interested in 1vs1 of this, it can only work if everyone knows about it.</div>'+
 		'<br/><div>Visit www.pastats.com/updates for the most recent full Changelog.</div>' +
 	    '<div style="margin: 10px 0px;">' +
 	        'By clicking <b>Accept</b> below, you acknowledge that you have read and agree to the '+
@@ -60,10 +60,10 @@
 	        'overflow: auto; padding: 10px;">'+
 	        '<p>If you should notice possible bugs in the UI, especially after patches, please try to disable PA Stats and any other UI-mod before reporting any bugs to Uber. Just to make sure Uber is not given bugreports, just because a new patch broke PA Stats. Report such bugs to me instead, I will always try to fix up PA Stats after patches as fast as possible and often PA Stats just keeps working :)</p>'+
 			'<p>By using PA Stats you agree that arbitrary data on your gameplay will be gathered, processed and published on www.pastats.com so you and anyone else can analyze it.</p>'+
-			'<p>Data however will only be processed in the interest of gameplay-analysis. No profit will be made with any data gathered</p>'+
+			'<p>Data however will only be processed in the interest of gameplay-analysis. No profit will be made with any data gathered.</p>'+
 			'<p>If you disagree please either uncheck "Send Data to PA Stats" ingame, which prevents any data from being sent, or deinstall PA Stats.</p>'+
 			'<p>If you want a specific game deleted from the page contact me (Cola_Colin) in the Uberent forums.</p>'+
-			'<p>This message will be displayed once for every bigger update that is made to PA Stats</p>'+
+			'<p>This message will be displayed once for every bigger update that is made to PA Stats.</p>'+
 	    '</div>'+
 	'</div>'
 		
