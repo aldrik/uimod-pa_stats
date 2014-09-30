@@ -157,7 +157,6 @@ var alertsManager =
 				}
 				
 				handlers.watch_list = function(payload) {
-					console.log(payload);
 					_watchListHandler(payload);
 				};
 			};
