@@ -6,3 +6,20 @@
 .ui-resizable-handle {
 	background-color: #333;
 }
+
+#irc-button {
+	z-index: 1000;
+	bottom: 0;
+	height: 50px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	display: inline-block;
+	
+	height: 32px;
+	margin-left: 10px;
+	border: 1px #585858 solid;
+	border-radius: 1px;
+	background: #282828;
+	color: #FFFFFF;
+}
