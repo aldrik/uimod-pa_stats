@@ -21,7 +21,8 @@ var alertsManager =
 				SIGHT: 4,
 				PROJECTILE: 5,
 				FIRST_CONTACT: 6,
-				TARGET_DESTROYED: 7
+				TARGET_DESTROYED: 7,
+				ALLIED_DEATH: 8
 			};
 			
 			var _makeEmptyFilterSettings = function() {
@@ -29,16 +30,21 @@ var alertsManager =
 			};
 			
 			var _defaultFilterSettings = _makeEmptyFilterSettings();
-			_defaultFilterSettings.selectedTypes[_watchTypes.CREATED] = ['Factory', 'Recon'];
+			_defaultFilterSettings.selectedTypes[_watchTypes.CREATED] = ['Factory', 'Recon', 'Important'];
 			
 			_defaultFilterSettings.selectedTypes[_watchTypes.DAMAGED] = ['Commander'];
 			
-			_defaultFilterSettings.selectedTypes[_watchTypes.DESTROYED] = ['Structure'];
+			_defaultFilterSettings.selectedTypes[_watchTypes.DESTROYED] = ['Factory', 'Commander', 'Recon', 'Important'];
 			_defaultFilterSettings.excludedTypes[_watchTypes.DESTROYED] = ['Wall'];
 			
-			_defaultFilterSettings.selectedTypes[_watchTypes.SIGHT] = ['Commander'];
+			_defaultFilterSettings.selectedTypes[_watchTypes.SIGHT] = ['Factory', 'Commander', 'Recon', 'Important'];
+			_defaultFilterSettings.excludedTypes[_watchTypes.SIGHT] = ['Wall'];
 			
-			_defaultFilterSettings.selectedTypes[_watchTypes.TARGET_DESTROYED] = ['Commander', 'Structure'];
+			_defaultFilterSettings.selectedTypes[_watchTypes.TARGET_DESTROYED] = ['Factory', 'Commander', 'Recon', 'Important'];
+			_defaultFilterSettings.excludedTypes[_watchTypes.TARGET_DESTROYED] = ['Wall'];
+			
+			_defaultFilterSettings.selectedTypes[_watchTypes.ALLIED_DEATH] = ['Factory', 'Commander', 'Recon', 'Important'];
+			_defaultFilterSettings.excludedTypes[_watchTypes.ALLIED_DEATH] = ['Wall'];
 			
 			// includedUnits and excludedUnits are not used by the default settings
 			
@@ -92,7 +98,8 @@ var alertsManager =
 								wt !== _watchTypes.DAMAGED && 
 								wt !== _watchTypes.DESTROYED &&
 								wt !== _watchTypes.SIGHT && 
-								wt !== _watchTypes.TARGET_DESTROYED) {
+								wt !== _watchTypes.TARGET_DESTROYED &&
+								wt !== _watchTypes.ALLIED_DEATH) {
 							return true;
 						}
 						var checkTypes = selectedTypes[wt] || [];
