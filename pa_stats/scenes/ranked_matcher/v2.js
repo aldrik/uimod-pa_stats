@@ -149,7 +149,8 @@
 			}
 			
 			console.log("selected map is ");
-			console.log(system);
+			console.log("a secret");
+			//console.log(system);
 			
 			return system;
 		};
