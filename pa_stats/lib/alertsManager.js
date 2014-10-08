@@ -2,6 +2,10 @@ console.log("load alertsManager");
 var alertsManager =
 	(typeof alertsManager === 'undefined') ? 
 	(function(){
+			function contains(ar, val) {
+				return ar !== undefined && $.inArray(val, ar) !== -1;
+			}
+		
 			// currently this internally asks for all created and destroyed events
 		    // this may change in the future
 		
@@ -10,7 +14,7 @@ var alertsManager =
 		  	// that means: only the commander damage alert will trigger by default
 		  	// I am also concerned about the amount of damaged alerts that could be triggered
 		// sight buggy, changing it kills enemy located messages
-		  	var _hookIntoAlerts = ['watchlist.setCreationAlertTypes', 'watchlist.setDeathAlertTypes', /*'watchlist.setSightAlertTypes',*/ 'watchlist.setTargetDestroyedAlertTypes'/*, 'watchlist.setDamageAlertTypes'*/];
+		  	var _hookIntoAlerts = ['watchlist.setCreationAlertTypes', 'watchlist.setDeathAlertTypes', 'watchlist.setSightAlertTypes', 'watchlist.setTargetDestroyedAlertTypes'/*, 'watchlist.setDamageAlertTypes'*/];
 		  	var _allAlertsTypes = ['Mobile', 'Structure', 'Recon'];
 
 			var _watchTypes = {
@@ -48,9 +52,34 @@ var alertsManager =
 			
 			// includedUnits and excludedUnits are not used by the default settings
 			
+			var _unitSpecMapping = undefined;
+			unitInfoParser.loadUnitTypeMapping(function(mapping) {
+				_unitSpecMapping = mapping;
+			});
+			
+			var _seenArmyIds = {};
+			
 			var _listenerCounter = 0;
 			var _listeners = {};
 			var _watchListHandler = function(payload) {
+				for (var i = 0; i < payload.list.length; i++) {
+					var alert = payload.list[i];
+					if (alert.watch_type === _watchTypes.SIGHT && _seenArmyIds[alert.army_id] === undefined && _unitSpecMapping) {
+						_seenArmyIds[alert.army_id] = true;
+						var unitTypeBySpec = _unitSpecMapping[alert.spec_id];
+						var selTypes = _defaultFilterSettings.selectedTypes[_watchTypes.SIGHT];
+						var isPartOfSight = false;
+						for (var n = 0; n < selTypes.length; n++) {
+							if (contains(unitTypeBySpec, selTypes[n])) {
+								isPartOfSight = true;
+							}
+						}
+						if (!isPartOfSight) {
+							alert.watch_type = _watchTypes.FIRST_CONTACT;
+						}
+					}
+				}
+				
 				for (listener in _listeners) {
 					if (_listeners.hasOwnProperty(listener)) {
 						var copy = {};
@@ -69,11 +98,6 @@ var alertsManager =
 				};
 			};
 			
-			var _unitSpecMapping = undefined;
-			unitInfoParser.loadUnitTypeMapping(function(mapping) {
-				_unitSpecMapping = mapping;
-			});
-			
 			// make a filter function by the given settings object
 			// the settings object should have the following properties:
 			// selectedTypes, includedUnits, excludedUnits
@@ -86,10 +110,6 @@ var alertsManager =
 					var excludedTypes = settings.excludedTypes;
 					var includedUnits = settings.includedUnits;
 					var excludedUnits = settings.excludedUnits;
-
-					function contains(ar, val) {
-						return ar !== undefined && $.inArray(val, ar) !== -1;
-					}
 					
 					function shouldBeRetained(notice) {
 						var wt = notice.watch_type;
@@ -118,8 +138,8 @@ var alertsManager =
 									return false;
 								}
 							}
-							for (var i = 0; i < checkTypes.length; i++) {
-								if (contains(unitTypeBySpec, checkTypes[i])) {
+							for (var n = 0; n < checkTypes.length; n++) {
+								if (contains(unitTypeBySpec, checkTypes[n])) {
 									return true;
 								}
 							}
