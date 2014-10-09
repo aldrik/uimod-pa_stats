@@ -1,9 +1,8 @@
 (function() {
-
 	// ubernet build version should be the non pte version, so this actually
 	// checks "are we on the current official public live build or are we in a
 	// test environment" :)
-	if (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['build_version'])  || (typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined')) {
+	if (model.remoteServerAvailable() && (decode(sessionStorage['ubernet_build_version']) == decode(sessionStorage['build_version'])  || (typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined'))) {
 
 		var refreshingTimeout = false;
 		var searching = ko.observable(false);
@@ -432,6 +431,9 @@
 			bigNotice("our prepared server will be used")
 			if (gamesetupjs.serverCreated()) {
 				smallNotice("prepared server is ready");
+				gamesetupjs.setPublic(function() {
+					smallNotice("game was set to public, opponent can join now");
+				});
 				matchmakingjs.notifyHosted(gamesetupjs.getLobbyId(), function() {
 					smallNotice("notified partner that we are ready for them to join the lobby");
 					beatHandler = hostWaitsForStartBeat;
