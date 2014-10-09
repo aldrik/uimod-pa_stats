@@ -82,6 +82,7 @@ var paStatsGlobal = (function() {
 		pa_stats_stored_version : nanodesu + "version",
 		pa_stats_replay_started_in_session: nanodesu + "replaystarted", 
 		lastConfirmedRankedLobby: nanodesu + "lastConfirmedRankedLobby",
+		isLocalGame: nanodesu + "isLocalGame",
 		vetoMapName: nanodesu + "vetoMap",
 		wantsToSendKey : _wantsToSendKey,
 		showDataLiveKey : _showDataLiveKey,

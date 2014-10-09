@@ -27,9 +27,13 @@
 		sendConfig(model.showDataLive(), v);
 	});
 	
-	$(".div_instruct_bar").prepend(
-			'<div id="pastatsadds"><div data-bind="visible: isRanked">When playing automatches PA Stats is mandatory for fairness of reporting. However you can select if you want to show live updates.</div><div data-bind="visible: isNotRanked">Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
-			'<div data-bind="visible: liveShouldBeVisible">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div></div>');
+	if (decode(localStorage[paStatsGlobal.isLocalGame])) {
+		$(".div_instruct_bar").prepend('<div id="pastatsadds">Local games cannot report to PA Stats.</div>');
+	} else {
+		$(".div_instruct_bar").prepend(
+				'<div id="pastatsadds"><div data-bind="visible: isRanked">When playing automatches PA Stats is mandatory for fairness of reporting. However you can select if you want to show live updates.</div><div data-bind="visible: isNotRanked">Send data to PA Stats: <input type="checkbox" data-bind="checked: wantsToSend"/></div>'+
+				'<div data-bind="visible: liveShouldBeVisible">Show live updates on the webpage: <input type="checkbox" data-bind="checked: showDataLive"/></div></div>');
+	}
 	
 	var oldClick = model.clickButton;
 	

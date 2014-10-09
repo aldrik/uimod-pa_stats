@@ -346,6 +346,8 @@
 					settingupGame(true);
 					searching(false);
 
+					localStorage[paStatsGlobal.isLocalGame] = encode(false); 
+					
 					isHost(game.isHost);
 					if (game.isHost) {
 						smallNotice("I am host");

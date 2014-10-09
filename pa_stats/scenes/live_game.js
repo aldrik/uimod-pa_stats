@@ -446,7 +446,8 @@
 				|| paStatsGlobal.reportVersion < localStorage['pa_stats_req_version'] // bad version
 				|| model.showTimeControls() // chonocam
 				|| (!decode(localStorage[paStatsGlobal.wantsToSendKey]) && !decode(localStorage[paStatsGlobal.isRankedGameKey])) // user refused at the start of the game, careful of ranked, PA Stats is mandatory for them
-				|| playStartTime === undefined) { // quering the starttime from the server has not yet been successful
+				|| playStartTime === undefined  // quering the starttime from the server has not yet been successful
+				|| decode(localStorage[paStatsGlobal.isLocalGame])) { // do not report for local games, they miss a unique id
 			actionsSinceLastTick = 0;
 			return;
 		}

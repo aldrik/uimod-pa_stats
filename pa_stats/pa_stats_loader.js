@@ -28,6 +28,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry('server_browser', b+"scenes/ranked_matcher/v2.js");
 		
 		addSceneEntry('connect_to_game', b+'lib/captureLobbyId.js');
+		addSceneEntry('connect_to_game', b+'scenes/connect.js');
 		addSceneEntry('server_browser', b+"scenes/server_browser.js");
 		addSceneEntry('new_game', b+"scenes/new_game.js");
 		addSceneEntry('game_over', b+'scenes/game_over.js');
