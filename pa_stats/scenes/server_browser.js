@@ -3,6 +3,10 @@
 		localStorage['lobbyId'] = encode(v.lobby_id);
 	});
 	
+	if (!model.remoteServerAvailable()) {
+		return;
+	}
+	
 	var oldTryEnter = model.tryToEnterGame;
 	model.tryToEnterGame = function() {
 		if (model.currentSelectedGame().region.startsWith("custom: ")) {
@@ -26,7 +30,7 @@
 	
 	var customBeacons = [];
 	
-	setInterval(function() {
+	var listCustomServers = function() {
 		$.getJSON(paStatsGlobal.queryUrlBase+"servers", function(data) {
 			var beacons = [];
 			for (var i = 0; i < data.length; i++) {
@@ -57,13 +61,18 @@
 			
 			for (var i = 0; i < customBeacons.length; i++) {
 				var oldProcessBeacon = model.processGameBeacon;
-				var reg = customBeacons[i].TitleData.region;
-				model.processGameBeacon = function(t, r, lid, h, p) {
-					return oldProcessBeacon(t, "custom: "+ reg, lid, h, p);
-				};
-				handlers.update_beacon(customBeacons[i]);
-				model.processGameBeacon = oldProcessBeacon;
+				try {
+					var reg = customBeacons[i].TitleData.region;
+					model.processGameBeacon = function(t, r, lid, h, p) {
+						return oldProcessBeacon(t, "custom: "+ reg, lid, h, p);
+					};
+					handlers.update_beacon(customBeacons[i]);
+				} finally {
+					model.processGameBeacon = oldProcessBeacon;
+				}
 			}
 		});
-	}, 5000);
+	};
+	listCustomServers();
+	setInterval(listCustomServers, 5000);
 }());
