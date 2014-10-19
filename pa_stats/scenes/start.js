@@ -1,6 +1,6 @@
 (function() {
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
-
+	
 	if (sessionStorage[paStatsGlobal.pa_stats_replay_started_in_session] == undefined) {
 		sessionStorage[paStatsGlobal.pa_stats_replay_started_in_session] = "true";
 		

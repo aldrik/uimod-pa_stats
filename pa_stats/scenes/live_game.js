@@ -438,6 +438,40 @@
 		}
 	});
 	
+	var lastSimTime = undefined;
+	var lastSimTimeCompare = undefined;
+	var simSpeeds = [];
+	
+	var getSimSpeed = function() {
+		if (simSpeeds.length > 0) {
+			var sum = 0;
+			for (var i = 0; i < simSpeeds.length; i++) {
+				sum = sum + simSpeeds[i];
+			}
+			var speed = Number((sum / simSpeeds.length).toFixed(0));
+			simSpeeds = [];
+			return speed;
+		} else {
+			return 100;
+		}
+	};
+	
+	var oldTimeHandler = handlers.time;
+	handlers.time = function(payload) {
+		if (oldTimeHandler) {
+			oldTimeHandler(payload);
+		}
+		
+		if (lastSimTime && lastSimTimeCompare) {
+			var simDt = payload.current_time - lastSimTime;
+			var realDt = new Date().getTime()/1000 - lastSimTimeCompare;
+			simSpeeds.push(Number(((simDt/realDt) * 100).toFixed(0)));
+		}
+		
+		lastSimTime = payload.current_time;
+		lastSimTimeCompare = new Date().getTime() / 1000;
+	};
+	
 	model.sendStats = function() {
 		if (!hasFirstResourceUpdate() // game has not yet started
 				|| gameIsOverOrPlayerIsDead // review
@@ -449,6 +483,7 @@
 				|| playStartTime === undefined  // quering the starttime from the server has not yet been successful
 				|| decode(localStorage[paStatsGlobal.isLocalGame])) { // do not report for local games, they miss a unique id
 			actionsSinceLastTick = 0;
+			simSpeeds = [];
 			return;
 		}
 	
@@ -465,7 +500,7 @@
 		if (!addedDeathListener) {
 			addDeathListener();
 		}
-	
+		
 		var statsPacket = {};
 		statsPacket.armyCount = model.armySize();
 		statsPacket.metalIncomeNet = metalNet();
@@ -481,7 +516,8 @@
 		statsPacket.metalIncome = metalGain();
 		statsPacket.energyIncome = energyGain();
 		statsPacket.apm = getApm();
-	
+		statsPacket.simSpeed = getSimSpeed();
+		
 		var report = undefined;
 	
 		if (gameLinkId === undefined) {

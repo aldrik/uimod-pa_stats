@@ -9,7 +9,7 @@ var paStatsGlobal = (function() {
 	//check if we are currently in development mode and determine correct URL to use
 	var _queryUrlBase = paStatsHost;
 
-	var _reportVersion = 19;
+	var _reportVersion = 20;
 
 	var _pollingSpeed = 3000;
 	
