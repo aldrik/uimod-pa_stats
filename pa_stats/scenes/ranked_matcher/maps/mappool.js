@@ -414,4 +414,31 @@ var pa_stats_mappool = [ {
 		}
 	} ],
 	"creator" : "Team Genesis"
+}, {
+	"name" : "Caledonia RANKED",
+	"planets" : [ {
+		"name" : "Caledonia",
+		"mass" : 20000,
+		"position_x" : 21100,
+		"position_y" : 100,
+		"velocity_x" : -0.7295550107955933,
+		"velocity_y" : 153.93467712402344,
+		"required_thrust_to_move" : 0,
+		"starting_planet" : true,
+		"planet" : {
+			"seed" : 11430,
+			"radius" : 596,
+			"heightRange" : 65,
+			"waterHeight" : 47,
+			"temperature" : 70,
+			"metalDensity" : 73,
+			"metalClusters" : 33,
+			"biomeScale" : 50,
+			"biome" : "earth",
+			"numArmies" : 2,
+			"landingZonesPerArmy" : 0,
+			"landingZoneSize" : 200
+		}
+	} ],
+	"creator" : "Team Genesis"
 } ];
