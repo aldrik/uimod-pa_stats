@@ -450,7 +450,7 @@
 			}
 			var speed = Number((sum / simSpeeds.length).toFixed(0));
 			simSpeeds = [];
-			return speed;
+			return speed || 100;
 		} else {
 			return 100;
 		}
