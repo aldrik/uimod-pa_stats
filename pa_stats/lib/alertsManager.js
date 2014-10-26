@@ -133,6 +133,12 @@ var alertsManager =
 							return false;
 						} else {
 							var unitTypeBySpec = _unitSpecMapping[notice.spec_id];
+							
+							// units not in the unit_list, this can happen when other mods are involved
+							if (unitTypeBySpec === undefined) { 
+								return true;
+							}
+							
 							for (var i = 0; i < exTypes.length; i++) {
 								if (contains(unitTypeBySpec, exTypes[i])) {
 									return false;

@@ -15,7 +15,14 @@ var unitInfoParser =
 			  $.getJSON(_unitListPath, function(data) {
 			   var units = data.units;
 			   var finishedAll = false;
-
+			   
+			   var countDown = function() {
+				  spawnedUnitCalls--;
+				  if (spawnedUnitCalls === 0) {
+					onComplete(resultTypeMapping);
+				  }
+			   };
+			   
 			   function readUnitDataFromFile(file, callback) {
 				  $.getJSON(file, function(unit) {
 					var freshDataFromUnit = dataGetter(unit);
@@ -29,11 +36,11 @@ var unitInfoParser =
 					  if (freshDataFromUnit != undefined) {
 						callback(freshDataFromUnit);
 					  }
-					  spawnedUnitCalls--;
-					  if (spawnedUnitCalls === 0) {
-						onComplete(resultTypeMapping);
-					  }
+					  countDown();
 					}
+				  }).fail(function(e) {
+					  console.log("PA Stats found an invalid unit json file: "+file+", both PA itself and PA Stats will probably choke and die when such units are build.");
+					  countDown();
 				  });
 				}
 				 
