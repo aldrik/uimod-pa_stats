@@ -30,9 +30,13 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry('connect_to_game', b+'lib/captureLobbyId.js');
 		addSceneEntry('connect_to_game', b+'scenes/connect.js');
 		addSceneEntry('server_browser', b+"scenes/server_browser.js");
+		
+		// this scene actually does not exit because Uber atm loads mods for new_game in both of them, but once they fix it this may keep it working
+		addSceneEntry('new_game_ladder', b+"scenes/new_game.js");
 		addSceneEntry('new_game', b+"scenes/new_game.js");
 		addSceneEntry('game_over', b+'scenes/game_over.js');
 		
+		addSceneEntry('matchmaking', b+'scenes/matchmaking.js');
 		
 		addSceneEntry('live_game', b+'scenes/autopause.js');
 		addSceneEntry('live_game', b+'lib/alertsManager.js');

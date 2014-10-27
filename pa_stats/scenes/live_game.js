@@ -451,9 +451,8 @@
 			var speed = Number((sum / simSpeeds.length).toFixed(0));
 			simSpeeds = [];
 			return speed || 100;
-		} else {
-			return 100;
 		}
+		return 100;
 	};
 	
 	var oldTimeHandler = handlers.time;
@@ -542,13 +541,27 @@
 			report.armyEvents = pasCapturedEvents;
 			
 			report.gameStartTime = playStartTime;
+			
+			
+			if (report.firstStats.simSpeed == null) {
+				console.log("WTF simspeed is null?");
+				report.firstStats.simSpeed = 100;
+			}
 		} else {
 			report = {};
 			report.gameLink = gameLinkId;
 			report.stats = statsPacket;
 			
 			report.armyEvents = pasCapturedEvents;
+			
+			if (report.stats.simSpeed == null) {
+				console.log("WTF simspeed is null?");
+				report.stats.simSpeed = 100;
+			}
 		}
+		
+
+		
 		pasCapturedEvents = [];
 		
 		// queryUrlBase is determined in global.js
