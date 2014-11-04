@@ -443,14 +443,22 @@
 	var simSpeeds = [];
 	
 	var getSimSpeed = function() {
-		if (simSpeeds.length > 0) {
+		var simSpeedLength = simSpeeds.length;
+		if (simSpeedLength > 0) {
 			var sum = 0;
-			for (var i = 0; i < simSpeeds.length; i++) {
+			for (var i = 0; i < simSpeedLength; i++) {
 				sum = sum + simSpeeds[i];
 			}
-			var speed = Number((sum / simSpeeds.length).toFixed(0));
+			var speed = Number((sum / simSpeedLength).toFixed(0));
 			simSpeeds = [];
-			return speed || 100;
+			
+			if (speed > 1000) {
+				speed = 1337;
+			} else if (speed < -1000) {
+				speed = -1337;
+			}
+			
+			return speed;
 		}
 		return 100;
 	};
@@ -470,6 +478,24 @@
 		lastSimTime = payload.current_time;
 		lastSimTimeCompare = new Date().getTime() / 1000;
 	};
+	
+	var sendReport = function(report) {
+		// queryUrlBase is determined in global.js
+		$.ajax({
+			type : "PUT",
+			url : paStatsGlobal.queryUrlBase + "report",
+			contentType : "application/json",
+			data : JSON.stringify(report),
+			success : function(result) {
+				if (gameLinkId === undefined) {
+					gameLinkId = result.gameLink;
+					localStorage['pa_stats_game_link'] = encode(gameLinkId);
+					$("#pastatsadds").remove();
+				}
+			}
+		});
+	}
+	
 	
 	model.sendStats = function() {
 		if (!hasFirstResourceUpdate() // game has not yet started
@@ -541,42 +567,16 @@
 			report.armyEvents = pasCapturedEvents;
 			
 			report.gameStartTime = playStartTime;
-			
-			
-			if (report.firstStats.simSpeed == null) {
-				console.log("WTF simspeed is null?");
-				report.firstStats.simSpeed = 100;
-			}
 		} else {
 			report = {};
 			report.gameLink = gameLinkId;
 			report.stats = statsPacket;
 			
 			report.armyEvents = pasCapturedEvents;
-			
-			if (report.stats.simSpeed == null) {
-				console.log("WTF simspeed is null?");
-				report.stats.simSpeed = 100;
-			}
 		}
-		
-
 		
 		pasCapturedEvents = [];
 		
-		// queryUrlBase is determined in global.js
-		$.ajax({
-			type : "PUT",
-			url : paStatsGlobal.queryUrlBase + "report",
-			contentType : "application/json",
-			data : JSON.stringify(report),
-			success : function(result) {
-				if (gameLinkId === undefined) {
-					gameLinkId = result.gameLink;
-					localStorage['pa_stats_game_link'] = encode(gameLinkId);
-					$("#pastatsadds").remove();
-				}
-			}
-		});
+		sendReport(report);
 	}	
 }());
