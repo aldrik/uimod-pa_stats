@@ -452,12 +452,6 @@
 			var speed = Number((sum / simSpeedLength).toFixed(0));
 			simSpeeds = [];
 			
-			if (speed > 1000) {
-				speed = 1337;
-			} else if (speed < -1000) {
-				speed = -1337;
-			}
-			
 			return speed;
 		}
 		return 100;
@@ -504,7 +498,7 @@
 				|| model.isSpectator()
 				|| paStatsGlobal.reportVersion < localStorage['pa_stats_req_version'] // bad version
 				|| model.showTimeControls() // chonocam
-				|| (!decode(localStorage[paStatsGlobal.wantsToSendKey]) && !decode(localStorage[paStatsGlobal.isRankedGameKey])) // user refused at the start of the game, careful of ranked, PA Stats is mandatory for them
+				|| (!decode(localStorage[paStatsGlobal.wantsToSendKey])) // user refused at the start of the game
 				|| playStartTime === undefined  // quering the starttime from the server has not yet been successful
 				|| decode(localStorage[paStatsGlobal.isLocalGame])) { // do not report for local games, they miss a unique id
 			actionsSinceLastTick = 0;

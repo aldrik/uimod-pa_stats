@@ -1,4 +1,6 @@
 (function() {
+	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+	
 	var oldOnCommand = model.onCommand;
 	model.onCommand = function(uberid, command) {
 		try {

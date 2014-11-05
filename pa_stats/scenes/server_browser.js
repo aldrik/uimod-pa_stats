@@ -1,4 +1,6 @@
 (function() {
+	localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+	
 	model.currentSelectedGame.subscribe(function(v) {
 		localStorage['lobbyId'] = encode(v.lobby_id);
 	});
