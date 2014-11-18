@@ -17,6 +17,7 @@
 		self.paVersion = "unknown";
 		self.armyEvents = [];
 		self.gameStartTime = 0;
+		self.simSpeed = 100;
 	}
 	
 	// these are no longer part of the default live_game scene, so create my own
@@ -452,7 +453,7 @@
 			var speed = Number((sum / simSpeedLength).toFixed(0));
 			simSpeeds = [];
 			
-			return speed;
+			return speed === null ? 100 : speed;
 		}
 		return 100;
 	};
@@ -474,12 +475,13 @@
 	};
 	
 	var sendReport = function(report) {
+		var strData = JSON.stringify(report);
 		// queryUrlBase is determined in global.js
 		$.ajax({
 			type : "PUT",
 			url : paStatsGlobal.queryUrlBase + "report",
 			contentType : "application/json",
-			data : JSON.stringify(report),
+			data : strData,
 			success : function(result) {
 				if (gameLinkId === undefined) {
 					gameLinkId = result.gameLink;
@@ -489,7 +491,6 @@
 			}
 		});
 	}
-	
 	
 	model.sendStats = function() {
 		if (!hasFirstResourceUpdate() // game has not yet started
