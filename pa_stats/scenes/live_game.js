@@ -471,7 +471,9 @@
 		if (lastSimTime && lastSimTimeCompare) {
 			var simDt = payload.current_time - lastSimTime;
 			var realDt = new Date().getTime()/1000 - lastSimTimeCompare;
-			simSpeeds.push(Number(((simDt/realDt) * 100).toFixed(0)));
+			if (realDt > 0) {
+				simSpeeds.push(Number(((simDt/realDt) * 100).toFixed(0)));
+			}
 		}
 		
 		lastSimTime = payload.current_time;
