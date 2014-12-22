@@ -1,5 +1,6 @@
 (function() {
 	localStorage[paStatsGlobal.isRankedGameKey] = encode(true);
+	localStorage[paStatsGlobal.isLocalGame] = encode(false);
 	
 	var unfixupPlanetConfig = function (system) {
         if (!system.planets)
