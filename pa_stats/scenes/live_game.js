@@ -17,7 +17,6 @@
 		self.paVersion = "unknown";
 		self.armyEvents = [];
 		self.gameStartTime = 0;
-		self.simSpeed = 100;
 	}
 	
 	// these are no longer part of the default live_game scene, so create my own
@@ -443,6 +442,10 @@
 	var lastSimTimeCompare = undefined;
 	var simSpeeds = [];
 	
+	var isOkayNumber = function(a) {
+		return (typeof a==='number' && (a%1)===0)
+	};
+	
 	var getSimSpeed = function() {
 		var simSpeedLength = simSpeeds.length;
 		if (simSpeedLength > 0) {
@@ -450,10 +453,11 @@
 			for (var i = 0; i < simSpeedLength; i++) {
 				sum = sum + simSpeeds[i];
 			}
-			var speed = Number((sum / simSpeedLength).toFixed(0));
+			var foo = (sum / simSpeedLength).toFixed(0);
+			var speed = Number(foo);
 			simSpeeds = [];
 			
-			return speed === null ? 100 : speed;
+			return speed === null || speed < 0 || speed > 9999 || !isOkayNumber(speed) ? 99 : speed;
 		}
 		return 100;
 	};
