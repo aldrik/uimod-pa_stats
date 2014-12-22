@@ -3,20 +3,24 @@
 		var self = this;
 		var oldWantsToSend = ko.observable();
 		var oldShowDataLive = ko.observable();
+		var oldAutopauseEnabled = ko.observable();
 		
 		self.reloadCleanState = function() {
 			oldWantsToSend(decode(localStorage[paStatsGlobal.wantsToSendKey]));
 			oldShowDataLive(decode(localStorage[paStatsGlobal.showDataLiveKey]));
+			oldAutopauseEnabled(decode(localStorage[paStatsGlobal.wantsToAutopause]));
 		};
 		
 		self.reloadCleanState();
 		
 		self.wantsToSend = ko.observable(oldWantsToSend());
 		self.showDataLive = ko.observable(oldShowDataLive());
+		self.autoPauseEnabled = ko.observable(oldAutopauseEnabled());
 		
 		self.dirty = ko.computed(function() {
 			return self.wantsToSend() !== oldWantsToSend() ||
-				self.showDataLive() !== oldShowDataLive();
+				self.showDataLive() !== oldShowDataLive() ||
+				self.autoPauseEnabled() !== oldAutopauseEnabled();
 		});
 	}
 
@@ -33,6 +37,7 @@
 		paStatsOldOk();
 		localStorage[paStatsGlobal.wantsToSendKey] = encode(paStatsSettingsModel.wantsToSend());
 		localStorage[paStatsGlobal.showDataLiveKey] = encode(paStatsSettingsModel.showDataLive());
+		localStorage[paStatsGlobal.wantsToAutopause] = encode(paStatsSettingsModel.autoPauseEnabled());
 		paStatsSettingsModel.reloadCleanState();
 	};
 	
@@ -53,12 +58,12 @@
 		paStatsOldDefaults();
 		paStatsSettingsModel.wantsToSend(true);
 		paStatsSettingsModel.showDataLive(true);
+		paStatsSettingsModel.autoPauseEnabled(true);
 	};
 	
 	model.settingGroups().push("pastats");
     model.settingDefinitions()["pastats"] = {title:"PA Stats",settings:{}};
     $(".option-list.ui .form-group").append('<div class="sub-group pastatssettings">');
-    
     
     $(".option-list.keyboard").parent().append('<div class="option-list pastats" '+
     		'data-bind="visible:($root.settingGroups()[$root.activeSettingsGroupIndex()] === \'pastats\'), '+

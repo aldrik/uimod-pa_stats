@@ -68,15 +68,21 @@ var paStatsGlobal = (function() {
 	var _wantsToSendKey = 'pa_stats_wants_to_send_';
 	var _showDataLiveKey = "pa_stats_show_data_live";
 	var _isRankedGame = nanodesu + "isRanked";
-
+	var _autoPause = nanodesu + "autopauseenabled";
+	
 	// make sure the defaults are set
 	if (localStorage[_wantsToSendKey] === undefined) {
 		localStorage[_wantsToSendKey] = encode(true);
 		localStorage[_showDataLiveKey] = encode(true);	
 	}
 	
+	if (localStorage[_autoPause] === undefined) {
+		localStorage[_autoPause] = encode(true);
+	}
+	
 	return {
 		createSimplePlanet: _createSimplePlanet,
+		wantsToAutopause: _autoPause,
 		pa_stats_session_teams : nanodesu + "teams",
 		pa_stats_session_team_index : nanodesu + "team_index",
 		pa_stats_stored_version : nanodesu + "version",
