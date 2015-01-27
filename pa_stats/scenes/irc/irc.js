@@ -33,6 +33,13 @@
 		var name = decode(sessionStorage['displayName']);
 
 		if (name != null) {
+			if (!/\A[a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*\z/i.test(name)) { 
+				//ingame nickname doesn`t fullfill the requirements for an irc nickname as per http://stackoverflow.com/questions/5163255/regular-expression-to-match-irc-nickname
+
+				//TODO find better solution
+				name = 'PAUser' + Math.floor(Math.random() * 100);
+			}
+
 			var iframe = '<iframe id="irc-iframe" src="http://webchat.esper.net/?nick=' + name + '&channels='+ channels + '" position="absolute" width="100%" height="100%"></iframe>';
 			$('#irc-pane').append(iframe);
 
