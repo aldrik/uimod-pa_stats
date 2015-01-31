@@ -4,11 +4,13 @@
 		var oldWantsToSend = ko.observable();
 		var oldShowDataLive = ko.observable();
 		var oldAutopauseEnabled = ko.observable();
+		var oldChatDisabled = ko.observable();
 		
 		self.reloadCleanState = function() {
 			oldWantsToSend(decode(localStorage[paStatsGlobal.wantsToSendKey]));
 			oldShowDataLive(decode(localStorage[paStatsGlobal.showDataLiveKey]));
 			oldAutopauseEnabled(decode(localStorage[paStatsGlobal.wantsToAutopause]));
+			oldChatDisabled(decode(localStorage["info.nanodesu.pachat.disablechat"]));
 		};
 		
 		self.reloadCleanState();
@@ -16,11 +18,13 @@
 		self.wantsToSend = ko.observable(oldWantsToSend());
 		self.showDataLive = ko.observable(oldShowDataLive());
 		self.autoPauseEnabled = ko.observable(oldAutopauseEnabled());
+		self.disableChat = ko.observable(oldChatDisabled());
 		
 		self.dirty = ko.computed(function() {
 			return self.wantsToSend() !== oldWantsToSend() ||
 				self.showDataLive() !== oldShowDataLive() ||
-				self.autoPauseEnabled() !== oldAutopauseEnabled();
+				self.autoPauseEnabled() !== oldAutopauseEnabled() ||
+				self.disableChat() !== oldChatDisabled();
 		});
 	}
 
@@ -38,6 +42,7 @@
 		localStorage[paStatsGlobal.wantsToSendKey] = encode(paStatsSettingsModel.wantsToSend());
 		localStorage[paStatsGlobal.showDataLiveKey] = encode(paStatsSettingsModel.showDataLive());
 		localStorage[paStatsGlobal.wantsToAutopause] = encode(paStatsSettingsModel.autoPauseEnabled());
+		localStorage["info.nanodesu.pachat.disablechat"] = encode(paStatsSettingsModel.disableChat());
 		paStatsSettingsModel.reloadCleanState();
 	};
 	
@@ -59,6 +64,7 @@
 		paStatsSettingsModel.wantsToSend(true);
 		paStatsSettingsModel.showDataLive(true);
 		paStatsSettingsModel.autoPauseEnabled(true);
+		paStatsSettingsModel.disableChat(false);
 	};
 	
 	model.settingGroups().push("pastats");

@@ -44,7 +44,11 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		
 		addSceneEntry('uberbar', b+'scenes/uberbar.js');
 		
-		addSceneEntry('uberbar', b+"scenes/irc/irc.css");
-		addSceneEntry('uberbar', b+"scenes/irc/irc.js");
+		// PA Chat
+		addSceneEntry('uberbar', b+'pachat/jabber.js');
+		addSceneEntry('uberbar', b+'pachat/uberbar.css');
+		addSceneEntry('uberbar', b+'pachat/uberbar.js');
+		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
+		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
 	}
 }());
