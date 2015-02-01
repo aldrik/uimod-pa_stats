@@ -50,7 +50,6 @@
 	        'Welcome to PA Stats' +
 	    '</div>' +
 		'<div>Your PA Stats Version was automatically updated to the latest version.</div><br/>' +
-		'<div style="font-weight: bold">This version of PA Stats features skill based matchmaking. So play 1vs1 now! Old games are already taken into account, so if you played a lot of 1v1, your rating should already be helping you to find decent opponents. Make sure to tell everyone who may or may not be interested in 1vs1 of this, it can only work if everyone knows about it.</div>'+
 		'<br/><div>Visit www.pastats.com/updates for the most recent full Changelog.</div>' +
 	    '<div style="margin: 10px 0px;">' +
 	        'By clicking <b>Accept</b> below, you acknowledge that you have read and agree to the '+
