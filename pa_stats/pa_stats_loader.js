@@ -48,7 +48,10 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry('uberbar', b+'pachat/jabber.js');
 		addSceneEntry('uberbar', b+'pachat/uberbar.css');
 		addSceneEntry('uberbar', b+'pachat/uberbar.js');
+		
 		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
 		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
+		
+		addSceneEntry('start', b+'pachat/start.js');
 	}
 }());
