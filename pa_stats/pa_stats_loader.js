@@ -1,5 +1,8 @@
 // base URL for webservices
-var paStatsHost = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined' ? "http://127.0.0.1:8080/" : "http://ns393951.ip-176-31-115.eu/";
+
+// TODO TODO TODO DO NOT COMMIT THE FALSE
+
+var paStatsHost = false && typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined' ? "http://127.0.0.1:8080/" : "http://ns393951.ip-176-31-115.eu/";
 // location of mod files
 var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined' ? 'coui://pa_stats/' : 'http://ns393951.ip-176-31-115.eu/mod/live/';
 
@@ -14,6 +17,17 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	
 	if (typeof paStatsGlobal === 'undefined') {
 		var b = paStatsBaseDir+ "/";
+
+		// PA Chat
+		addSceneEntry('uberbar', b+'pachat/jabber.js');
+		addSceneEntry('uberbar', b+'pachat/uberbar.css');
+		addSceneEntry('uberbar', b+'pachat/uberbar.js');
+		
+		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
+		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
+		
+		addSceneEntry('start', b+'pachat/start.js');
+		// End of PA Chat
 		
 		loadScript(b+'lib/unitInfoParser.js');
 		loadScript(b+'scenes/global.js');
@@ -43,15 +57,5 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		addSceneEntry('start', b+'scenes/start.js');		
 		
 		addSceneEntry('uberbar', b+'scenes/uberbar.js');
-		
-		// PA Chat
-		addSceneEntry('uberbar', b+'pachat/jabber.js');
-		addSceneEntry('uberbar', b+'pachat/uberbar.css');
-		addSceneEntry('uberbar', b+'pachat/uberbar.js');
-		
-		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
-		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
-		
-		addSceneEntry('start', b+'pachat/start.js');
 	}
 }());

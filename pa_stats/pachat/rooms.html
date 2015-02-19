@@ -1,0 +1,70 @@
+<!-- ko foreach: chatRooms -->
+                <div class="div-win chat-room">
+                    <div class="div-chat-room-window" data-bind="resizable: {minWidth: 300, handles : 'w, e', resize: function(event,ui) {$('.div-chat-room-window').css('left', 0);}, stop: function( event, ui ) { scrollDown(); } }">
+                        <div data-bind="css: { 'div-chat-header': !dirtyMention(), 'dirty': dirty() && !dirtyMention(), 'dirtyMention': dirtyMention() }">
+                            <div class="div-chat-room-title" data-bind="click: toggleMinimized">
+								<!-- ko ifnot: minimized -->
+								<div class="div-chat-room-name ellipsesoverflow" data-bind="text: roomName()+'('+usersCount()+') - chat provided by PA Stats. Try /help'"></div>
+								<!-- /ko -->
+								<!-- ko if: minimized -->
+								<div class="chat_message_preview">
+									<span class="div-chat-room-name" data-bind="text: roomName"></span> - 
+									<!-- ko if: lastMessage() -->
+									<span class="chat_message_time" data-bind="text: model.formatTime( new Date( lastMessage().time ), true )"></span>
+                                    <span data-bind="text: lastMessage().roomUser && lastMessage().roomUser.roomDisplayName(), 
+                                   style: {color: lastMessage().roomUser ? lastMessage().roomUser.chatMessageColor() : '#00FF00'}"></span>:
+                                    <span class="chat-msg selectable-text" data-bind="text: lastMessage().content"></span>
+									<!-- /ko -->
+                                </div>
+								<!-- /ko -->
+                            </div>
+                            <div class="div-chat-win-controls">
+                        			  <div class="btn_win btn_win_min btn-chat-win-control" data-bind="click: toggleMinimized"></div>
+                                <div class="btn_win btn_win_close btn-chat-win-control" data-bind="click: close"></div>
+                            </div>
+                        </div>
+                        <div data-bind="visible: !minimized()">
+	                        <div class="div-chat-room-cont">
+	                            <div class="div-chat-room-body" data-bind="attr: {id: 'chat-'+roomName()}">
+	<!-- ko foreach: sortedMessages -->
+	  <!-- ko if: !roomUser || ((!roomUser.isMuted() && !roomUser.blocked()) || roomUser.isAdmin() || roomUser.isModerator()) -->
+		                                <div class="chat_message" data-bind="css: {'markedline': mentionsMe}">
+											<span class="chat_message_time" data-bind="text: model.formatTime( new Date(time), true ), click: model.toggle24HourTime"></span>
+		                                    <span data-bind="text: roomUser && roomUser.roomDisplayName(), 
+		                                    event: { contextmenu: roomUser && model.showRoomContextMenu.bind( $data.roomUser, $parent, event) },
+											style: {color: roomUser ? roomUser.chatMessageColor() : '#00FF00'}"></span>:
+	<!-- ko foreach: parts -->
+	<!-- ko if: link  -->
+	                                    <a class="chat-msg" data-bind="click: model.messageLinkClick, attr: { href: text, target : '_blank' }, text: text"></a>
+	<!-- /ko -->
+	<!-- ko ifnot: link  -->
+	                                    <span class="chat-msg selectable-text" data-bind="text: text"></span>
+	<!-- /ko -->
+	<!-- /ko -->
+		                                </div>
+	  <!-- /ko -->
+	<!-- /ko -->
+	                                <div data-bind="autoscroll: sortedMessages"></div>
+	                            </div>
+								<div class="div-chat-room-users ">
+									<!-- ko foreach: sortedUsers -->
+									<div class="chat_user ellipsesoverflow" data-bind="event: { contextmenu: model.showRoomContextMenu.bind( $data, $parent, event) }, tooltip: displayInfo" data-container=".div-chat-room-window" data-placement="left">
+										<div class="status-visual" data-bind="css: { 'online': available, 'offline': offline, 'away': away, 'dnd': dnd }"></div>
+										<!-- ko if: user && user.hasLeagueImage() -->
+										<img width="24px" height="20px" data-bind="attr: {src: user.leagueImage()}"/>
+										<!-- /ko -->
+										<span class="selectable-text" data-bind="style: {color: roomColor}, text: roomDisplayName,
+																"></span>
+									</div>
+									<!--/ko -->
+								</div>
+	                        </div>
+	                        <div class="div-chat-input">
+	                            <form data-bind="submit: sendMessageLine">
+	                                <input class="input-chat" type="text" data-bind="value: messageLine, valueUpdate: 'afterkeydown', event: {keydown: inputKeyDown}" autofocus />
+	                            </form>
+	                        </div>
+                        </div>
+                    </div>
+                </div>
+<!-- /ko -->

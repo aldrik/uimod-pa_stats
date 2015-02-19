@@ -1,812 +1,946 @@
 var jabber;
 
 console.log("load modified jabber.js"); // modifications are marked with PA CHAT
-///////////////// PA CHAT
+// /////////////// PA CHAT
 var CONFERENCE_URL = "conference.xmpp.uberent.com";
-/////////////// PA CHAT
+// ///////////// PA CHAT
 
-var allowLogging = true; /* squelch logging by default */
+var allowLogging = false; /* squelch logging by default */
 function log(object) {
-	if (allowLogging)
-		console.log(object);
+    if (allowLogging)
+        console.log(object);
 }
 
 function Jabberer(uber_id, jabber_token, use_ubernetdev) {
-	var self = this;
-	var connection;
-	
-	var MAX_RETRIES = 3;
-	var connection_attempts = 0;
+    var self = this;
+    var connection;
 
-	self.useUbernetdev = ko.observable().extend({
-		session : 'use_ubernetdev'
-	});
-	if (use_ubernetdev)
-		self.useUbernetdev(!!use_ubernetdev);
-	
-	var SERVICE_URL = self.useUbernetdev() ? 'xmpp.uberentdev.com'
-			: 'xmpp.uberent.com';
+    var MAX_RETRIES = 3;
+    var connection_attempts = 0;
 
-	self.uberId = ko.observable().extend({
-		session : 'uberId'
-	});
-	if (uber_id)
-		self.uberId(uber_id);
+    // pa lobby needs a disconnect method
 
-	self.jabberToken = ko.observable().extend({
-		session : 'jabberToken'
-	});
-	if (jabber_token)
-		self.jabberToken(jabber_token);
+    var stayDisconnected = false;
 
-	self.jid = ko.observable('').extend({
-		session : 'jabberJid'
-	});
-	self.sid = ko.observable('').extend({
-		session : 'jabberSid'
-	});
-	self.rid = ko.observable('').extend({
-		session : 'jabberRid'
-	});
+    self.disconnect = function(reason) {
+        self.stayDisconnected = true;
+        connection.disconnect(reason);
+    }
 
-	self.roster = ko.observableArray();
-	self.rosterMap = ko.computed(function() {
-		var result = {};
-		_.forEach(self.roster(), function(element) {
-			result[element] = true;
-		});
-		return result;
-	});
+    //
 
-	self.presenceType = ko
-			.observable(/* 'available' | 'away' | 'dnd' | 'unavailable' | 'xa' */);
-	self.presenceStatus = ko.observable( /* string set by user */);
-	self.updatePresence = function() {
-		var type = self.presenceType();
-		var status = self.presenceStatus();
+    self.useUbernetdev = ko.observable().extend({
+        session : 'use_ubernetdev'
+    });
+    if (use_ubernetdev)
+        self.useUbernetdev(!!use_ubernetdev);
 
-		if (!connection)
-			return;
+    var SERVICE_URL = self.useUbernetdev() ? 'xmpp.uberentdev.com' : 'xmpp.uberent.com';
 
-		var payload = {};
-		if (type)
-			payload.type = type;
-		if (status)
-			payload.status = status;
-		connection.send($pres(payload));
-	};
-	self.updatePresenceRule = ko.computed(self.updatePresence);
+    self.uberId = ko.observable().extend({
+        session : 'uberId'
+    });
+    if (uber_id)
+        self.uberId(uber_id);
 
-	
-	/////// PA CHAT
-	var paGrpMsgHandler;
-	self.setGrpMsgHandler = function(handler) {
-		paGrpMsgHandler = handler;
-	};
-	
-	var resultMsgHandler;
-	self.setResultMsgHandler = function(handler) {
-		resultMsgHandler = handler;
-	};
-	
-	var errorMsgHandler;
-	self.setErrorMsgHandler = function(handler) {
-		errorMsgHandler = handler;
-	};
-	
-	var connectHandler;
-	self.setConnectHandler = function(handler) {
-		connectHandler = handler;
-		if (connection && connection.connected) {
-			handler();
-		}
-	};
-	/////// PA CHAT	
-	
-	var paMsgHandler;
-	var paPresenceHandler;
-	var paCommandHandler;
-	self.setMsgHandler = function(handler) {
-		paMsgHandler = handler;
-	}
+    self.jabberToken = ko.observable().extend({
+        session : 'jabberToken'
+    });
+    if (jabber_token)
+        self.jabberToken(jabber_token);
 
-	self.setPresenceHandler = function(handler) {
-		paPresenceHandler = handler;
-	}
-	self.setCommandHandler = function(handler) {
-		paCommandHandler = handler;
-	}
+    self.jid = ko.observable('').extend({
+        session : 'jabberJid'
+    });
+    self.sid = ko.observable('').extend({
+        session : 'jabberSid'
+    });
+    self.rid = ko.observable('').extend({
+        session : 'jabberRid'
+    });
 
-	self.connectOrResume = function() {
-		connection = new Strophe.Connection('http://' + SERVICE_URL
-				+ ':5280/http-bind');
-		connection.rawInput = rawInput;
-		connection.rawOutput = rawOutput;
+    self.roster = ko.observableArray();
+    self.rosterMap = ko.computed(function() {
+        var result = {};
+        _.forEach(self.roster(), function(element) {
+            result[element] = true;
+        });
+        return result;
+    });
 
-		if (self.jid() && self.sid() && self.rid()) {
-			log('Attempting to attach. jid:' + self.jid() + ' sid:'
-					+ self.sid() + ' rid:' + self.rid());
-			connection.attach(self.jid(), self.sid(), self.rid(), onConnect);
-		} else if (self.uberId() && self.jabberToken()) {
-			log('Attempting to connect');
-			self.jid(UberidToJid(self.uberId()) + '/PA');
-			connection.connect(self.jid(), self.jabberToken(), onConnect);
-		} else {
-			log('Unable to connect to jabber');
-		}
-		connection_attempts++;
-	}
+    self.presenceType = ko.observable(/* 'available' | 'away' | 'dnd' | 'unavailable' | 'xa' */);
+    self.presenceStatus = ko.observable( /* string set by user */);
+    self.updatePresence = function() {
+        var type = self.presenceType();
+        var status = self.presenceStatus();
 
-	self.saveSessionState = function() {
-		if (connection && connection.connected) {
-			self.sid(connection._proto.sid);
-			self.rid(connection._proto.rid);
-		}
-	}
+        if (!connection)
+            return;
 
-	self.addContact = function(uberid) {
+        var payload = {};
+        if (type)
+            payload.type = type;
+        if (status)
+            payload.status = status;
+        connection.send($pres(payload));
+    };
+    self.updatePresenceRule = ko.computed(self.updatePresence);
 
-		if (!connection.connected)
-			return;
+    // ///// PA CHAT
+    var paGrpMsgHandler;
+    self.setGrpMsgHandler = function(handler) {
+        paGrpMsgHandler = handler;
+    };
 
-		var jid = UberidToJid(uberid);
+    var resultMsgHandler;
+    self.setResultMsgHandler = function(handler) {
+        resultMsgHandler = handler;
+    };
 
-		var iq = $iq({
-			type : "set"
-		}).c("query", {
-			xmlns : "jabber:iq:roster"
-		}).c("item", jid);
-		connection.sendIQ(iq);
+    var errorMsgHandler;
+    self.setErrorMsgHandler = function(handler) {
+        errorMsgHandler = handler;
+    };
 
-		connection.send($pres({
-			to : jid,
-			type : "subscribe"
-		}));
-	}
+    var connectHandler;
+    self.setConnectHandler = function(handler) {
+        connectHandler = handler;
+        if (connection && connection.connected) {
+            handler();
+        }
+    };
+    // ///// PA CHAT
 
-	self.removeContact = function(uberid) {
+    var paMsgHandler;
+    var paPresenceHandler;
+    var paCommandHandler;
+    self.setMsgHandler = function(handler) {
+        paMsgHandler = handler;
+    }
 
-		if (!connection.connected)
-			return;
+    self.setPresenceHandler = function(handler) {
+        paPresenceHandler = handler;
+    }
+    self.setCommandHandler = function(handler) {
+        paCommandHandler = handler;
+    }
 
-		var jid = UberidToJid(uberid);
-		connection.send($pres({
-			to : jid,
-			type : "unsubscribe"
-		}));
-		connection.send($pres({
-			to : jid,
-			type : "unsubscribed"
-		}));
-	}
+    self.connectOrResume = function() {
+        connection = new Strophe.Connection('http://' + SERVICE_URL + ':5280/http-bind');
+        connection.rawInput = rawInput;
+        connection.rawOutput = rawOutput;
 
-	self.sendChat = function(uberid, message) {
+        if (self.jid() && self.sid() && self.rid()) {
+            log('Attempting to attach. jid:' + self.jid() + ' sid:' + self.sid() + ' rid:' + self.rid());
+            connection.attach(self.jid(), self.sid(), self.rid(), onConnect);
+        } else if (self.uberId() && self.jabberToken()) {
+            log('Attempting to connect');
+            self.jid(UberidToJid(self.uberId()) + '/PA');
+            connection.connect(self.jid(), self.jabberToken(), onConnect);
+        } else {
+            log('Unable to connect to jabber');
+        }
+        connection_attempts++;
+    }
 
-		if (!connection.connected || !uber_id || !message)
-			return;
+    self.saveSessionState = function() {
+        if (connection && connection.connected) {
+            self.sid(connection._proto.sid);
+            self.rid(connection._proto.rid);
+        }
+    }
 
-		var jid = UberidToJid(uberid);
-		var msg = $msg({
-			to : jid,
-			type : 'chat'
-		}).c('body').t(message);
-		connection.send(msg);
-	}
-	
-	
-	/////////// PA CHAT
-	
-	var nameInChannels ={};
-	
-	self.leaveGroupChat = function(roomName) {
-		if (!connection.connected || !roomName) {
-			return;
-		}
-		roomName = roomName.toLowerCase();
-		connection.send($pres({from: self.jid(), to: roomName+"@"+CONFERENCE_URL+"/"+nameInChannels[roomName], type: "unavailable"}));
-		delete nameInChannels[roomName];
-	};
-	
-	self.joinGroupChat = function(roomName, league, rank, name) {
-		if (!connection.connected || !roomName || !self.jid()) {
-			return;
-		}
-		roomName = roomName.toLowerCase();
-		nameInChannels[roomName] = name;
-		
-		connection.send($pres({from: self.jid(), to: roomName+"@"+CONFERENCE_URL+"/"+name,
-			league: league, rank: rank}));
-	};
-	
-	self.setChannelPresence = function(roomName, presence, league, rank) {
-		if (!connection.connected || !roomName || !self.jid() || !presence) {
-			return;
-		}
-		roomName = roomName.toLowerCase();
-		connection.send($pres({from: self.jid(), to: roomName+"@"+CONFERENCE_URL+"/"+nameInChannels[roomName],
-			league: league, rank: rank}).c("show").t(presence));
-	};
-	
-	self.sendGroupChat = function(roomName, message) {
-		if (!connection.connected || !roomName || !message) {
-			return;
-		}
-		roomName = roomName.toLowerCase();
-		connection.send($msg({to: roomName+"@"+CONFERENCE_URL, type: "groupchat"}).c('body').t(message));
-	};
-	
-	var adminActions = {};
-	
-	self.muteUser = function(roomName, nick, reason) {
-		self.setRole(roomName, nick, 'visitor', reason);
-	};
-	
-	self.unmuteUser = function(roomName, nick, reason) {
-		self.setRole(roomName, nick, 'participant', reason);
-	};
-	
-	self.kickUser = function(roomName, nick, reason) {
-		self.setRole(roomName, nick, 'none', reason);
-	};
-	
-	self.makeModerator = function(roomName, nick, reason) {
-		self.setRole(roomName, nick, 'moderator', reason);
-	};
-	
-	self.setRole = function(roomName, nickname, role, reason) {
-		if (!connection.connected || !roomName || !nickname || !role) {
-			return;
-		}
-		var iq = $iq({
- 			from: self.jid(), to: roomName+"@"+CONFERENCE_URL, type : 'set'
-		}).c(
-			'query', {xmlns : 'http://jabber.org/protocol/muc#admin'}
-		).c(
-			'item', {nick : nickname, role : role}
-		);
-		if (reason) {
-			iq.c('reason').t(reason);
-		}
-		
-		var id = connection.sendIQ(iq, onIqSuccess, onIqError);
-		
-		adminActions[id] = {user : nickname, action : role, reason : reason, room : roomName};
-	};
-	
-	self.banUser = function(roomName, uberId, reason) {
-		self.setAffiliation(roomName, uberId, 'outcast', reason);
-	};
-	
-	self.unbanUser = function(roomName, uberId, reason) {
-		self.setAffiliation(roomName, uberId, 'none', reason);
-	};
-	
-	self.makeAdmin = function(roomName, uberId, reason) {
-		self.setAffiliation(roomName, uberId, 'admin', reason);
-	};
-	
-	self.setAffiliation = function (roomName, uberId, affiliation, reason) {
-		if (!connection.connected || !roomName || !uberId || !affiliation) {
-			return;
-		}
-		var iq = $iq({
- 			from: self.jid(), to: roomName+"@"+CONFERENCE_URL, type : 'set'
-		}).c(
-			'query', {xmlns : 'http://jabber.org/protocol/muc#admin'}
-		).c(
-			'item', {affiliation : affiliation, jid : UberidToJid(uberId)}
-		);
-		if (reason) {
-			iq.c('reason').t(reason);
-		}
-		
-		var id = connection.sendIQ(iq, onIqSuccess, onIqError);
-		
-		adminActions[id] = {uberId : uberId, action : affiliation, reason : reason, room : roomName};		
-	};
-	
-	self.showBanList = function(roomName) {
-		self.showListing(roomName, "outcast");
-	};
-	
-	self.showListing = function(roomName, affiliation) {
-		if (!connection.connected || !roomName) {
-			return;
-		}
-		var iq = $iq({
- 			from: self.jid(), to: roomName+"@"+CONFERENCE_URL, type : 'get'
-		}).c(
-			'query', {xmlns : 'http://jabber.org/protocol/muc#admin'}
-		).c(
-			'item', {affiliation : affiliation}
-		);
-		
-		var id = connection.sendIQ(iq, onIqSuccess, onIqError);
-		adminActions[id] = {user : '', action : 'showlisting_'+affiliation, reason : '', room : roomName};
-	};
-	
-	var onIqSuccess = function (message) {
-		var instance = adminActions[message.getAttribute('id')];
-		
-		if (instance.action.startsWith('showlisting_')) {
-			var items = message.firstChild.getElementsByTagName('item');
-			var banned = [];
-			
-			for (var i = 0; i < items.length; i++) {
-				var uberId = JidToUberid(items[i].getAttribute('jid'));
-				var reason = Strophe.getText(items[i].firstChild);
-				reason = reason ? htmlSpecialChars(reason, true) : '';
-				banned.push({uberId : uberId, reason : reason});
-			}
-			resultMsgHandler(instance.room, instance.action, banned);
-		}
-		else {
-			resultMsgHandler(instance.room, instance.action, {uberId : instance.uberId, user : instance.user, reason : instance.reason});
-		}
-		
-		delete adminActions[message.getAttribute('id')];
-	};
-	
-	var onIqError = function (message) {
-		var instance = adminActions[message.getAttribute('id')];
-		
-		var errors = message.getElementsByTagName('error');
-		var explanation = '';
-		
-		for (var i = 0; i < errors.length; i++) {
-			explanation += 'Failed because ' + errors[i].firstChild.nodeName;
-			explanation +=  errors[i].getElementsByTagName('text')[0] ? '. Explanation: ' + Strophe.getText(errors[i].getElementsByTagName('text')[0]) : '';
-		}
-		
-		console.log(explanation);
-		
-		errorMsgHandler(instance.room, instance.action, {uberId : instance.uberId, user : instance.user,  explanation : explanation} );
-	
-		delete adminActions[message.getAttribute('id')];
-	};
-	
-	/////////// PA CHAT
-	
-	self.sendCommand = function(uberid, type, payload) {
-		var jid = UberidToJid(uberid);
-		var message = JSON.stringify({
-			message_type : type,
-			payload : payload
-		});
-		log(message);
-		connection.send($msg({
-			to : jid,
-			type : 'command'
-		}).c('body').t(message));
-	}
+    self.addContact = function(uberid) {
 
-	self.getRoster = function() {
-		var iq = $iq({
-			type : 'get'
-		}).c('query', {
-			xmlns : 'jabber:iq:roster'
-		});
-		connection.sendIQ(iq);
-	}
+        if (!connection.connected)
+            return;
 
-	function JidToUberid(jid) {
-		return jid.split('@')[0];
-	}
+        var jid = UberidToJid(uberid);
 
-	function UberidToJid(uberid) {
-		return uberid + '@' + SERVICE_URL;
-	}
+        var iq = $iq({
+            type : "set"
+        }).c("query", {
+            xmlns : "jabber:iq:roster"
+        }).c("item", jid);
+        connection.sendIQ(iq);
 
-	function onConnect(status) {
-		log('!!! onConnect');
-		switch (status) {
-		case Strophe.Status.CONNECTING:
-			log('!!!Strophe is connecting to ' + SERVICE_URL + ' as '
-					+ self.jid());
-			break;
-		case Strophe.Status.CONNFAIL:
-			log('Strophe failed to connect.');
-			break;
-		case Strophe.Status.DISCONNECTING:
-			log('Strophe is disconnecting.');
-			break;
-		case Strophe.Status.DISCONNECTED:
-			log('Strophe is disconnected.');
-			self.jid(undefined);
-			self.sid(undefined);
-			self.rid(undefined);
-			if (connection_attempts < MAX_RETRIES) {
-				log('Attempting to reconnect to XMPP. Tries:'
-						+ connection_attempts);
-				setTimeout(connectOrResume, 3000);
-			}
-			break;
-		case Strophe.Status.CONNECTED:
-			log('!!!Strophe is connected as ' + self.jid());
-			initHandlers();
-			self.getRoster();
-			connection.send($pres());
-			connection_attempts = 0;
-			
-			/// PA CHAT
-			if (connectHandler) {
-				connectHandler();
-			}
-			// PA CHAT
-			
-			break;
-		case Strophe.Status.ATTACHED:
-			log('!!!Strophe is attached as ' + self.jid());
-			initHandlers();
-			self.getRoster();
-			connection.send($pres());
-			connection_attempts = 0;
+        connection.send($pres({
+            to : jid,
+            type : "subscribe"
+        }));
+    }
 
-			/// PA CHAT
-			if (connectHandler) {
-				connectHandler();
-			}
-			// PA CHAT
-			
-			
-			break;
-		case Strophe.Status.AUTHENTICATING:
-			log('Strophe is authenticating.');
-			break;
-		case Strophe.Status.AUTHFAIL:
-			log('Strophe failed to authenticate.');
-			break;
-		case Strophe.Status.ERROR:
-			log('Strophe onConnect Error.');
-			break;
-		default:
-			log('!!!Strophe unexpected status type');
-			break;
-		}
-	}
+    self.removeContact = function(uberid) {
 
-	function initHandlers() {
-		if (connection && connection.connected) {
-			connection.addHandler(onPresence, null, 'presence', null, null,
-					null);
-			connection.addHandler(onRoster, null, 'iq', null, null, null);
-			connection.addHandler(onCommand, null, 'message', 'command', null,
-					null);
-			connection.addHandler(onMessage, null, 'message', 'chat', null,
-					null);
-			connection.addHandler(onGrpChat, null, "message", 'groupchat', null, null);
-		}
-	}
-	
-	function onGrpChat(message) {
-		try {
-			var x = message.getElementsByTagName("x");
+        if (!connection.connected)
+            return;
 
-			var stati = [];
-			if (x && x.length > 0) {
-				var status = x[0].getElementsByTagName("status");
-				if (status) {
-					for (var i = 0; i < status.length; i++) {
-						stati.push($(status[i]).attr("code"));
-					}
-				}
-			}
-			
-			var body = message.getElementsByTagName('body');
-			
-			var from = $(message).attr('from');
-			var room = from.split('@')[0];
-			
-			var content = '';
-			if (Strophe.getText(body[0]))
-				content = htmlSpecialChars(Strophe.getText(body[0]), true);
-			
-			var delay = message.getElementsByTagName("delay");
-			var timestamp = new Date().getTime();
-			if (delay.length === 1) {
-				var dt = new Date($(delay[0]).attr("stamp")).getTime();
-				timestamp = dt;
-				
-				// fix cases of "history from the future" due to the servertime of the xmpp server being rather questionable... 7 minutes ahead of reality
-				if (new Date().getTime() < timestamp) {
-					timestamp = new Date().getTime() - (1000 * 5); 
-				}
-			}
-			
-			paGrpMsgHandler(room, from, stati, content, timestamp);
-		} catch (e) {
-			log("!!! group chat error");
-			console.log(e);
-		} finally {
-			return true;
-		}
-	}
-	
-	function onPresence(message) {
-		log("onPresence");
-		try {
-			var type = $(message).attr('type');
-			var from = $(message).attr('from');
-			var to = $(message).attr('to');
-			var status = $(message).attr('status');
-			
-			log('jabber::onPresence');
-			log(message);
-			log(type);
-			log(status);
-			log(from);
-			
-			/* store jid so we can broadcast status changes */
-			if (!jabber.rosterMap()[from])
-				jabber.roster.push(from);
+        var jid = UberidToJid(uberid);
+        connection.send($pres({
+            to : jid,
+            type : "unsubscribe"
+        }));
+        connection.send($pres({
+            to : jid,
+            type : "unsubscribed"
+        }));
+    }
 
-			if (type === 'subscribe') {
-				// Allow
-				connection.send($iq({
-					type : "set"
-				}).c("query", {
-					xmlns : "jabber:iq:roster"
-				}).c("item", from));
-				connection.send($pres({
-					to : from,
-					type : "subscribe"
-				}));
-				connection.send($pres({
-					to : from,
-					type : 'subscribed'
-				}));
+    self.sendChat = function(uberid, message) {
 
-				// Block
-				// connection.send($pres({ to: from, "type": "unsubscribed" }));
-			} else {
-				// PA CHAT
-				var isGrpChat = from.indexOf(CONFERENCE_URL) !== -1;
-				
-				var user = JidToUberid(from);
-				var chatRoom = undefined;
-				var userinfo = {};
-				var stati = [];
-				var fullChannelName = undefined;
-				
-				if (isGrpChat) {
-					
-					if (!type) {
-						var show = message.getElementsByTagName("show");
-						if (show && show.length > 0 && Strophe.getText(show[0])) {
-							type = htmlSpecialChars(Strophe.getText(show[0]), true);
-						};
-					}
-					
-					chatRoom = user; // for grp chats the name of the room is in front of the @conference.xmpp....
-					
-					fullChannelName = from;
-					
-					userinfo.league = $(message).attr('league');
-					userinfo.rank = $(message).attr('rank');
-					
-					var x = message.getElementsByTagName("x");
-					
-					if (x && x.length > 0) {
-						var children = $(x).children();
-						if (children) {
-							for (var i = 0; i < children.length; i++) {
-								var child = $(children[i]);
-								if (child[0].nodeName === "item") {
-									userinfo.affiliation = $(child[0]).attr("affiliation");
-									userinfo.role = $(child[0]).attr("role");
-									user = JidToUberid($(child[0]).attr("jid"));
-									
-								} else if (child[0].nodeName === "status") {
-									// probably required to handle kick/ban messages
-								}
-							}
-						}
-					}
-					
-					
-					if (x && x.length > 0) {
-						var stt = x[0].getElementsByTagName("status");
-						if (stt) {
-							for (var i = 0; i < stt.length; i++) {
-								stati.push($(stt[i]).attr("code"));
-							}
-						}
-					}
-				}
-				
-				paPresenceHandler(user, type || 'available',
-						status, isGrpChat, chatRoom, userinfo, stati, fullChannelName);
-				
-				 // PA CHAT
-			}
+        if (!connection.connected || !uber_id || !message)
+            return;
 
-			return true;
-		}
-		// If the handler doesn't return true, it will be deleted
-		catch (e) {
-			log('!!!PRESENCE error:' + e);
-			return true;
-		}
-	};
+        var jid = UberidToJid(uberid);
+        var msg = $msg({
+            to : jid,
+            type : 'chat'
+        }).c('body').t(message);
+        connection.send(msg);
+    }
 
-	
-	// PA Chat
-	// a hack to attempt to refill the friendlist
-	var nextRosterHandler = undefined;
-	self.setNextRosterHandler = function(h) {
-		nextRosterHandler = h;
-	};
-	
-	
-	// PA Chat
-	
-	function onRoster(message) {
-		log("onRoster");
-		try {
-			var type = $(message).attr('type');
-			var from = $(message).attr('from');
-			var to = $(message).attr('to');
-			var xmlns = $(message).attr('xmlns');
-			var id = $(message).attr('id');
-			
-			if (message.firstChild) {
-				var items = message.firstChild.getElementsByTagName('item');
-				for (var i = 0; i < items.length; i++) {
+    // ///////// PA CHAT
 
-					var jid = items[i].getAttribute('jid');
-					var name = items[i].getAttribute('name');
-					var sub = items[i].getAttribute('subscription');
-					var ask = items[i].getAttribute('ask');
+    // pa lobby expose nameInChannels for later use
 
-					/* store jid so we can broadcast status changes */
-					if (!jabber.rosterMap()[jid])
-						jabber.roster.push(jid);
-					
-					// PA CHAT
-					if (nextRosterHandler && sub === "both") {
-						nextRosterHandler(JidToUberid(jid));
-					}
-					// PA CHAT
-					
-					log('!!!   jid:' + jid + ' name:' + name + ' sub:' + sub
-							+ ' ask:' + ask);
-					connection.send($pres({
-						to : jid,
-						type : "probe"
-					}));
-				}
-			}
+    self.nameInChannels = {};
 
-			if (type === 'set') {
-				var iq = $iq({
-					type : 'result',
-					to : from,
-					id : id
-				});
-				connection.sendIQ(iq);
-			}
-			return true;
-		}
-		// If the handler doesn't return true, it will be deleted
-		catch (e) {
-			log('!!!IQ error:' + e);
-			return true;
-		} finally {
-			nextRosterHandler = undefined;
-		}
-	};
+    self.leaveGroupChat = function(roomName) {
+        if (!connection.connected || !roomName) {
+            return;
+        }
+        roomName = roomName.toLowerCase();
+        connection.send($pres({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL + "/" + self.nameInChannels[roomName],
+            type : "unavailable"
+        }));
+        delete self.nameInChannels[roomName];
+    };
 
-	function onMessage(message) {
-		log("onMessageHandler");
-		try {
-			var from = message.getAttribute('from');
-			var to = message.getAttribute('to');
-			var type = message.getAttribute('type');
-			var body = message.getElementsByTagName('body');
+    self.joinGroupChat = function(roomName, league, rank, name) {
+        if (!connection.connected || !roomName || !self.jid()) {
+            return;
+        }
+        roomName = roomName.toLowerCase();
+        self.nameInChannels[roomName] = name;
 
-			from = JidToUberid(from);
-			
-			var content = '';
-			if (Strophe.getText(body[0]))
-				var content = Strophe.getText(body[0]);
+        connection.send($pres({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL + "/" + name,
+            league : league,
+            rank : rank
+        }));
+    };
 
-			paMsgHandler(from, htmlSpecialChars(content, true));
-			return true;
-		}
-		// If the handler doesn't return true, it will be deleted
-		catch (e) {
-			log('!!!MESSAGE error:' + e);
-			return true;
-		}
-	}
+    self.setChannelPresence = function(roomName, presence, league, rank) {
+        if (!connection.connected || !roomName || !self.jid() || !presence) {
+            return;
+        }
+        roomName = roomName.toLowerCase();
+        connection.send($pres({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL + "/" + self.nameInChannels[roomName],
+            league : league,
+            rank : rank
+        }).c("show").t(presence));
+    };
 
-	function onCommand(message) {
-		log("onCommandHandler");
-		try {
-			var from = message.getAttribute('from');
-			var to = message.getAttribute('to');
-			var type = message.getAttribute('type');
-			var body = message.getElementsByTagName('body');
+    self.sendGroupChat = function(roomName, message) {
+        if (!connection.connected || !roomName || !message) {
+            return;
+        }
+        roomName = roomName.toLowerCase();
+        connection.send($msg({
+            to : roomName + "@" + CONFERENCE_URL,
+            type : "groupchat"
+        }).c('body').t(message));
+    };
 
-			var content = '';
-			if (Strophe.getText(body[0]))
-				content = Strophe.getText(body[0]);
+    var adminActions = {};
 
-			var command = JSON.parse(htmlSpecialChars(content, true))
+    self.muteUser = function(roomName, nick, reason) {
+        self.setRole(roomName, nick, 'visitor', reason);
+    };
 
-			paCommandHandler(JidToUberid(from), command);
-			return true;
-		}
-		// If the handler doesn't return true, it will be deleted
-		catch (e) {
-			log('!!!MESSAGE error:' + e);
-			return true;
-		}
-	}
+    self.unmuteUser = function(roomName, nick, reason) {
+        self.setRole(roomName, nick, 'participant', reason);
+    };
 
-	function rawInput(data) {
-		log("RECEIVED: "+formatXml(data));
-		self.saveSessionState();
-	}
+    self.kickUser = function(roomName, nick, reason) {
+        self.setRole(roomName, nick, 'none', reason);
+    };
 
-	function rawOutput(data) {
-		log('SENT: ' + formatXml(data));
-		self.saveSessionState(); /*
-									 * attempting to save the sid and rid when
-									 * it changes
-									 */
-	}
+    self.makeModerator = function(roomName, nick, reason) {
+        self.setRole(roomName, nick, 'moderator', reason);
+    };
 
-	// http://stackoverflow.com/questions/376373/pretty-printing-xml-with-javascript
-	function formatXml(xml) {
-		var formatted = '';
-		var reg = /(>)(<)(\/*)/g;
-		xml = xml.replace(reg, '$1\r\n$2$3');
-		var pad = 0;
-		jQuery.each(xml.split('\r\n'), function(index, node) {
-			var indent = 0;
-			if (node.match(/.+<\/\w[^>]*>$/)) {
-				indent = 0;
-			} else if (node.match(/^<\/\w/)) {
-				if (pad != 0) {
-					pad -= 1;
-				}
-			} else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
-				indent = 1;
-			} else {
-				indent = 0;
-			}
+    self.setRole = function(roomName, nickname, role, reason) {
+        if (!connection.connected || !roomName || !nickname || !role) {
+            return;
+        }
+        var iq = $iq({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL,
+            type : 'set'
+        }).c('query', {
+            xmlns : 'http://jabber.org/protocol/muc#admin'
+        }).c('item', {
+            nick : nickname,
+            role : role
+        });
+        if (reason) {
+            iq.c('reason').t(reason);
+        }
 
-			var padding = '';
-			for (var i = 0; i < pad; i++) {
-				padding += '  ';
-			}
+        var id = connection.sendIQ(iq, onIqSuccess, onIqError);
 
-			formatted += padding + node + '\r\n';
-			pad += indent;
-		});
+        adminActions[id] = {
+            user : nickname,
+            action : role,
+            reason : reason,
+            room : roomName
+        };
+    };
 
-		return formatted;
-	}
+    self.banUser = function(roomName, uberId, reason) {
+        self.setAffiliation(roomName, uberId, 'outcast', reason);
+    };
+
+    self.unbanUser = function(roomName, uberId, reason) {
+        self.setAffiliation(roomName, uberId, 'none', reason);
+    };
+
+    self.makeAdmin = function(roomName, uberId, reason) {
+        self.setAffiliation(roomName, uberId, 'admin', reason);
+    };
+
+    self.setAffiliation = function(roomName, uberId, affiliation, reason) {
+        if (!connection.connected || !roomName || !uberId || !affiliation) {
+            return;
+        }
+        var iq = $iq({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL,
+            type : 'set'
+        }).c('query', {
+            xmlns : 'http://jabber.org/protocol/muc#admin'
+        }).c('item', {
+            affiliation : affiliation,
+            jid : UberidToJid(uberId)
+        });
+        if (reason) {
+            iq.c('reason').t(reason);
+        }
+
+        var id = connection.sendIQ(iq, onIqSuccess, onIqError);
+
+        adminActions[id] = {
+            uberId : uberId,
+            action : affiliation,
+            reason : reason,
+            room : roomName
+        };
+    };
+
+    self.destroyRoom = function(roomName, reason) {
+        if (!connection.connected || !roomName) {
+            return;
+        }
+        var iq = $iq({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL,
+            type : 'set'
+        }).c('query', {
+            xmlns : 'http://jabber.org/protocol/muc#owner'
+        }).c('destroy', {
+            jid : self.jid()
+        });
+
+        if (reason) {
+            iq.c('reason').t(reason);
+        }
+
+        var id = connection.sendIQ(iq, onIqSuccess, onIqError);
+
+        adminActions[id] = {
+            action : 'destroy',
+            reason : reason,
+            room : roomName
+        };
+    };
+
+    self.clearRoomHistory = function(roomName) {
+        if (!connection.connected || !roomName) {
+            return;
+        }
+        var iq = $iq({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL,
+            type : 'set'
+        }).c('command', {
+            xmlns : 'http://jabber.org/protocol/commands',
+            action : 'execute',
+            node : 'urn:xmpp:muc-admin:clear-room-history'
+        });
+
+        var id = connection.sendIQ(iq, onIqSuccess, onIqError);
+
+        adminActions[id] = {
+            action : 'clear',
+            room : roomName
+        };
+    };
+
+    self.showBanList = function(roomName) {
+        self.showListing(roomName, "outcast");
+    };
+
+    self.showListing = function(roomName, affiliation) {
+        if (!connection.connected || !roomName) {
+            return;
+        }
+        var iq = $iq({
+            from : self.jid(),
+            to : roomName + "@" + CONFERENCE_URL,
+            type : 'get'
+        }).c('query', {
+            xmlns : 'http://jabber.org/protocol/muc#admin'
+        }).c('item', {
+            affiliation : affiliation
+        });
+
+        var id = connection.sendIQ(iq, onIqSuccess, onIqError);
+        adminActions[id] = {
+            user : '',
+            action : 'showlisting_' + affiliation,
+            reason : '',
+            room : roomName
+        };
+    };
+
+    var onIqSuccess = function(message) {
+        var instance = adminActions[message.getAttribute('id')];
+
+        if (instance.action.startsWith('showlisting_')) {
+            var items = message.firstChild.getElementsByTagName('item');
+            var banned = [];
+
+            for (var i = 0; i < items.length; i++) {
+                var uberId = JidToUberid(items[i].getAttribute('jid'));
+                var reason = Strophe.getText(items[i].firstChild);
+                reason = reason ? htmlSpecialChars(reason, true) : '';
+                banned.push({
+                    uberId : uberId,
+                    reason : reason
+                });
+            }
+            resultMsgHandler(instance.room, instance.action, banned);
+        } else {
+            resultMsgHandler(instance.room, instance.action, {
+                uberId : instance.uberId,
+                user : instance.user,
+                reason : instance.reason
+            });
+        }
+
+        delete adminActions[message.getAttribute('id')];
+    };
+
+    var onIqError = function(message) {
+        var instance = adminActions[message.getAttribute('id')];
+
+        var errors = message.getElementsByTagName('error');
+        var explanation = '';
+
+        for (var i = 0; i < errors.length; i++) {
+            // pa lobby tweak of error messages
+            explanation += 'failed because ' + errors[i].firstChild.nodeName;
+            explanation += errors[i].getElementsByTagName('text')[0] ? ' (' + Strophe.getText(errors[i].getElementsByTagName('text')[0])
+                    + ')' : '';
+            //
+        }
+
+        console.log(explanation);
+
+        errorMsgHandler(instance.room, instance.action, {
+            uberId : instance.uberId,
+            user : instance.user,
+            explanation : explanation
+        });
+
+        delete adminActions[message.getAttribute('id')];
+    };
+
+    // ///////// PA CHAT
+
+    self.sendCommand = function(uberid, type, payload) {
+        var jid = UberidToJid(uberid);
+        var message = JSON.stringify({
+            message_type : type,
+            payload : payload
+        });
+        log(message);
+        connection.send($msg({
+            to : jid,
+            type : 'command'
+        }).c('body').t(message));
+    }
+
+    self.getRoster = function() {
+        var iq = $iq({
+            type : 'get'
+        }).c('query', {
+            xmlns : 'jabber:iq:roster'
+        });
+        connection.sendIQ(iq);
+    }
+
+    function JidToUberid(jid) {
+        return jid.split('@')[0];
+    }
+
+    function UberidToJid(uberid) {
+        return uberid + '@' + SERVICE_URL;
+    }
+
+    function onConnect(status) {
+        log('!!! onConnect');
+        switch (status) {
+        case Strophe.Status.CONNECTING:
+            log('!!!Strophe is connecting to ' + SERVICE_URL + ' as ' + self.jid());
+            break;
+        case Strophe.Status.CONNFAIL:
+            log('Strophe failed to connect.');
+            break;
+        case Strophe.Status.DISCONNECTING:
+            log('Strophe is disconnecting.');
+            break;
+        case Strophe.Status.DISCONNECTED:
+
+            log('Strophe is disconnected.');
+
+            self.jid(undefined);
+            self.sid(undefined);
+            self.rid(undefined);
+
+            if (!self.stayDisconnected && connection_attempts < MAX_RETRIES) {
+                log('Attempting to reconnect to XMPP. Tries:' + connection_attempts);
+                setTimeout(self.connectOrResume, 30000);
+            }
+            break;
+
+        case Strophe.Status.CONNECTED:
+            log('!!!Strophe is connected as ' + self.jid());
+            initHandlers();
+            self.getRoster();
+            connection.send($pres());
+            connection_attempts = 0;
+
+            // / PA CHAT
+            if (connectHandler) {
+                connectHandler();
+            }
+            // PA CHAT
+
+            break;
+        case Strophe.Status.ATTACHED:
+            log('!!!Strophe is attached as ' + self.jid());
+            initHandlers();
+            self.getRoster();
+            connection.send($pres());
+            connection_attempts = 0;
+
+            // / PA CHAT
+            if (connectHandler) {
+                connectHandler();
+            }
+            // PA CHAT
+
+            break;
+        case Strophe.Status.AUTHENTICATING:
+            log('Strophe is authenticating.');
+            break;
+        case Strophe.Status.AUTHFAIL:
+            log('Strophe failed to authenticate.');
+            break;
+        case Strophe.Status.ERROR:
+            log('Strophe onConnect Error.');
+            break;
+        default:
+            log('!!!Strophe unexpected status type');
+            break;
+        }
+    }
+
+    function initHandlers() {
+        if (connection && connection.connected) {
+            connection.addHandler(onPresence, null, 'presence', null, null, null);
+            connection.addHandler(onRoster, null, 'iq', null, null, null);
+            connection.addHandler(onCommand, null, 'message', 'command', null, null);
+            connection.addHandler(onMessage, null, 'message', 'chat', null, null);
+            connection.addHandler(onGrpChat, null, "message", 'groupchat', null, null);
+        }
+    }
+
+    function onGrpChat(message) {
+
+        try {
+            var x = message.getElementsByTagName("x");
+
+            var stati = [];
+            if (x && x.length > 0) {
+                var status = x[0].getElementsByTagName("status");
+                if (status) {
+                    for (var i = 0; i < status.length; i++) {
+                        stati.push($(status[i]).attr("code"));
+                    }
+                }
+            }
+
+            var uberId;
+            var jid;
+
+            var body = message.getElementsByTagName('body');
+
+            var from = $(message).attr('from');
+
+            // handle is everything after the first /
+
+            var pos = from.indexOf('/');
+
+            var handle = pos == -1 ? '' : from.slice(pos + 1);
+
+            var systemMessage = pos == -1;
+
+            var room = from.split('@')[0];
+
+            var content = '';
+            if (Strophe.getText(body[0]))
+                content = htmlSpecialChars(Strophe.getText(body[0]), true);
+
+            var delay = message.getElementsByTagName("delay");
+            var timestamp = new Date().getTime();
+            if (delay.length === 1) {
+
+                $delay = $(delay[0])
+
+                jid = $delay.attr('from');
+
+                uberId = JidToUberid(jid);
+
+                var dt = new Date($delay.attr("stamp")).getTime();
+                timestamp = dt;
+
+                // fix cases of "history from the future" due to the servertime of the xmpp server being rather questionable... 7 minutes ahead of reality
+
+                if (new Date().getTime() < timestamp) {
+                    timestamp = new Date().getTime() - (1000 * 5);
+                }
+            }
+
+            paGrpMsgHandler(room, handle, from, uberId, stati, content, timestamp, jid, systemMessage);
+        } catch (e) {
+            console.log(e);
+            console.log(e.stack);
+        } finally {
+            return true;
+        }
+    }
+
+    function onPresence(message) {
+        log("onPresence");
+        try {
+            var type = $(message).attr('type');
+            var from = $(message).attr('from');
+            var to = $(message).attr('to');
+            var status = $(message).attr('status');
+
+            log('jabber::onPresence');
+            log(message);
+            log(type);
+            log(status);
+            log(from);
+
+            var isGrpChat = from.indexOf(CONFERENCE_URL) !== -1;
+
+            if (!isGrpChat && !jabber.rosterMap()[from])
+                jabber.roster.push(from);
+
+            if (type === 'subscribe') {
+                // Allow
+                connection.send($iq({
+                    type : "set"
+                }).c("query", {
+                    xmlns : "jabber:iq:roster"
+                }).c("item", from));
+                connection.send($pres({
+                    to : from,
+                    type : "subscribe"
+                }));
+                connection.send($pres({
+                    to : from,
+                    type : 'subscribed'
+                }));
+
+                // Block
+                // connection.send($pres({ to: from, "type": "unsubscribed" }));
+            } else {
+
+                var uid;
+                var roomName;
+                var userinfo = {};
+                var stati = [];
+                var jid;
+
+                if (isGrpChat) {
+
+                    // handle is everything after the first /
+                    var pos = from.indexOf('/');
+
+                    var handle = pos == -1 ? '' : from.slice(pos + 1);
+
+                    // roomName is everything before the @
+                    var roomName = from.split('@')[0];
+
+                    if (!type) {
+                        var show = message.getElementsByTagName("show");
+                        if (show && show.length > 0 && Strophe.getText(show[0])) {
+                            type = htmlSpecialChars(Strophe.getText(show[0]), true);
+                        }
+                        ;
+                    }
+
+                    if ( type == 'error' ) {
+                        jid = to;
+                        uid = JidToUberid(jid);
+                        
+                        var error = message.getElementsByTagName("error");
+                        
+                        if ( error && error.length > 0 ){
+                            stati.push($(error[0]).attr("code"));
+                        }
+                    } else {
+                        userinfo.league = $(message).attr('league');
+                        userinfo.rank = $(message).attr('rank');
+    
+                        var x = message.getElementsByTagName("x");
+    
+                        if (x && x.length > 0) {
+                            
+                            var stt = x[0].getElementsByTagName("status");
+                            if (stt) {
+                                for (var i = 0; i < stt.length; i++) {
+                                    stati.push($(stt[i]).attr("code"));
+                                }
+                            }
+                            
+                            var children = $(x).children();
+                            if (children) {
+                                for (var i = 0; i < children.length; i++) {
+                                    var child = $(children[i]);
+                                    if (child[0].nodeName === "item") {
+                                        userinfo.affiliation = $(child[0]).attr("affiliation");
+                                        userinfo.role = $(child[0]).attr("role");
+    
+                                        jid = $(child[0]).attr("jid");
+    
+                                        uid = JidToUberid(jid);
+    
+                                    } else if (child[0].nodeName === "status") {
+                                        // probably required to handle kick/ban messages
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    jid = from;
+                    uid = JidToUberid(from);
+                }
+                paPresenceHandler(from, handle, uid, type || 'available', status, isGrpChat, roomName, userinfo, stati, jid);
+
+                // PA CHAT
+            }
+
+            return true;
+        }
+        // If the handler doesn't return true, it will be deleted
+        catch (e) {
+            console.log('!!!PRESENCE error:' + e);
+            console.log(e.stack);
+            // disabled: where is paLobby.dev coming from?
+            // if (paLobby.dev)
+            // {
+            // debugger;
+            // }
+            return true;
+        }
+    }
+    ;
+
+    function onRoster(message) {
+        log("onRoster");
+        try {
+            var type = $(message).attr('type');
+            var from = $(message).attr('from');
+            var to = $(message).attr('to');
+            var xmlns = $(message).attr('xmlns');
+            var id = $(message).attr('id');
+
+            if (message.firstChild) {
+                var items = message.firstChild.getElementsByTagName('item');
+                for (var i = 0; i < items.length; i++) {
+
+                    var jid = items[i].getAttribute('jid');
+                    var name = items[i].getAttribute('name');
+                    var sub = items[i].getAttribute('subscription');
+                    var ask = items[i].getAttribute('ask');
+
+                    /* store jid so we can broadcast status changes */
+                    if (!jabber.rosterMap()[jid])
+                        jabber.roster.push(jid);
+
+                    log('!!!   jid:' + jid + ' name:' + name + ' sub:' + sub + ' ask:' + ask);
+                    connection.send($pres({
+                        to : jid,
+                        type : "probe"
+                    }));
+                }
+            }
+
+            if (type === 'set') {
+                var iq = $iq({
+                    type : 'result',
+                    to : from,
+                    id : id
+                });
+                connection.sendIQ(iq);
+            }
+            return true;
+        }
+        // If the handler doesn't return true, it will be deleted
+        catch (e) {
+            log('!!!IQ error:' + e);
+            log(e.stack);
+            return true;
+        } finally {
+            nextRosterHandler = undefined;
+        }
+    }
+    ;
+
+    function onMessage(message) {
+        log("onMessageHandler");
+        try {
+            var from = message.getAttribute('from');
+            var to = message.getAttribute('to');
+            var type = message.getAttribute('type');
+            var body = message.getElementsByTagName('body');
+
+            from = JidToUberid(from);
+
+            var content = '';
+            if (Strophe.getText(body[0]))
+                var content = Strophe.getText(body[0]);
+
+            paMsgHandler(from, htmlSpecialChars(content, true));
+            return true;
+        }
+        // If the handler doesn't return true, it will be deleted
+        catch (e) {
+            log('!!!MESSAGE error:' + e);
+            log(e.stack);
+            return true;
+        }
+    }
+
+    function onCommand(message) {
+        log("onCommandHandler");
+        try {
+            var from = message.getAttribute('from');
+            var to = message.getAttribute('to');
+            var type = message.getAttribute('type');
+            var body = message.getElementsByTagName('body');
+
+            var content = '';
+            if (Strophe.getText(body[0]))
+                content = Strophe.getText(body[0]);
+
+            var command = JSON.parse(htmlSpecialChars(content, true))
+
+            paCommandHandler(JidToUberid(from), command);
+            return true;
+        }
+        // If the handler doesn't return true, it will be deleted
+        catch (e) {
+            log('!!!MESSAGE error:' + e);
+            log(e.stack);
+            return true;
+        }
+    }
+
+    function rawInput(data) {
+        log("RECEIVED: " + formatXml(data));
+        self.saveSessionState();
+    }
+
+    function rawOutput(data) {
+        log('SENT: ' + formatXml(data));
+        self.saveSessionState(); /*
+                                     * attempting to save the sid and rid when it changes
+                                     */
+    }
+
+    // http://stackoverflow.com/questions/376373/pretty-printing-xml-with-javascript
+    function formatXml(xml) {
+        var formatted = '';
+        var reg = /(>)(<)(\/*)/g;
+        xml = xml.replace(reg, '$1\r\n$2$3');
+        var pad = 0;
+        jQuery.each(xml.split('\r\n'), function(index, node) {
+            var indent = 0;
+            if (node.match(/.+<\/\w[^>]*>$/)) {
+                indent = 0;
+            } else if (node.match(/^<\/\w/)) {
+                if (pad != 0) {
+                    pad -= 1;
+                }
+            } else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+                indent = 1;
+            } else {
+                indent = 0;
+            }
+
+            var padding = '';
+            for (var i = 0; i < pad; i++) {
+                padding += '  ';
+            }
+
+            formatted += padding + node + '\r\n';
+            pad += indent;
+        });
+
+        return formatted;
+    }
 }
 
 function initJabber(payload) {
-	jabber = new Jabberer(payload.uber_id, payload.jabber_token,
-			payload.use_ubernetdev);
-	jabber.connectOrResume();
+    jabber = new Jabberer(payload.uber_id, payload.jabber_token, payload.use_ubernetdev);
+    jabber.connectOrResume();
 
-	var restoreJabber = ko.observable().extend({
-		session : 'restore_jabber'
-	});
-	restoreJabber(true);
+    var restoreJabber = ko.observable().extend({
+        session : 'restore_jabber'
+    });
+    restoreJabber(true);
 }
 
 (function() {
-	var restoreJabber = ko.observable().extend({
-		session : 'restore_jabber'
-	});
-	if (restoreJabber()) {
-		jabber = new Jabberer();
-		jabber.connectOrResume();
-	}
+    var restoreJabber = ko.observable().extend({
+        session : 'restore_jabber'
+    });
+    if (restoreJabber()) {
+        jabber = new Jabberer();
+        jabber.connectOrResume();
+    }
 })();

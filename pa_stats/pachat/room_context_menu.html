@@ -1,0 +1,81 @@
+<div id="roomContextMenu" class="dropdown clearfix">
+  
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" >
+
+<!-- ko with: model.selectedRoom -->
+<!-- ko with: model.selectedRoomUser -->
+
+<!-- ko if: online() && allowChat() -->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'startChat' )" tabindex="-1" href="#"><span class="menu-action">
+            <loc data-i18n="uberbar:chat.message" desc="">Chat</loc>
+        </span></a></li>
+<!-- /ko -->
+
+<!-- ko if: ! friend() && ! blocked() -->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'sendFriendRequest' )" tabindex="-1" href="#"><span class="menu-action">
+            <loc data-i18n="uberbar:send_friend_request.message" desc="">Send Friend Request</loc>
+        </span></a></li>
+<!-- /ko -->
+
+<!-- ko if: ! allowChat() && ! blocked() -->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'sendChatInvite' )" tabindex="-1" href="#"><span class="menu-action">
+            <loc data-i18n="uberbar:invite_to_chat.message" desc="">Invite to Chat</loc>
+        </span></a></li>
+<!-- /ko -->
+
+<!-- ko if: (model.readyToSendLobbyInfo()) -->
+      <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'sendGameInvite' )" tabindex="-1" href="#"><span class="menu-action">
+          <loc data-i18n="uberbar:invite_to_game.message" desc="">Invite to game</loc>
+      </span></a></li>
+<!-- /ko -->
+
+      <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'pastats' )" tabindex="-1" href="#"><span class="menu-action">
+          pastats.com
+      </span></a></li>
+      
+      <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'exodus' )" tabindex="-1" href="#"><span class="menu-action">
+          eXoduseSports.com
+      </span></a></li>
+
+<!-- ko if: friend -->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'sendUnfriend' )" tabindex="-1" href="#"><span class="menu-action">
+            <loc data-i18n="uberbar:unfriend.message" desc="">Unfriend</loc>
+        </span></a></li>
+<!-- /ko -->
+
+<!-- ko ifnot: blocked -->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'block' )" tabindex="-1" href="#"><span class="menu-action">
+            <loc data-i18n="uberbar:block.message" desc="">Block</loc>
+        </span></a></li>
+<!-- /ko -->
+
+<!-- ko if: blocked -->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'unblock' )" tabindex="-1" href="#"><span class="menu-action">
+            <loc data-i18n="uberbar:unblock.message" desc="">Unblock</loc>
+        </span></a></li>
+<!-- /ko -->
+        
+<!-- ko if: model.selectedRoom() && model.selectedRoom().selfIsAdmin() && ! isMuted()-->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'mute' )" tabindex="-1" href="#"><span class="menu-action">
+            Mute
+        </span></a></li>
+        <!-- /ko -->
+
+<!-- ko if: model.selectedRoom() && model.selectedRoom().selfIsAdmin() && isMuted()-->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'unmute' )"  tabindex="-1" href="#"><span class="menu-action">
+            Unmute
+        </span></a></li>
+        <!-- /ko -->
+
+<!-- ko if: model.selectedRoom() && model.selectedRoom().selfIsAdmin() -->
+        <li><a data-bind="click: model.roomContextMenuClick.bind( $data, $parent, 'kick' )" tabindex="-1" href="#"><span class="menu-action">
+            Kick
+        </span></a></li>
+<!-- /ko -->
+
+<!-- /ko -->
+<!-- /ko -->
+
+    </ul>
+
+</div>
