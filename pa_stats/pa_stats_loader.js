@@ -1,13 +1,9 @@
 // base URL for webservices
-
-// TODO TODO TODO DO NOT COMMIT THE FALSE
-
-var paStatsHost = false && typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined' ? "http://127.0.0.1:8080/" : "http://ns393951.ip-176-31-115.eu/";
+var paStatsHost = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined' ? "http://127.0.0.1:8080/" : "http://ns393951.ip-176-31-115.eu/";
 // location of mod files
 var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou != 'undefined' ? 'coui://pa_stats/' : 'http://ns393951.ip-176-31-115.eu/mod/live/';
 
 (function() {
-	
 	function addSceneEntry(scene, entry) {
 		if(!scene_mod_list[scene]) {
 			scene_mod_list[scene] = [];
