@@ -1191,6 +1191,7 @@
         jabber.setErrorMsgHandler(model.onErrorMsg);
         jabber.setConnectHandler(function() {
             model.getRank(function() {
+                model.updatePresence();
                 if (!decode(localStorage["info.nanodesu.pachat.disablechat"])) {
                     model.joinChatRoom("halcyon");
                 }
@@ -1583,9 +1584,8 @@
             model.chatRoomMap.notifySubscribers();
             room = model.chatRoomMap()[roomName];
             room.scrollDown();
+            jabber.setChannelPresence(roomName, jabber.presenceType(), model.user().league(), model.user().rank());
         }
-
-        jabber.setChannelPresence(roomName, jabber.presenceType(), model.user().league(), model.user().rank());
 
         return room;
 
