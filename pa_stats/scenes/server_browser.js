@@ -49,7 +49,7 @@
 			for (var i = 0; i < customBeacons.length; i++) {
 				var found = false;
 				for (var j = 0; j < beacons.length; j++) {
-					if (beacons[j].host === customBeacons[i].host) {
+					if (beacons[j].TitleData.uuid === customBeacons[i].TitleData.uuid) {
 						found = true;
 						break;
 					}
