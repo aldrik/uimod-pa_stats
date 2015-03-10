@@ -11,9 +11,18 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		scene_mod_list[scene].push(entry);
 	}
 	
+	var getCurrentSceneName = function() {
+		return window.location.pathname.split("/").pop().replace(".html", "");
+	};
+	
+	console.log("determined current scene name to be " + getCurrentSceneName());
+	
 	if (typeof paStatsGlobal === 'undefined') {
 		var b = paStatsBaseDir+ "/";
-
+		
+		// due to the ordering of things this needs to be loaded where scene mods are loaded, but for all scenes.
+		addSceneEntry(getCurrentSceneName(), b+'lib/ajax_ubernet.js');
+		
 		// PA Chat
 		addSceneEntry('uberbar', b+'pachat/jabber.js');
 		addSceneEntry('uberbar', b+'pachat/uberbar.css');
