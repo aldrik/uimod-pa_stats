@@ -14,7 +14,7 @@ var delay_ajax_ubernet = false; // delay even successful requests by 10s, settin
 			return typeof session === "string" ? session : "https://4.uberent.com";
 		};
 		
-		var callUbernet = function(url, method, data, noAuth) {
+		var callUbernet = function(url, method, data, noAuth, dataType) {
 			var sessionTicket = decode(sessionStorage["uberUserInfo"]);
 			sessionTicket = sessionTicket != undefined ? sessionTicket.SessionTicket : undefined;
 			sessionTicket = sessionTicket != undefined ? sessionTicket : decode(sessionStorage['jabberToken']);
@@ -36,6 +36,7 @@ var delay_ajax_ubernet = false; // delay even successful requests by 10s, settin
 				type: method,
 				url: url,
 				contentType: "application/json; charset=utf-8",
+				dataType: dataType,
 				beforeSend: noAuth ? undefined : function(xhr){xhr.setRequestHeader('X-Authorization', sessionTicket);},
 				data: data !== undefined ? JSON.stringify(data) : undefined, 
 				success: function(data) {
@@ -54,6 +55,8 @@ var delay_ajax_ubernet = false; // delay even successful requests by 10s, settin
 					console.log(data);
 					console.log("error was:");
 					console.log(result);
+					console.log(result.state());
+					console.log(arguments);
 					
 					setTimeout(function() {
 						def.reject(result);
@@ -124,7 +127,7 @@ var delay_ajax_ubernet = false; // delay even successful requests by 10s, settin
 		};
 		
 		var updateUserCustomData = function(keys) {
-			return callUbernet("/GameClient/UpdateUserCustomData", "POST", {"Data": JSON.parse(keys)});
+			return callUbernet("/GameClient/UpdateUserCustomData", "POST", {"Data": JSON.parse(keys)}, undefined, "text");
 		};
 		
 		var getFriends = function(includeSteam) {
