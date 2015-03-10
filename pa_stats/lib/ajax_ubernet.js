@@ -2,7 +2,7 @@ var debug_ajax_ubernet = false; // print debug stuff, delay broken requests by 3
 var delay_ajax_ubernet = false; // delay even successful requests by 10s, settings this to true while debug_ajax_ubernet is false makes no sense!
 
 (function() {
-	if (localStorage['info.nanodesu.pastats.use_ajax_ubernet']) {
+	if (decode(localStorage['info.nanodesu.pastats.use_ajax_ubernet'])) {
 		console.log("AJAX UBERNET IS ENABLED");
 		
 		var getLocalClientVersion = function() {
