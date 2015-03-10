@@ -1,4 +1,4 @@
-var debug_ajax_ubernet = true; // print debug stuff, delay broken requests by 30s
+var debug_ajax_ubernet = false; // print debug stuff, delay broken requests by 30s
 var delay_ajax_ubernet = false; // delay even successful requests by 10s, settings this to true while debug_ajax_ubernet is false makes no sense!
 
 (function() {
