@@ -118,7 +118,7 @@ var delay_ajax_ubernet = false; // delay even successful requests by 10s, settin
 		};
 		
 		var getReplays = function(sortOrder, uberIds) {
-			var uberIdsAdd = uberIds === undefined ? "" : ("&FilterUberId="+uberId);
+			var uberIdsAdd = uberIds === undefined ? "" : ("&FilterUberId="+uberIds);
 			return callUbernet("/GC/GetReplayList?MaxResults=100&QueryType=" + sortOrder + uberIdsAdd, "GET");
 		};
 
