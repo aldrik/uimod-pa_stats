@@ -1,7 +1,24 @@
 (function() {
 	paStatsGlobal.unlockGame(); // usually the game should be unlocked here already, this call is just here to make sure it really is unlocked
 	checkPaStatsVersion();
-
+	
+	model.paStatsGameId = ko.observable(undefined);
+	model.hasPaStatsGame = ko.computed(function() {
+		return model.paStatsGameId() !== undefined;
+	});
+	model.openPaStatsGame = function() {
+		engine.call('web.launchPage', paStatsHost + "chart?gameId=" + model.paStatsGameId());
+	};
+	
+	var queryGameId = function() {
+		$.getJSON(paStatsGlobal.queryUrlBase + "report/gameIdFor?gameIdent="+decode(localStorage.lobbyId), function(gameId) {
+			console.log("pa stats game id is "+gameId);
+			model.paStatsGameId(gameId);
+		});
+	};
+	
+	$('.div_stats_panel_options').prepend('<!-- ko if: model.hasPaStatsGame --><div><input style="background-image: url(http://ns393951.ip-176-31-115.eu/mod/icon.png); background-repeat: no-repeat; padding-right: 85px; background-position: 150px 2px; background-size: 50px 50px" type="button" value="Details on" id="pa_stats_btt" class="" data-bind="click: openPaStatsGame, click_sound: \'default\', rollover_sound: \'default\'" /></div><!-- /ko -->');
+	
 	if (decode(localStorage[paStatsGlobal.wantsToSendKey])) {
 		
 		function wasVsAiGame(msg) {
@@ -43,6 +60,12 @@
 		var oldGameOverHandler = handlers.server_state;
 		handlers.server_state = function(payload) {
 			if (payload && payload.data) {
+				if (!payload.state.endsWith('game_over')) {
+					return;
+				}
+				
+				queryGameId();
+				
 				var winnerTeam = getWinnerTeamIndex(payload)
 				
 				var gameOverMsg = payload.data.game_over;
