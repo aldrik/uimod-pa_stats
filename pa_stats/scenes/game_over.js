@@ -2,7 +2,7 @@
 	paStatsGlobal.unlockGame(); // usually the game should be unlocked here already, this call is just here to make sure it really is unlocked
 	checkPaStatsVersion();
 
-	if (decode(localStorage[paStatsGlobal.wantsToSendKey]) || decode(localStorage[paStatsGlobal.isRankedGameKey])) {
+	if (decode(localStorage[paStatsGlobal.wantsToSendKey])) {
 		
 		function wasVsAiGame(msg) {
 			var armies = msg.data.armies;
@@ -77,8 +77,10 @@
 				oldGameOverHandler(payload);
 			}
 		};
-		
 	}
+	
+	
+	
 }());
 
 
