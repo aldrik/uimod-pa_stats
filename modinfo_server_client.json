@@ -1,0 +1,29 @@
+{
+    "context": "client",
+    "identifier": "info.nanodesu.pastats.server.client.dev",
+    "display_name": "PA Stats Server DEV: Client component",
+    "description": "Track your statistics: Enabled on all players on a game",
+    "author": "Cola_Colin",
+    "version": "Autoupdating",
+    "build": "will_be_akept_up_to_date",
+    "date": "2015/3/22",
+    "signature": "not yet implemented",
+    "forum": "https://forums.uberent.com/threads/rel-pa-stats-52168.50690/",
+    "category": [
+        "in-game",
+        "ui"
+    ],
+    "id": "uimod-pa_stats-server-client",
+    "priority": 105,
+	"scenes": {
+		"global_mod_list": [
+			"coui://pa_stats/developmentSetter.js",
+			"coui://pa_stats/pa_stats_server_loader.js"
+		]
+	},
+	"dependencies":[
+		"info.nanodesu.pastats.server.server.dev",
+		"info.nanodesu.pastats.dev"
+	],
+    "enabled": true
+}

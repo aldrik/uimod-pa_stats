@@ -8,7 +8,9 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 		if(!scene_mod_list[scene]) {
 			scene_mod_list[scene] = [];
 		}
-		scene_mod_list[scene].push(entry);
+		if (scene_mod_list[scene].indexOf(entry) === -1) {
+			scene_mod_list[scene].push(entry);
+		}
 	}
 	
 	var getCurrentSceneName = function() {
@@ -17,50 +19,50 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	
 	console.log("determined current scene name to be " + getCurrentSceneName());
 	
+	var b = paStatsBaseDir;
+	
+	// due to the ordering of things this needs to be loaded where scene mods are loaded, but for all scenes.
+	addSceneEntry(getCurrentSceneName(), b+'lib/ajax_ubernet.js');
+	
+	// PA Chat
+	addSceneEntry('uberbar', b+'pachat/jabber.js');
+	addSceneEntry('uberbar', b+'pachat/uberbar.css');
+	addSceneEntry('uberbar', b+'pachat/uberbar.js');
+	
+	addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
+	addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
+	
+	addSceneEntry('start', b+'pachat/start.js');
+	// End of PA Chat
+	
 	if (typeof paStatsGlobal === 'undefined') {
-		var b = paStatsBaseDir+ "/";
-		
-		// due to the ordering of things this needs to be loaded where scene mods are loaded, but for all scenes.
-		addSceneEntry(getCurrentSceneName(), b+'lib/ajax_ubernet.js');
-		
-		// PA Chat
-		addSceneEntry('uberbar', b+'pachat/jabber.js');
-		addSceneEntry('uberbar', b+'pachat/uberbar.css');
-		addSceneEntry('uberbar', b+'pachat/uberbar.js');
-		
-		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
-		addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
-		
-		addSceneEntry('start', b+'pachat/start.js');
-		// End of PA Chat
-		
 		loadScript(b+'lib/unitInfoParser.js');
 		loadScript(b+'scenes/global.js');
-		
-		addSceneEntry('connect_to_game', b+'lib/captureLobbyId.js');
-		addSceneEntry('connect_to_game', b+'scenes/connect.js');
-		addSceneEntry('server_browser', b+"scenes/server_browser.js");
-		
-		addSceneEntry('new_game_ladder', b+"scenes/new_game_ladder.js");
-		addSceneEntry('new_game', b+"scenes/new_game.js");
-		addSceneEntry('game_over', b+'scenes/game_over.js');
-		
-		addSceneEntry('matchmaking', b+'scenes/matchmaking.js');
-		
-		addSceneEntry('live_game', b+'scenes/autopause.js');
-		addSceneEntry('live_game', b+'lib/alertsManager.js');
-		addSceneEntry('live_game', b+'scenes/live_game.js');
-		
-		addSceneEntry('lobby', b+'scenes/lobby.js');
-		addSceneEntry('settings', b+'scenes/settings.js');
-		
-		addSceneEntry('live_game_time_bar', b+"lib/alertsManager.js");
-		addSceneEntry("live_game_unit_alert", b+'lib/alertsManager.js');
-		addSceneEntry("live_game_message", b+"scenes/live_game_message.js");
-		addSceneEntry('gw_start', b+'scenes/gw_start.js');
-		
-		addSceneEntry('start', b+'scenes/start.js');		
-		
-		addSceneEntry('uberbar', b+'scenes/uberbar.js');
 	}
+	
+	addSceneEntry('connect_to_game', b+'lib/captureLobbyId.js');
+	addSceneEntry('connect_to_game', b+'scenes/connect.js');
+	addSceneEntry('server_browser', b+"scenes/server_browser.js");
+	
+	addSceneEntry('new_game_ladder', b+"scenes/new_game_ladder.js");
+	addSceneEntry('new_game', b+"scenes/new_game.js");
+	addSceneEntry('game_over', b+'scenes/game_over.js');
+	
+	addSceneEntry('matchmaking', b+'scenes/matchmaking.js');
+	
+	addSceneEntry('live_game', b+'scenes/autopause.js');
+	addSceneEntry('live_game', b+'lib/alertsManager.js');
+	addSceneEntry('live_game', b+'scenes/live_game.js');
+	
+	//addSceneEntry('lobby', b+'scenes/lobby.js');
+	addSceneEntry('settings', b+'scenes/settings.js');
+	
+	addSceneEntry('live_game_time_bar', b+"lib/alertsManager.js");
+	addSceneEntry("live_game_unit_alert", b+'lib/alertsManager.js');
+	addSceneEntry("live_game_message", b+"scenes/live_game_message.js");
+	addSceneEntry('gw_start', b+'scenes/gw_start.js');
+	
+	addSceneEntry('start', b+'scenes/start.js');		
+	
+	addSceneEntry('uberbar', b+'scenes/uberbar.js');
 }());
