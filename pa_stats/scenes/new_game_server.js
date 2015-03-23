@@ -8,6 +8,8 @@ console.log("loaded new_game for server PA Stats");
 			var data = JSON.parse(payload.message);
 			if (decode(localStorage['lobbyId']) !== data.lobbyId) {
 				localStorage['lobbyId'] = encode(data.lobbyId);
+				localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+				localStorage[paStatsGlobal.isLocalGame] = encode(false);
 				console.log("set lobbyId from custom chat message: "+data.lobbyId);
 			}
 		} else {
