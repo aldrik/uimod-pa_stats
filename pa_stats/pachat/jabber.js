@@ -619,22 +619,34 @@ function Jabberer(uber_id, jabber_token, use_ubernetdev) {
             if (Strophe.getText(body[0]))
                 content = htmlSpecialChars(Strophe.getText(body[0]), true);
 
-            var delay = message.getElementsByTagName("delay");
-            var timestamp = new Date().getTime();
-            if (delay.length === 1) {
+// new xmpp address extension with ofrom type based on http://xmpp.org/extensions/xep-0045.html#enter-history
 
-                $delay = $(delay[0])
+            var address = message.getElementsByTagName("address");
+            if (address.length === 1)
+            {
 
-                jid = $delay.attr('from');
+                $address = $(address[0])
+
+                jid = $address.attr('jid');
 
                 uberId = JidToUberid(jid);
+
+            }
+            
+            var delay = message.getElementsByTagName("delay");
+            var timestamp = new Date().getTime();
+            if (delay.length === 1)
+            {
+
+                $delay = $(delay[0])
 
                 var dt = new Date($delay.attr("stamp")).getTime();
                 timestamp = dt;
 
                 // fix cases of "history from the future" due to the servertime of the xmpp server being rather questionable... 7 minutes ahead of reality
-
-                if (new Date().getTime() < timestamp) {
+                
+                if (new Date().getTime() < timestamp)
+                {
                     timestamp = new Date().getTime() - (1000 * 5);
                 }
             }
