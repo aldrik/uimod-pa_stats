@@ -22,11 +22,11 @@
             
 			sessionStorage['gameHostname'] = encode(model.currentSelectedGame().host);
 			sessionStorage['gamePort'] = encode(model.currentSelectedGame().port);
-            sessionStorage['is_custom_server'] = encode(true);
+			sessionStorage['is_custom_server'] = encode(true);
 			localStorage[paStatsGlobal.isLocalGame] = encode(false);
 			window.location.href = 'coui://ui/main/game/connect_to_game/connect_to_game.html';
 		} else {
-            sessionStorage['is_custom_server'] = encode(false);
+			sessionStorage['is_custom_server'] = encode(false);
 			oldTryEnter();
 			localStorage[paStatsGlobal.isLocalGame] = encode(model.currentSelectedGame().region === 'Local');
 		}
