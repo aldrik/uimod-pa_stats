@@ -705,7 +705,7 @@
             self.writeSystemMessage("TODO: IMPLEMENT THIS FUNCTION"); // TODO
         };
 
-        var commandList = [ '/sethistorylength', '/setcolor', '/tryfixfriends', '/alignright', '/alignleft', '/ownerlist', '/adminlist',
+        var commandList = [ '/live', '/sethistorylength', '/setcolor', '/tryfixfriends', '/alignright', '/alignleft', '/ownerlist', '/adminlist',
                 '/help', '/join', '/mute', '/unmute', '/kick', '/ban', '/banlist', '/unban', '/setrole', '/setaffiliation' ].sort(function(
                 a, b) {
             return b.length - a.length;
@@ -740,6 +740,85 @@
             var roomName = self.roomName();
 
             switch (command) {
+
+           case '/live':
+                
+                $.getJSON( 'https://api.twitch.tv/kraken/streams?game=Planetary+Annihilation&callback=?', function( data ) {
+
+                    var streams = data.streams;
+                    
+                    var sortedStreams = _.sortBy( streams, function( stream  ) {
+                      return - stream.viewers;  
+                    });
+                    
+                    var total = data._total;
+                    
+                    var message;
+                    
+                    switch (total) {   
+                        case 0:
+                            
+                            message = 'There are currently no PA streams';
+                            break;
+                            
+                        case 1:
+                        
+                            message = 'There is currently 1 PA stream';
+                            break;
+                        
+                        default:
+                            message = 'There are currently ' + total + ' PA streams';
+                            break;
+                    }
+                    
+                    self.writeSystemMessage( message + ' on twitch.tv' );
+                    
+                    _.forEach( sortedStreams, function( stream  ) {
+                       self.writeSystemMessage( stream.viewers + ' watching ' + stream.channel.status + ' by ' + stream.channel.display_name + ' ' + stream.channel.url );
+                    });
+                    
+                });
+  
+                $.getJSON( 'https://www.hitbox.tv/api/media/live/list?game=828&liveOnly=true&showHidden=false', function( data ) {
+                    
+                    var streams = data.livestream;
+                    
+                    var sortedStreams = _.sortBy( streams, function( stream  )  {
+                      return - stream.media_views;  
+                    });
+                    
+                    var message;
+                    
+                    var total = sortedStreams.length;
+
+                    switch (total) {   
+                        case 0:
+                            
+                            message = 'There are currently no PA streams';
+                            break;
+                            
+                        case 1:
+                        
+                            message = 'There is currently 1 PA stream';
+                            break;
+                        
+                        default:
+                            message = 'There are currently ' + total + ' PA streams';
+                            break;
+                    }
+                    
+                    self.writeSystemMessage( message + ' on hitbox.tv' );
+                    
+                    _.forEach( sortedStreams, function( stream  ) {
+                       self.writeSystemMessage( stream.media_views + ' watching ' + stream.media_status + ' by ' + stream.media_display_name + ' ' + stream.channel.channel_link );
+                    });
+                    
+                }).fail( function() {
+                     self.writeSystemMessage( 'There are currently no PA streams on hitbox.tv' );
+                });
+                  
+                break;
+
             case '/sethistorylength':
                 var l = Number(args[0]);
                 if (isNaN(l)) {
