@@ -205,30 +205,8 @@
 	
 	var handleOptions = function(payload) {
 		if (payload.game_type && payload.game_type === "Galactic War") {
-			var gwConf = decode(sessionStorage["gw_battle_config"]);
-			delete gwConf.system.description;
-			gwConf.system.name = "Galactic War: "+gwConf.system.name;
-			gwConf.system.planets = [{"name":"This is wrong. Dunno yet if I can get the correct data :(","mass":1000,"starting_planet":true,"required_thrust_to_move":0,"position_x":15000,"position_y":0,"velocity_x":0,"velocity_y":182,"planet":{"temperature":-0.31,"seed":3493,"radius":380,"biome":"lava","waterHeight":0.135,"heightRange":67.4,"metalDensity":50,"biomeScale":100,"metalClusters":50,"metal_density":50,"metal_clusters":50,"index":0}}];
-			localStorage['pa_stats_loaded_planet_json'] = encode(gwConf.system);
-			
-			var teams = [
-		   		  {
-		   			  index: 0,
-		   			  primaryColor: "rgb(201,83,56)", // too lazy to grab the right colors right now, they are there though
-		   			  secondaryColor: "rgb(65,152,217)",
-		   			  players: [{displayName: displayName}],
-		   		  },
-		   		  {
-		   			  index: 1,
-		   			  primaryColor: "rgb(0,160,233)",
-		   			  secondaryColor: "rgb(0,155,105)",
-		   			  players: [{displayName: "Galactic War"}],
-		   		  }
-			];
-			capturedTeams = {
-				myTeamIndex: 0,
-				teams: teams
-			};
+			localStorage[paStatsGlobal.isRankedGameKey] = encode(false);
+			localStorage[paStatsGlobal.isLocalGame] = encode(true);
 		}
 	};
 	
