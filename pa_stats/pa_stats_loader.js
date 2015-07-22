@@ -31,8 +31,7 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	
 	addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
 	addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
-	
-	addSceneEntry('start', b+'pachat/start.js');
+
 	// End of PA Chat
 	
 	if (typeof paStatsGlobal === 'undefined') {
