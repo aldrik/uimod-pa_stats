@@ -25,12 +25,13 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	addSceneEntry(getCurrentSceneName(), b+'lib/ajax_ubernet.js');
 	
 	// PA Chat
-	addSceneEntry('uberbar', b+'pachat/jabber.js');
-	addSceneEntry('uberbar', b+'pachat/uberbar.css');
-	addSceneEntry('uberbar', b+'pachat/uberbar.js');
+	addSceneEntry('uberbar', "https://dfpsrd4q7p23m.cloudfront.net/mods/gOptimiseUserTagMap/ui/mods/gOptimiseUserTagMap/uberbar.js");
+	addSceneEntry('uberbar', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/jabber.js");
+	addSceneEntry('uberbar', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/uberbar.css");
+	addSceneEntry('uberbar', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/uberbar.js");
 	
-	addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.css');
-	addSceneEntry('live_game_options_bar', b+'pachat/live_game_options_bar.js');
+	addSceneEntry('live_game_options_bar', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/live_game_options_bar.css");
+	addSceneEntry('live_game_options_bar', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/live_game_options_bar.js");
 
 	// End of PA Chat
 	
