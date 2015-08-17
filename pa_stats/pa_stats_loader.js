@@ -49,7 +49,6 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	
 	addSceneEntry('matchmaking', b+'scenes/matchmaking.js');
 	
-	addSceneEntry('live_game', b+'scenes/autopause.js');
 	addSceneEntry('live_game', b+'lib/alertsManager.js');
 	addSceneEntry('live_game', b+'scenes/live_game.js');
 	

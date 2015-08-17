@@ -32,11 +32,7 @@
     };
 	
 	var setCapturedSystem = function(v) {
-		for (var i = 0; i < v.planets.length; i++) {
-			delete v.planets[i].planetCSG; // until the pa stats server handles the big parts more effective don't send them to pa stats :/		
-			delete v.planets[i].metal_spots;
-		}
-		localStorage['pa_stats_loaded_planet_json'] = JSON.stringify(v);
+		localStorage['pa_stats_loaded_planet_json'] = JSON.stringify(paStatsGlobal.copyRelevantSystemInfo(v));
 	};
 
 	var oldSystemHandler = handlers.system;
