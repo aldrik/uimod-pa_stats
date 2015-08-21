@@ -11,24 +11,32 @@
 	
 	var oldTryEnter = model.tryToEnterGame;
 	model.tryToEnterGame = function() {
-		if (model.currentSelectedGame().region.startsWith("custom: ")) {
+		var game = model.currentSelectedGame();
+		if (game.region.startsWith("custom: ")) {
             // If we're looking at a locked game, we need to make sure we presented the password modal
-            if (model.currentSelectedGame().locked && !model.hasEnteredPassword()) {
+            if (game.locked && !model.hasEnteredPassword()) {
                 model.privateGamePassword();
                 $('#getPassword').modal('show');
                 return;
             }
             model.hasEnteredPassword(false);
             
-			sessionStorage['gameHostname'] = encode(model.currentSelectedGame().host);
-			sessionStorage['gamePort'] = encode(model.currentSelectedGame().port);
+			sessionStorage['gameHostname'] = encode(game.host);
+			sessionStorage['gamePort'] = encode(game.port);
 			sessionStorage['is_custom_server'] = encode(true);
 			localStorage[paStatsGlobal.isLocalGame] = encode(false);
-			window.location.href = 'coui://ui/main/game/connect_to_game/connect_to_game.html';
+// 			window.location.href = 'coui://ui/main/game/connect_to_game/connect_to_game.html';
+			var params = {};
+			if (_.has(game, 'required_content')){
+			    if (_.size(game.required_content) > 1)
+			        console.error("joinGame on server with > 1 piece of content required -- don't know what to do!");
+			    params.content = _.last(game.required_content);
+			}
+			model.navigateToConnectToGame(params);
 		} else {
 			sessionStorage['is_custom_server'] = encode(false);
 			oldTryEnter();
-			localStorage[paStatsGlobal.isLocalGame] = encode(model.currentSelectedGame().region === 'Local');
+			localStorage[paStatsGlobal.isLocalGame] = encode(game.region === 'Local');
 		}
 	};
 	
