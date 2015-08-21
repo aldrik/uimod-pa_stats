@@ -3,14 +3,12 @@
 		var self = this;
 		var oldWantsToSend = ko.observable();
 		var oldShowDataLive = ko.observable();
-		var oldAutopauseEnabled = ko.observable();
 		var oldChatDisabled = ko.observable();
 		var oldUseAjaxubernet = ko.observable();
 		
 		self.reloadCleanState = function() {
 			oldWantsToSend(decode(localStorage[paStatsGlobal.wantsToSendKey]));
 			oldShowDataLive(decode(localStorage[paStatsGlobal.showDataLiveKey]));
-			oldAutopauseEnabled(decode(localStorage[paStatsGlobal.wantsToAutopause]));
 			oldChatDisabled(decode(localStorage["info.nanodesu.pachat.disablechat"]));
 			oldUseAjaxubernet(decode(localStorage['info.nanodesu.pastats.use_ajax_ubernet']));
 		};
@@ -19,14 +17,12 @@
 		
 		self.wantsToSend = ko.observable(oldWantsToSend());
 		self.showDataLive = ko.observable(oldShowDataLive());
-		self.autoPauseEnabled = ko.observable(oldAutopauseEnabled());
 		self.disableChat = ko.observable(oldChatDisabled());
 		self.ajaxUbernet = ko.observable(oldUseAjaxubernet());
 		
 		self.dirty = ko.computed(function() {
 			return self.wantsToSend() !== oldWantsToSend() ||
 				self.showDataLive() !== oldShowDataLive() ||
-				self.autoPauseEnabled() !== oldAutopauseEnabled() ||
 				self.disableChat() !== oldChatDisabled() ||
 				self.ajaxUbernet() !== oldUseAjaxubernet();
 		});
@@ -45,7 +41,6 @@
 		paStatsOldOk();
 		localStorage[paStatsGlobal.wantsToSendKey] = encode(paStatsSettingsModel.wantsToSend());
 		localStorage[paStatsGlobal.showDataLiveKey] = encode(paStatsSettingsModel.showDataLive());
-		localStorage[paStatsGlobal.wantsToAutopause] = encode(paStatsSettingsModel.autoPauseEnabled());
 		localStorage["info.nanodesu.pachat.disablechat"] = encode(paStatsSettingsModel.disableChat());
 		localStorage['info.nanodesu.pastats.use_ajax_ubernet'] = encode(paStatsSettingsModel.ajaxUbernet());
 		paStatsSettingsModel.reloadCleanState();
@@ -68,7 +63,6 @@
 		paStatsOldDefaults();
 		paStatsSettingsModel.wantsToSend(true);
 		paStatsSettingsModel.showDataLive(true);
-		paStatsSettingsModel.autoPauseEnabled(true);
 		paStatsSettingsModel.disableChat(false);
 		paStatsSettingsModel.ajaxUbernet(false);
 	};
