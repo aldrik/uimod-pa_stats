@@ -26,7 +26,7 @@
 			sessionStorage['is_custom_server'] = encode(true);
 			localStorage[paStatsGlobal.isLocalGame] = encode(false);
 // 			window.location.href = 'coui://ui/main/game/connect_to_game/connect_to_game.html';
-            var params = {};
+			var params = {};
 			if (_.has(game, 'required_content')){
 			    if (_.size(game.required_content) > 1)
 			        console.error("joinGame on server with > 1 piece of content required -- don't know what to do!");
