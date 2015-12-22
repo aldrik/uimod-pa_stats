@@ -10,12 +10,11 @@
 			
 			// support both startpa:// formats, prefer the newer one
 			var custData = payload.ui_options || payload.username;
-			
 			if (custData && custData.indexOf("startpa://") === 0) {
 				custData = custData.replace("startpa://", "").replace("/", "");
 				if (custData.indexOf("replay=") === 0) {
 					var replayToStart = custData.substring("replay=".length, custData.length);
-					replayToStart = 'coui://ui/main/game/connect_to_game/connect_to_game.html?action=start&replayid=' + replayToStart;
+					replayToStart = 'coui://ui/main/game/connect_to_game/connect_to_game.html?action=start&content=PAExpansion1&replayid=' + replayToStart;
 					console.log("was asked to launch a replay, will do so after login for replay "+replayToStart);
 					
 					var startPoll = function() {
