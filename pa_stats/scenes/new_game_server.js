@@ -17,14 +17,14 @@ var paStatsServerLoaded;
 	
 	model.paStatsServer_isHost = ko.computed( function()
 	{
-	   return model.isGameCreator() && model.paStatsServer_isActuallyLoaded(); 
+		return model.isGameCreator() && model.paStatsServer_isActuallyLoaded(); 
 	});
 
 	var paStatsServer_checkLoaded = function()
 	{
 		api.mods.getMountedMods( 'server', function ( mods )
 		{
-			var loaded =  _.intersection( _.pluck( mods, 'identifier' ), [ 'info.nanodesu.pastats.server.server', 'info.nanodesu.pastats.server.server-TEST' ] ).length > 0;
+			var loaded = _.intersection( _.pluck( mods, 'identifier' ), [ 'info.nanodesu.pastats.server.server', 'info.nanodesu.pastats.server.server-TEST' ] ).length > 0;
 			
 			model.paStatsServer_isActuallyLoaded( loaded );
 		});
@@ -50,14 +50,17 @@ var paStatsServerLoaded;
 
 	var oldChatHandler = handlers.chat_message;
 	
-	handlers.chat_message = function(payload){
+	handlers.chat_message = function(payload)
+	{
 		
-		if ( model.paStatsServer_isHost() )
+		if (payload.message.indexOf('"id":"pastats-custom-message"') !== -1)
 		{
-			return;
-		}
+	
+			if ( model.paStatsServer_isHost() )
+			{
+				return;
+			}
 		
-		if (payload.message.indexOf('"id":"pastats-custom-message"') !== -1) {
 			var data = JSON.parse(payload.message);
 			if (decode(localStorage['lobbyId']) !== data.lobbyId) {
 				localStorage['lobbyId'] = encode(data.lobbyId);
