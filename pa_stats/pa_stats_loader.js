@@ -33,6 +33,14 @@ var paStatsBaseDir = typeof statsDevelopmentNeverUseThisNameAnywhereElseIDareYou
 	addSceneEntry('live_game_options_bar', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/live_game_options_bar.css");
 	addSceneEntry('live_game_options_bar', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/live_game_options_bar.js");
 
+	addSceneEntry('start', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/start.js");
+	addSceneEntry('matchmaking', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/matchmaking.js");
+	addSceneEntry('new_game_ladder', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/new_game_ladder.js");
+	addSceneEntry('server_browser', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/server_browser.js");
+	addSceneEntry('new_game', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/new_game.js");
+	addSceneEntry('live_game', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/live_game.js");
+	addSceneEntry('system_editor', "https://dfpsrd4q7p23m.cloudfront.net/mods/pachat/system_editor.js");
+
 	// End of PA Chat
 	
 	if (typeof paStatsGlobal === 'undefined') {
