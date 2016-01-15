@@ -17,7 +17,7 @@
 		});
 	};
 	
-	$('.div_stats_panel_options').prepend('<!-- ko if: model.hasPaStatsGame --><div><input style="background-image: url(http://ns393951.ip-176-31-115.eu/mod/icon.png); background-repeat: no-repeat; padding-right: 85px; background-position: 150px 2px; background-size: 50px 50px" type="button" value="Details on" id="pa_stats_btt" class="" data-bind="click: openPaStatsGame, click_sound: \'default\', rollover_sound: \'default\'" /></div><!-- /ko -->');
+	$('.div_stats_panel_options').prepend('<!-- ko if: model.hasPaStatsGame --><div><input style="background-image: url(http://pastats.com/mod/icon.png); background-repeat: no-repeat; padding-right: 85px; background-position: 150px 2px; background-size: 50px 50px" type="button" value="Details on" id="pa_stats_btt" class="" data-bind="click: openPaStatsGame, click_sound: \'default\', rollover_sound: \'default\'" /></div><!-- /ko -->');
 	
 	if (decode(localStorage[paStatsGlobal.wantsToSendKey])) {
 		
